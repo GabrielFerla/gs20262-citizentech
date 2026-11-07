@@ -79,8 +79,9 @@ class RepositorioGold:
             SELECT s.abrigo_id, s.abrigo, s.lat, s.lon, s.capacidade, s.ocupacao, s.vagas, s.status_lotacao,
                    s.em_area_de_risco, s.estacao_proxima_id, s.severidade_regiao, s.leitura_velha, s.demo,
                    s.motivo_nao_recomendado, s.recomendavel, coalesce(t.variacao_1h, 0) AS variacao_1h,
-                   coalesce(t.ativo, true) AS ativo
+                   d.ativo  -- do cadastro (009): a v_abrigo_tendencia só tem abrigos com sensor de ocupação
             FROM gold.v_abrigo_status s
+            JOIN gold.dim_abrigo d ON d.abrigo_id = s.abrigo_id
             LEFT JOIN gold.v_abrigo_tendencia t ON t.abrigo_id = s.abrigo_id
             ORDER BY s.abrigo_id
             """

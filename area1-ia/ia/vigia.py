@@ -6,7 +6,7 @@ Roda numa thread da API (a cada VIGIA_INTERVALO_S segundos):
    escala, nunca rebaixa enquanto aberto e só fecha 0,10 m abaixo da cota de atenção);
 3. quando abre ou escala, gera a mensagem em linguagem simples e registra no log
    ("[vigia] ..."). O estado fica em memória e aparece em GET /alertas.
-4. estação sem leitura recente não tem previsão confiável: o alerta dela é encerrado
+4. estação sem leitura recente, ou com alguma feature faltando, não tem previsão confiável: o alerta dela é encerrado
    ("sem_dados") em vez de ficar aberto para sempre.
 
 Assim a Defesa Civil é avisada quando o rio AINDA VAI chegar à cota, e não só quando
@@ -89,7 +89,7 @@ class Vigia:
                     evento = Evento(agora, estacao_id, "sem_dados", 0, None, aberto.nivel_previsto_m)
                     self.eventos.append(evento)
                     mudancas.append(evento)
-                    log.warning("[vigia] alerta pela previsão em %s encerrado: sem leitura recente", estacao_id)
+                    log.warning("[vigia] alerta pela previsão em %s encerrado: sem dados recentes e completos", estacao_id)
             for p in previsoes:
                 aberto = self.abertos.get(p.estacao_id)
                 acao, severidade = proxima_acao(aberto.severidade if aberto else 0, p.nivel_previsto_m, cotas[p.estacao_id])

@@ -23,7 +23,8 @@ que vai ter vaga quando ele chegar e que não vai alagar.
 ## Como rodar
 
 **Pré-requisito:** Docker Desktop aberto (Windows, macOS ou Linux). Não precisa de Python
-instalado nem de internet. A internet só é usada pela ponte opcional do Wokwi.
+instalado. A internet só é necessária na primeira subida, para baixar as imagens e os pacotes,
+e depois só para a ponte opcional do Wokwi.
 
 ```bash
 cp .env.example .env
@@ -77,7 +78,9 @@ curl -s 'localhost:8000/abrigos/recomendacao?bairro=navegantes&pessoas=4'
 docker compose --profile ferramentas run --rm ia-relatorio
 ```
 
-Os arquivos saem em `area1-ia/relatorio/` (`RELATORIO.md`, gráficos e `demo.md`).
+Os arquivos saem em `relatorios/ia/` (`RELATORIO.md`, gráficos e `demo.md`), fora do git. Os números
+mudam a cada subida, porque o histórico termina na hora em que o ambiente subiu. A versão de
+referência, citada no PDF, fica em [`area1-ia/relatorio/`](area1-ia/relatorio/RELATORIO.md).
 
 ### Exportar os dados para o Power BI
 
@@ -89,7 +92,7 @@ Os CSVs saem em `area2-bigdata/powerbi/dados/`. O passo a passo do dashboard est
 
 ### Rodar os testes
 
-Testes de integração (20 casos contra o ambiente rodando; o relatório vai para `relatorios/integracao.xml`):
+Testes de integração (22 casos contra o ambiente rodando; o relatório vai para `relatorios/integracao.xml`):
 
 ```bash
 docker compose --profile ferramentas run --rm --build testes

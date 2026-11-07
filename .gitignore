@@ -13,7 +13,9 @@ area2-bigdata/datalake/landing/*
 !area2-bigdata/datalake/landing/.gitkeep
 area2-bigdata/powerbi/dados/
 area1-ia/modelo/
-relatorios/
+# relatorios/ fica no git (vazia) para existir no clone com o dono certo; o conteúdo é gerado
+relatorios/*
+!relatorios/.gitkeep
 
 # Sistema
 .DS_Store

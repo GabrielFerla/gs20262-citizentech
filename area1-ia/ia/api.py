@@ -49,6 +49,8 @@ class EstacaoPrevisao(BaseModel):
     corpo_hidrico: str
     medido_em_utc: datetime | None
     leitura_velha: bool = Field(description="última leitura com mais de 30 min: previsão pouco confiável")
+    dados_incompletos: bool = Field(
+        description="faltou leitura para alguma feature: a previsão repete o nível de agora (regra simples)")
     nivel_atual_m: float
     nivel_previsto_6h_m: float = Field(description="previsão da IA para daqui a 6 h")
     persistencia_6h_m: float = Field(description="regra simples: daqui a 6 h igual a agora")
@@ -128,39 +130,64 @@ class Recomendacao(BaseModel):
 
 
 # ----------------------------------------------------------------------------- ciclo de vida
-class ConexaoDoVigia:
-    """Uma conexão só, reaproveitada entre as rodadas do vigia (reabre se cair)."""
+class ConexoesReaproveitadas:
+    """Guarda até MAXIMO_LIVRES conexões abertas para as próximas requisições e para o vigia.
+
+    Sem fila de espera: se não há conexão livre, abre outra na hora. Assim o banco fora do ar
+    dá erro imediato (503), e não uma espera até estourar um tempo limite.
+    """
+
+    MAXIMO_LIVRES = 5
 
     def __init__(self) -> None:
-        self.conn: psycopg.Connection | None = None
+        self._livres: list[psycopg.Connection] = []
+        self._trava = threading.Lock()
 
-    def repositorio(self) -> RepositorioGold:
-        if self.conn is None or self.conn.closed:
-            self.conn = psycopg.connect(dsn_ia(), autocommit=True)
-        return RepositorioGold(self.conn)
+    def pegar(self) -> psycopg.Connection:
+        while True:
+            with self._trava:
+                conn = self._livres.pop() if self._livres else None
+            if conn is None:
+                return psycopg.connect(dsn_ia(), autocommit=True)
+            try:
+                conn.execute("SELECT 1")  # o banco pode ter reiniciado desde que a conexão foi guardada
+                return conn
+            except psycopg.Error:
+                conn.close()
+
+    def devolver(self, conn: psycopg.Connection) -> None:
+        if not conn.closed and not conn.broken:
+            with self._trava:
+                if len(self._livres) < self.MAXIMO_LIVRES:
+                    self._livres.append(conn)
+                    return
+        conn.close()
 
     def fechar(self) -> None:
-        if self.conn is not None:
-            self.conn.close()
-        self.conn = None
+        with self._trava:
+            livres, self._livres = self._livres, []
+        for conn in livres:
+            conn.close()
 
 
 def _rodada_do_vigia(app: FastAPI) -> None:
     modelo: ModeloPrevisao = app.state.modelo
-    conexao: ConexaoDoVigia = app.state.conexao_vigia
+    conn = app.state.conexoes.pegar()
     try:
-        todas = servicos.previsoes_atuais(conexao.repositorio(), modelo)
-    except psycopg.Error:
-        conexao.fechar()  # na próxima rodada abre outra
-        raise
-    previsoes = [p for p in todas if not p.leitura_velha]
-    por_estacao = {p.previsao.estacao_id: p for p in previsoes}
-    app.state.vigia.atualizar(
-        [p.previsao for p in previsoes],
-        {p.previsao.estacao_id: p.estacao.cotas for p in previsoes},
-        mensagem=lambda prev: gerar(servicos.fatos(por_estacao[prev.estacao_id])).sms,
-        sem_dados=[p.previsao.estacao_id for p in todas if p.leitura_velha],
-    )
+        repo = RepositorioGold(conn)
+        todas = servicos.previsoes_atuais(repo, modelo)
+        previsoes = [p for p in todas if p.confiavel]
+        por_estacao = {p.previsao.estacao_id: p for p in previsoes}
+        app.state.vigia.atualizar(
+            [p.previsao for p in previsoes],
+            {p.previsao.estacao_id: p.estacao.cotas for p in previsoes},
+            mensagem=lambda prev: gerar(servicos.fatos(por_estacao[prev.estacao_id])).sms,
+            sem_dados=[p.previsao.estacao_id for p in todas if not p.confiavel],
+        )
+        # Renova o teste do modelo um minuto antes de vencer: nenhuma requisição precisa esperar por ele.
+        _avaliacao_em_cache(repo, modelo, idade_maxima_s=CACHE_AVALIACAO_S - 60)
+    finally:
+        app.state.conexoes.devolver(conn)
 
 
 @asynccontextmanager
@@ -168,8 +195,9 @@ async def ciclo_de_vida(app: FastAPI):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     app.state.modelo = ModeloPrevisao.carregar(pasta_modelo())
     app.state.vigia = Vigia()
-    app.state.conexao_vigia = ConexaoDoVigia()
+    app.state.conexoes = ConexoesReaproveitadas()
     app.state.cache_avaliacao = (0.0, None)
+    app.state.trava_avaliacao = threading.Lock()
     parar = threading.Event()
     intervalo = float(os.environ.get("VIGIA_INTERVALO_S", "2"))
     if intervalo > 0:
@@ -180,7 +208,7 @@ async def ciclo_de_vida(app: FastAPI):
         log.info("Vigia ligado: previsão a cada %.0f s", intervalo)
     yield
     parar.set()
-    app.state.conexao_vigia.fechar()
+    app.state.conexoes.fechar()
 
 
 app = FastAPI(
@@ -202,9 +230,13 @@ def banco_indisponivel(_pedido: Request, erro: psycopg.OperationalError) -> JSON
     return JSONResponse({"detail": "banco de dados indisponível; tente de novo em instantes"}, status_code=503)
 
 
-def obter_repositorio() -> Iterator[Repositorio]:
-    with psycopg.connect(dsn_ia()) as conn:
+def obter_repositorio(pedido: Request) -> Iterator[Repositorio]:
+    conexoes: ConexoesReaproveitadas = pedido.app.state.conexoes
+    conn = conexoes.pegar()
+    try:
         yield RepositorioGold(conn)
+    finally:
+        conexoes.devolver(conn)
 
 
 def obter_modelo() -> ModeloPrevisao:
@@ -220,7 +252,8 @@ def _estacao(p: servicos.PrevisaoAtual) -> EstacaoPrevisao:
     prev, c = p.previsao, p.estacao.cotas
     return EstacaoPrevisao(
         estacao_id=prev.estacao_id, estacao=p.estacao.nome, corpo_hidrico=p.estacao.corpo_hidrico,
-        medido_em_utc=p.medido_em_utc, leitura_velha=p.leitura_velha, nivel_atual_m=prev.nivel_atual_m,
+        medido_em_utc=p.medido_em_utc, leitura_velha=p.leitura_velha, dados_incompletos=p.dados_incompletos,
+        nivel_atual_m=prev.nivel_atual_m,
         nivel_previsto_6h_m=prev.nivel_previsto_m, persistencia_6h_m=prev.persistencia_m,
         variacao_prevista_m=prev.variacao_prevista_m, tendencia=prev.tendencia, situacao_atual=prev.situacao_atual,
         situacao_prevista=prev.situacao_prevista, alerta_antecipado=prev.severidade_prevista > prev.severidade_atual,
@@ -242,11 +275,17 @@ def _abrigo(a: Avaliacao, pessoas: int, com_chegada: bool = True) -> AbrigoAvali
     )
 
 
-def _avaliacao_em_cache(repo: Repositorio, modelo: ModeloPrevisao) -> dict:
+def _avaliacao_em_cache(repo: Repositorio, modelo: ModeloPrevisao, idade_maxima_s: float = CACHE_AVALIACAO_S) -> dict:
+    """Teste do modelo nos 30 dias do pipeline. Leva alguns segundos: o vigia o renova antes de vencer, e a
+    trava faz requisições simultâneas esperarem um cálculo só, em vez de cada uma calcular de novo."""
     criado, valor = app.state.cache_avaliacao
-    if valor is None or time.monotonic() - criado > CACHE_AVALIACAO_S:
-        valor = servicos.avaliar_no_historico(repo.features_historicas(), modelo, repo.estacoes())
-        app.state.cache_avaliacao = (time.monotonic(), valor)
+    if valor is not None and time.monotonic() - criado <= idade_maxima_s:
+        return valor
+    with app.state.trava_avaliacao:
+        criado, valor = app.state.cache_avaliacao  # outra thread pode ter calculado enquanto esta esperava
+        if valor is None or time.monotonic() - criado > idade_maxima_s:
+            valor = servicos.avaliar_no_historico(repo.features_historicas(), modelo, repo.estacoes())
+            app.state.cache_avaliacao = (time.monotonic(), valor)
     return valor
 
 

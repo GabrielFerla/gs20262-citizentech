@@ -97,16 +97,25 @@ class ModeloPrevisao:
     def prever(self, estacao_id: str, entrada: dict[str, float], cotas: Cotas) -> Previsao:
         """Previsão de uma estação a partir das features atuais (gold.v_ml_features_atual)."""
         vetor = [float(entrada[nome]) for nome in self.features]
-        nivel_atual = round(float(entrada["nivel_atual_m"]), 2)
         previsto = self.prever_niveis(estacao_id, [vetor])[0]
-        return Previsao(
-            estacao_id=estacao_id,
-            nivel_atual_m=nivel_atual,
-            nivel_previsto_m=previsto,
-            persistencia_m=nivel_atual,
-            tendencia=tendencia(previsto - nivel_atual),
-            situacao_atual=cotas.situacao(nivel_atual),
-            situacao_prevista=cotas.situacao(previsto),
-            severidade_atual=cotas.severidade(nivel_atual),
-            severidade_prevista=cotas.severidade(previsto),
-        )
+        return montar_previsao(estacao_id, entrada["nivel_atual_m"], previsto, cotas)
+
+
+def montar_previsao(estacao_id: str, nivel_atual: float, previsto: float, cotas: Cotas) -> Previsao:
+    nivel_atual = round(float(nivel_atual), 2)
+    return Previsao(
+        estacao_id=estacao_id,
+        nivel_atual_m=nivel_atual,
+        nivel_previsto_m=previsto,
+        persistencia_m=nivel_atual,
+        tendencia=tendencia(previsto - nivel_atual),
+        situacao_atual=cotas.situacao(nivel_atual),
+        situacao_prevista=cotas.situacao(previsto),
+        severidade_atual=cotas.severidade(nivel_atual),
+        severidade_prevista=cotas.severidade(previsto),
+    )
+
+
+def repetir_nivel_atual(estacao_id: str, nivel_atual: float, cotas: Cotas) -> Previsao:
+    """Sem todas as features não há previsão do modelo: vale a regra simples (daqui a 6 h igual a agora)."""
+    return montar_previsao(estacao_id, nivel_atual, round(float(nivel_atual), 2), cotas)

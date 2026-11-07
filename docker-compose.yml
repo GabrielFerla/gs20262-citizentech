@@ -192,16 +192,25 @@ services:
         condition: service_completed_successfully
 
   # ---------------- ferramentas (sob demanda) ----------------
+  # As ferramentas rodam como root para escrever na pasta do projeto montada como volume e, no fim,
+  # devolvem os arquivos ao dono da pasta (no Linux, sem isso, eles ficariam com dono root).
   ia-relatorio:
     <<: *imagem-ia
     profiles: ["ferramentas"]
-    command: ["python", "-m", "ia.relatorio", "--saida", "/saida"]
-    user: root  # escreve na pasta do projeto montada como volume
+    # Grava em relatorios/ia (fora do git). A cópia de referência, citada no PDF, fica em area1-ia/relatorio.
+    user: root
+    command:
+      - sh
+      - -c
+      - |
+        python -m ia.relatorio --saida /relatorios/ia; s=$$?
+        chown -R "$$(stat -c %u:%g /relatorios)" /relatorios/ia 2>/dev/null
+        exit $$s
     environment:
       <<: *banco
       IA_DB_PASSWORD: ${IA_DB_PASSWORD}
     volumes:
-      - ./area1-ia/relatorio:/saida
+      - ./relatorios:/relatorios
     healthcheck:
       disable: true
     depends_on:
@@ -211,13 +220,19 @@ services:
   exportar:
     <<: *imagem-ingestor
     profiles: ["ferramentas"]
-    command: ["python", "-m", "ingestor.exportar", "--saida", "/saida"]
-    user: root  # escreve na pasta do projeto montada como volume
+    user: root
+    command:
+      - sh
+      - -c
+      - |
+        python -m ingestor.exportar --saida /powerbi/dados; s=$$?
+        chown -R "$$(stat -c %u:%g /powerbi)" /powerbi/dados 2>/dev/null
+        exit $$s
     environment:
       <<: *banco
       BI_DB_PASSWORD: ${BI_DB_PASSWORD}
     volumes:
-      - ./area2-bigdata/powerbi/dados:/saida
+      - ./area2-bigdata/powerbi:/powerbi
     healthcheck:
       disable: true
     depends_on:
@@ -230,7 +245,7 @@ services:
     build:
       context: .
       dockerfile: area4-devops/testes/Dockerfile
-    user: root  # grava o relatório JUnit na pasta do projeto
+    user: root  # grava o relatório JUnit em relatorios/ e devolve o arquivo ao dono da pasta (Dockerfile)
     environment:
       <<: [*banco, *mqtt]
       POSTGRES_USER: ${POSTGRES_USER:-migrador}

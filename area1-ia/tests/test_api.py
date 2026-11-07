@@ -173,3 +173,60 @@ def test_previsao_com_leitura_velha_nao_vale_para_os_abrigos(modelo):
     previsoes = previsoes_atuais(repo, modelo)
     assert previsoes[0].leitura_velha and previsoes[0].previsao.severidade_prevista >= 2
     assert situacoes_dos_abrigos(repo, previsoes)[0].severidade_prevista_regiao == 1
+
+
+def test_feature_faltando_repete_o_nivel_e_nao_decide_nada(modelo):
+    # Menos de 2 h de leituras de nível: não há variação da última hora. O modelo não recebe um 0 inventado
+    # ("rio parado"): vale a regra simples, e a previsão não decide abrigo nem alerta antecipado.
+    features = [feature_atual("gua-cais", 2.9, None, 30.0, 150.0, 300.0)]
+    risco = abrigo("abr-r", "Risco", -30.0, -51.2, risco=True, severidade=1)
+    repo = RepoMemoria(features=features, abrigos=[risco])
+    p = previsoes_atuais(repo, modelo)[0]
+    assert p.dados_incompletos and not p.confiavel and p.modelo == "regra_simples"
+    assert p.previsao.nivel_previsto_m == p.previsao.nivel_atual_m == 2.9
+    assert "variacao_1h_m" not in p.entrada
+    assert api._estacao(p).dados_incompletos is True
+    assert situacoes_dos_abrigos(repo, [p])[0].severidade_prevista_regiao == 1
+
+
+class ConexaoFalsa:
+    def __init__(self):
+        self.closed = self.broken = False
+        self.pings = 0
+        self.ping_falha = False
+
+    def execute(self, _sql):
+        self.pings += 1
+        if self.ping_falha:
+            self.broken = True
+            raise psycopg.OperationalError("server closed the connection unexpectedly")
+
+    def close(self):
+        self.closed = True
+
+
+def test_conexoes_sao_reaproveitadas_e_descartadas_quando_caem(monkeypatch):
+    monkeypatch.setenv("IA_DB_PASSWORD", "x")
+    abertas = []
+    monkeypatch.setattr(api.psycopg, "connect", lambda *_a, **_k: abertas.append(ConexaoFalsa()) or abertas[-1])
+    conexoes = api.ConexoesReaproveitadas()
+
+    primeira = conexoes.pegar()
+    conexoes.devolver(primeira)
+    assert conexoes.pegar() is primeira and primeira.pings == 1  # reaproveitada, depois de conferir que vive
+
+    primeira.ping_falha = True  # o banco reiniciou enquanto ela estava guardada
+    conexoes.devolver(primeira)
+    nova = conexoes.pegar()
+    assert nova is not primeira and primeira.closed and len(abertas) == 2
+
+    nova.broken = True  # caiu no meio de uma requisição: não volta para a lista
+    conexoes.devolver(nova)
+    assert nova.closed
+
+    muitas = [conexoes.pegar() for _ in range(conexoes.MAXIMO_LIVRES + 2)]
+    for conn in muitas:
+        conexoes.devolver(conn)
+    assert sum(not c.closed for c in muitas) == conexoes.MAXIMO_LIVRES  # as que sobram são fechadas
+    conexoes.fechar()
+    assert all(c.closed for c in muitas)

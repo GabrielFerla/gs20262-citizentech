@@ -48,7 +48,9 @@ curl -s -X POST localhost:8000/mensagens/gerar -H 'Content-Type: application/jso
 docker compose logs -f api
 ```
 
-- **Relatório com métricas e gráficos.** Ele lê o pipeline e grava em `area1-ia/relatorio/`:
+- **Relatório com métricas e gráficos.** Ele lê o pipeline e grava em `relatorios/ia/`, fora do git. A
+  versão de referência, citada no PDF, está em [`relatorio/`](relatorio/RELATORIO.md); para atualizá-la,
+  copie os arquivos de `relatorios/ia/` para lá.
 
 ```bash
 docker compose --profile ferramentas run --rm ia-relatorio

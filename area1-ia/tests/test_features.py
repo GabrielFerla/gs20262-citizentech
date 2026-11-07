@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
-from ia.features import FEATURES, features_horarias
+from ia.features import FEATURES, features_horarias, features_ultimas_leituras
 
 H0 = datetime(2026, 11, 1, 0, 0, tzinfo=UTC)
 
@@ -72,3 +72,21 @@ def test_vetor_segue_a_ordem_das_features():
 def test_horario_sem_fuso_e_recusado():
     with pytest.raises(ValueError, match="sem fuso"):
         features_horarias("x", [(datetime(2026, 11, 1, 12, 0), 1.0)], [])
+
+
+def test_features_ao_vivo_iguais_as_do_treino_quando_a_janela_fecha_a_hora():
+    # 30 h de leituras de 10 em 10 min, com nível e chuva variando (chuva com 1 casa, como a do simulador).
+    # A última leitura é às hh:50: as 6 últimas formam a hora cheia, e as features ao vivo
+    # (gold.v_ml_features_atual) têm de ser iguais às do treino para essa hora.
+    passos = 30 * 6
+    niveis = [(minutos(10 * i), round(1.0 + 0.013 * i + (0.07 if i % 7 == 0 else 0.0), 2)) for i in range(passos)]
+    chuvas = [(minutos(10 * i), round((i * 37 % 11) / 10, 1)) for i in range(passos)]
+    ultima_hora = features_horarias("x", niveis, chuvas)[-1]
+    ao_vivo = features_ultimas_leituras([v for _, v in reversed(niveis)], [v for _, v in reversed(chuvas)])
+    assert ao_vivo == {nome: getattr(ultima_hora, nome) for nome in FEATURES}
+
+
+def test_features_ao_vivo_sem_duas_horas_de_nivel_nao_tem_variacao():
+    ao_vivo = features_ultimas_leituras([1.2, 1.2, 1.1], [0.5])
+    assert ao_vivo["nivel_atual_m"] == 1.17 and ao_vivo["variacao_1h_m"] is None
+    assert ao_vivo["chuva_24h_mm"] == 0.5

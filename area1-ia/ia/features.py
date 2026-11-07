@@ -18,7 +18,7 @@ Os arredondamentos usam Decimal "meio para cima", como o round() do PostgreSQL.
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
@@ -98,6 +98,31 @@ def features_horarias(estacao_id: str, niveis: Serie, chuvas: Serie) -> list[Lin
         )
         anterior = h
     return linhas
+
+
+def features_ultimas_leituras(niveis: Sequence[float], chuvas: Sequence[float]) -> dict[str, float | None]:
+    """Features AO VIVO, com a mesma regra da visão gold.v_ml_features_atual (migração 008).
+
+    Recebe as leituras do MAIS RECENTE para o mais antigo (qualidade ok, últimos 3 dias); usa
+    até 12 de nível e 144 de chuva. Conta leituras em vez de relógio: 6 = 1 h, 36 = 6 h, 144 = 24 h.
+    Quando a última leitura fecha uma hora cheia, o resultado é igual ao da hora em
+    features_horarias (test_features.py): é isso que garante que o modelo recebe, ao vivo, os
+    mesmos números do treino.
+    """
+    n = [Decimal(str(v)) for v in niveis[:12]]
+    c = [Decimal(str(v)) for v in chuvas[:144]]
+
+    def media(valores: list[Decimal]) -> Decimal | None:
+        return _arredondar(sum(valores, Decimal(0)) / len(valores), 2) if valores else None
+
+    nivel, antes = media(n[:6]), media(n[6:12])
+    return {
+        "nivel_atual_m": _float(nivel),
+        "variacao_1h_m": _float(nivel - antes) if nivel is not None and antes is not None else None,
+        "chuva_1h_mm": float(_arredondar(sum(c[:6], Decimal(0)), 1)),
+        "chuva_6h_mm": float(_arredondar(sum(c[:36], Decimal(0)), 1)),
+        "chuva_24h_mm": float(_arredondar(sum(c, Decimal(0)), 1)),
+    }
 
 
 def _float(valor: Decimal | None) -> float | None:

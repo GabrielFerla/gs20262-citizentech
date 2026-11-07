@@ -9,7 +9,7 @@ from . import avaliacao
 from .abrigos import Avaliacao, SituacaoAbrigo, distancia_km, recomendar
 from .features import FEATURES, LinhaFeatures
 from .mensagens import AbrigoMensagem, Fatos
-from .previsao import ModeloPrevisao, Previsao
+from .previsao import ModeloPrevisao, Previsao, repetir_nivel_atual
 from .repositorio import Bairro, Estacao, Repositorio
 
 
@@ -21,6 +21,12 @@ class PrevisaoAtual:
     medido_em_utc: datetime | None
     leitura_velha: bool
     modelo: str
+    dados_incompletos: bool = False  # faltou leitura para alguma feature: a "previsão" repete o nível de agora
+
+    @property
+    def confiavel(self) -> bool:
+        """Só uma previsão com leitura recente e features completas decide alguma coisa (vigia, abrigos)."""
+        return not self.leitura_velha and not self.dados_incompletos
 
 
 def previsoes_atuais(repo: Repositorio, modelo: ModeloPrevisao) -> list[PrevisaoAtual]:
@@ -31,16 +37,25 @@ def previsoes_atuais(repo: Repositorio, modelo: ModeloPrevisao) -> list[Previsao
         estacao_id = linha["estacao_id"]
         if estacao_id not in modelo.modelos or estacao_id not in estacoes or linha["nivel_atual_m"] is None:
             continue
-        entrada = {nome: float(linha[nome] or 0.0) for nome in FEATURES}
-        previsao = modelo.prever(estacao_id, entrada, estacoes[estacao_id].cotas)
-        resultado.append(PrevisaoAtual(previsao, estacoes[estacao_id], entrada, linha["medido_em_utc"],
-                                       bool(linha["leitura_velha"]), modelo.nome_do_modelo(estacao_id)))
+        cotas = estacoes[estacao_id].cotas
+        entrada = {nome: float(linha[nome]) for nome in FEATURES if linha[nome] is not None}
+        incompleta = len(entrada) < len(FEATURES)
+        if incompleta:
+            # Ex.: menos de 2 h de leituras de nível, então não há variação da última hora. O treino descartou
+            # essas horas (LinhaFeatures.completa); inventar um 0 faria o modelo ver "rio parado".
+            previsao = repetir_nivel_atual(estacao_id, linha["nivel_atual_m"], cotas)
+        else:
+            previsao = modelo.prever(estacao_id, entrada, cotas)
+        resultado.append(PrevisaoAtual(
+            previsao, estacoes[estacao_id], entrada, linha["medido_em_utc"], bool(linha["leitura_velha"]),
+            "regra_simples" if incompleta else modelo.nome_do_modelo(estacao_id), dados_incompletos=incompleta,
+        ))
     return resultado
 
 
 def situacoes_dos_abrigos(repo: Repositorio, previsoes: list[PrevisaoAtual]) -> list[SituacaoAbrigo]:
-    # Previsão feita com leitura velha não vale: o abrigo fica só com a situação de agora.
-    severidade_prevista = {p.previsao.estacao_id: p.previsao.severidade_prevista for p in previsoes if not p.leitura_velha}
+    # Previsão sem leitura recente ou com feature faltando não vale: o abrigo fica só com a situação de agora.
+    severidade_prevista = {p.previsao.estacao_id: p.previsao.severidade_prevista for p in previsoes if p.confiavel}
     situacoes = []
     for a in repo.abrigos():
         indisponivel = None  # mesma ordem de motivos da gold.v_abrigo_status

@@ -338,3 +338,43 @@ def test_it20_mensagem_gerada_passa_nas_regras_de_linguagem_simples():
     assert status == 200
     assert len(saida["sms"]) <= 160 and saida["sms"].isascii() and "199" in saida["sms"]
     assert all(problemas == [] for problemas in saida["verificacao"].values())
+
+
+def test_it21_features_ao_vivo_do_python_iguais_as_da_visao_sql():
+    """A API prevê com gold.v_ml_features_atual (últimas leituras). O Python da mesma regra tem de dar igual; e esse
+    Python é igual ao do treino quando a janela fecha uma hora cheia (test_features.py). Tudo num retrato só do banco
+    (REPEATABLE READ), porque o simulador continua gravando enquanto o teste lê."""
+    from ia.features import FEATURES, features_ultimas_leituras
+
+    with psycopg.connect(dsn(os.environ.get("POSTGRES_USER", "migrador"), os.environ["POSTGRES_PASSWORD"])) as conn:
+        conn.isolation_level = psycopg.IsolationLevel.REPEATABLE_READ
+        colunas = ", ".join(f"{nome}::float" for nome in FEATURES)
+        visao = {r[0]: r[1:] for r in conn.execute(f"SELECT estacao_id, {colunas} FROM gold.v_ml_features_atual").fetchall()}
+        assert set(visao) == set(ESTACOES_REAIS)
+
+        def ultimas(estacao_id: str, tipo: str, limite: int) -> list:
+            return [v for (v,) in conn.execute(
+                "SELECT l.valor FROM silver.leitura l JOIN silver.sensor s ON s.id = l.sensor_id "
+                "WHERE s.estacao_id = %s AND s.tipo = %s AND s.ativo AND l.qualidade = 'ok' "
+                "AND l.medido_em > now() - interval '3 days' ORDER BY l.medido_em DESC LIMIT %s",
+                (estacao_id, tipo, limite),
+            )]
+
+        for estacao_id, valores in visao.items():
+            python = features_ultimas_leituras(ultimas(estacao_id, "nivel_rio", 12), ultimas(estacao_id, "chuva", 144))
+            for nome, b in zip(FEATURES, valores, strict=True):
+                a = python[nome]
+                assert (a is None and b is None) or abs(a - b) < 1e-9, (estacao_id, nome, a, b)
+
+
+def test_it22_abrigo_desativado_nao_e_recomendado_pela_ia(db):
+    """A IA lê 'ativo' de gold.dim_abrigo (o cadastro), e não da visão de ocupação, que só tem abrigos com sensor."""
+    abrigo_id = "abr-01"
+    db.execute("UPDATE silver.abrigo SET ativo = false WHERE id = %s", (abrigo_id,))
+    try:
+        status, abrigos = api("/abrigos")
+        assert status == 200
+        desativado = next(a for a in abrigos if a["abrigo_id"] == abrigo_id)
+        assert desativado["apto"] is False and desativado["motivo"] == "abrigo inativo"
+    finally:
+        db.execute("UPDATE silver.abrigo SET ativo = true WHERE id = %s", (abrigo_id,))

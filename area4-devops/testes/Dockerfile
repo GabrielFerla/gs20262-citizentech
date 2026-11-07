@@ -19,4 +19,6 @@ COPY area2-bigdata/ingestor/ingestor/ ingestor/
 COPY area1-ia/ia/__init__.py area1-ia/ia/features.py ia/
 COPY area4-devops/testes/ testes/
 
-CMD ["python", "-m", "pytest", "-m", "integration", "-v", "-p", "no:cacheprovider", "--junitxml=/relatorios/integracao.xml", "/app/testes"]
+# Roda como root (docker-compose) para gravar em relatorios/ e, no fim, devolve o relatório ao dono da pasta:
+# no Linux, sem isso, o arquivo ficaria com dono root.
+CMD ["sh", "-c", "python -m pytest -m integration -v -p no:cacheprovider --junitxml=/relatorios/integracao.xml /app/testes; s=$?; chown \"$(stat -c %u:%g /relatorios)\" /relatorios/integracao.xml 2>/dev/null; exit $s"]

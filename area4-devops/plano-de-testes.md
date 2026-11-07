@@ -8,9 +8,9 @@ regras de linguagem simples.
 
 | Tipo | Ferramenta | Como rodar | Quantidade |
 |---|---|---|---|
-| Unidade | pytest | `.venv/bin/python -m pytest` | 271 testes (97 da fase 1 + 174 da IA) |
-| Integração | pytest no docker compose (broker, banco, API e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 20 testes |
-| Métrica da IA | relatório contra os dados do pipeline | `docker compose --profile ferramentas run --rm ia-relatorio` | [`RELATORIO.md`](../area1-ia/relatorio/RELATORIO.md) |
+| Unidade | pytest | `.venv/bin/python -m pytest` | 275 testes (97 da fase 1 + 178 da IA) |
+| Integração | pytest no docker compose (broker, banco, API e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 22 testes |
+| Métrica da IA | relatório contra os dados do pipeline | `docker compose --profile ferramentas run --rm ia-relatorio` | sai em `relatorios/ia/`; referência em [`RELATORIO.md`](../area1-ia/relatorio/RELATORIO.md) |
 | Lint | ruff | `.venv/bin/ruff check .` | — |
 | CI | GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) | automático a cada push e pull request | os três acima |
 
@@ -21,7 +21,7 @@ regras de linguagem simples.
 
 ## Casos de teste
 
-Execução em 07/11/2026 (macOS, Docker 29), com a fase 2: **unidade 271/271 ok · integração 20/20 ok** (depois da revisão de código da fase 2).
+Execução em 07/11/2026 (macOS, Docker 29), depois da segunda revisão de código: **unidade 275/275 ok · integração 22/22 ok**.
 
 | ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
 |---|---|---|---|---|---|---|
@@ -75,6 +75,10 @@ Execução em 07/11/2026 (macOS, Docker 29), com a fase 2: **unidade 271/271 ok 
 | CT-43 | Dado velho e abrigo inativo | Unidade | Previsão com leitura velha; abrigo inativo; estação sem leitura com alerta aberto | Previsão velha não decide abrigo; inativo é recusado; vigia encerra o alerta (`sem_dados`) | ✅ | `test_api.py`, `test_vigia.py` |
 | CT-44 | Antecedência honesta | Unidade | Previsão avisando 30 h antes da cheia | Conta no máximo o horizonte (6 h) | ✅ | `test_avaliacao.py` |
 | CT-45 | Relatório com histórico curto | Unidade | Gerar o relatório sem histórico | Gera `RELATORIO.md` e `demo.md` explicando a falta de dados, sem erro | ✅ | `test_relatorio.py` |
+| CT-50 | Previsão com feature faltando | Unidade | Variação da última hora ausente (menos de 2 h de leituras) | Previsão repete o nível de agora (regra simples), marcada `dados_incompletos`; não decide abrigo nem alerta antecipado | ✅ | `test_api.py::test_feature_faltando_repete_o_nivel_e_nao_decide_nada` |
+| CT-51 | Conexões reaproveitadas | Unidade | Pegar e devolver conexões; banco reinicia; conexão cai; excesso de conexões | Reaproveita a conexão viva, descarta a que caiu, guarda no máximo 5; banco fora do ar continua dando 503 na hora | ✅ | `test_api.py::test_conexoes_sao_reaproveitadas_e_descartadas_quando_caem` |
+| CT-52 | Features ao vivo iguais às do treino | Unidade + Integração | Mesmas leituras pela regra do treino (hora cheia) e pela regra ao vivo; depois, Python × visão `gold.v_ml_features_atual` num retrato do banco | Valores iguais nos dois casos | ✅ | `test_features.py::test_features_ao_vivo_*`, `test_it21_features_ao_vivo_do_python_iguais_as_da_visao_sql` |
+| CT-53 | Abrigo desativado no cadastro | Integração | Desativar um abrigo em `silver.abrigo` e chamar `GET /abrigos` | `apto` falso e motivo "abrigo inativo" (lido de `gold.dim_abrigo`, migração 009) | ✅ | `test_it22_abrigo_desativado_nao_e_recomendado_pela_ia` |
 
 ### Circuito ESP32 no Wokwi (área 3)
 
