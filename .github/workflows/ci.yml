@@ -25,6 +25,7 @@ jobs:
           cache: pip
           cache-dependency-path: |
             requirements-dev.txt
+            area1-ia/requirements.txt
             area2-bigdata/ingestor/requirements.txt
             area3-mvp/iot/simuladores/requirements.txt
 
@@ -102,10 +103,10 @@ jobs:
       - name: Build e push das imagens
         run: |
           cp .env.example .env
-          docker compose build ingestor simulador
+          docker compose build ingestor simulador api
           REPO="ghcr.io/${GITHUB_REPOSITORY,,}"
           VERSAO="${GITHUB_SHA::7}"
-          for nome in ingestor simulador; do
+          for nome in ingestor simulador ia; do
             for tag in "$VERSAO" latest; do
               docker tag "citizentech/$nome:local" "$REPO/$nome:$tag"
               docker push "$REPO/$nome:$tag"

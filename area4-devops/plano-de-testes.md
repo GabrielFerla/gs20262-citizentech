@@ -1,13 +1,16 @@
-# Plano de testes — fase 1
+# Plano de testes — fases 1 e 2
 
 **Objetivo:** garantir que as leituras dos sensores chegam ao banco validadas, sem duplicar,
 que dados inválidos ou de origem não autorizada são barrados, e que os alertas e as vagas
-dos abrigos são calculados corretamente.
+dos abrigos são calculados corretamente. Na fase 2, garantir também que a IA prevê melhor
+que a regra simples, que nunca recomenda um abrigo inapto e que as mensagens seguem as
+regras de linguagem simples.
 
 | Tipo | Ferramenta | Como rodar | Quantidade |
 |---|---|---|---|
-| Unidade | pytest | `.venv/bin/python -m pytest` | 97 testes |
-| Integração | pytest no docker compose (broker, banco e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 14 testes |
+| Unidade | pytest | `.venv/bin/python -m pytest` | 271 testes (97 da fase 1 + 174 da IA) |
+| Integração | pytest no docker compose (broker, banco, API e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 20 testes |
+| Métrica da IA | relatório contra os dados do pipeline | `docker compose --profile ferramentas run --rm ia-relatorio` | [`RELATORIO.md`](../area1-ia/relatorio/RELATORIO.md) |
 | Lint | ruff | `.venv/bin/ruff check .` | — |
 | CI | GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) | automático a cada push e pull request | os três acima |
 
@@ -18,7 +21,7 @@ dos abrigos são calculados corretamente.
 
 ## Casos de teste
 
-Execução em 07/11/2026 (macOS, Docker 29), depois da revisão de código: **unidade 97/97 ok · integração 14/14 ok**.
+Execução em 07/11/2026 (macOS, Docker 29), com a fase 2: **unidade 271/271 ok · integração 20/20 ok** (depois da revisão de código da fase 2).
 
 | ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
 |---|---|---|---|---|---|---|
@@ -50,6 +53,28 @@ Execução em 07/11/2026 (macOS, Docker 29), depois da revisão de código: **un
 | CT-26 | Ponte barra reenvio logo após reiniciar | Unidade | Mensagem medida antes do início da ponte | Recusada | ✅ | `test_ponte_wokwi.py::test_mensagem_medida_antes_de_a_ponte_reiniciar_e_recusada` |
 | CT-27 | Simulador não dispara rajada após pausa | Unidade | Processo parado 10 min | Retoma do horário atual, sem publicar os passos atrasados | ✅ | `test_tempo_real.py` |
 | CT-28 | Banco e broker fechados para a rede | Manual | `docker compose ps` | Portas publicadas só em `127.0.0.1` | ✅ | — |
+
+### Fase 2 — IA e automação (área 1)
+
+| ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
+|---|---|---|---|---|---|---|
+| CT-29 | API da IA no ar | Integração | `GET /saude` | 200, banco acessível, modelo dos 3 rios carregado | ✅ | `test_it15_api_da_ia_esta_saudavel` |
+| CT-30 | Previsão de 6 h dos rios | Integração | `GET /previsao` | 3 estações reais, nível previsto entre 0 e 15 m, persistência = nível atual, features de entrada | ✅ | `test_it16_previsao_de_6h_para_os_tres_rios` |
+| CT-31 | Recomendação só traz abrigo apto | Integração | `GET /abrigos/recomendacao?bairro=navegantes&pessoas=4` | Recomendados com vaga agora e na chegada, fora de área de risco com alerta (atual ou previsto), ordenados por distância; evitados com motivo; bairro inexistente → 404 | ✅ | `test_it17_recomendacao_so_traz_abrigos_aptos_e_explica_os_evitados` |
+| CT-32 | Treino e uso calculam as features igual | Integração | Calcular as features em Python a partir de `silver.leitura` e comparar com `gold.v_ml_features` | Mesmas horas e mesmos valores (diferença < 1e-9) | ✅ (2.163 linhas, 0 diferenças) | `test_it18_features_do_python_iguais_as_da_visao_sql` |
+| CT-33 | Usuário da IA só lê o gold | Integração | `ia_ro` consulta `gold.v_ml_features_atual` e `silver.leitura` | Gold funciona (3 linhas); silver dá erro de permissão | ✅ | `test_it19_usuario_da_ia_so_le_a_camada_gold` |
+| CT-34 | Mensagem em linguagem simples | Integração + unidade | `POST /mensagens/gerar`; todas as combinações de situação × abrigo × bairro | SMS ≤ 160 sem acento e com 199; verificação sem problemas em todos os canais | ✅ | `test_it20_...`, `test_mensagens_alerta.py` |
+| CT-35 | IA melhor que a regra simples | Manual (relatório) | `docker compose --profile ferramentas run --rm ia-relatorio` | Erro menor que a persistência no Guaíba e no Gravataí, alerta antes da cota | ✅ Guaíba −71% (alerta 4–5 h antes), Gravataí −61% (6 h antes); Dilúvio fica com a regra simples | `relatorio/RELATORIO.md` |
+| CT-36 | Treino reproduzível e sem vazamento | Unidade | Treinar 2 vezes; semente 42 no treino | Mesmas previsões; semente do pipeline recusada; validação por semente (GroupKFold) | ✅ | `test_treino.py` |
+| CT-37 | Abrigo seguro: antes × depois | Unidade + manual (relatório) | Cenários com abrigo que vai lotar e que vai alagar; 200 pessoas × horas de crise do histórico | Só a IA evita os dois; no histórico, falha cai de 15,9% (mais próximo) para 0,1% (regra da fase 1: 0,5%) | ✅ | `test_cenarios_abrigos.py`, `RELATORIO.md` |
+| CT-38 | Vigia usa a regra de alerta da fase 1 | Unidade | 2.000 níveis aleatórios na regra do vigia e na `proximo_alerta` da fase 1 | Mesmas ações e severidades; abre, escala, mantém e fecha pela previsão | ✅ | `test_vigia.py` |
+| CT-39 | Alerta antecipado automático | Manual | `docker compose logs -f api` durante a cheia simulada; comparar com o horário em que o nível passou da cota em `silver.leitura` | `[vigia] ... ANTECIPADO` antes de o rio passar da cota | ✅ Guaíba: atenção 45 s antes (≈ 7,5 h simuladas, conta como 6 h, o horizonte), alerta 30 s antes (≈ 5 h); Gravataí: atenção 26 s antes (≈ 4,3 h) | — (log da API) |
+| CT-40 | API valida a entrada | Unidade | Estação ou bairro inexistente, `pessoas=0`, severidade 5 | 404 ou 422 com mensagem clara | ✅ | `test_api.py` |
+| CT-41 | Privacidade: localização não vai ao servidor | Unidade | `GET /abrigos` sem posição; recomendação pelo bairro | Lista sem distância, com `minutos_ate_lotar` para o app decidir no celular; recomendação usa o centro do bairro | ✅ | `test_api.py` |
+| CT-42 | Banco fora do ar | Unidade | Banco recusa a conexão; banco cai no meio da consulta | 503 com mensagem clara em qualquer rota (não 500) | ✅ | `test_api.py::test_banco_*` |
+| CT-43 | Dado velho e abrigo inativo | Unidade | Previsão com leitura velha; abrigo inativo; estação sem leitura com alerta aberto | Previsão velha não decide abrigo; inativo é recusado; vigia encerra o alerta (`sem_dados`) | ✅ | `test_api.py`, `test_vigia.py` |
+| CT-44 | Antecedência honesta | Unidade | Previsão avisando 30 h antes da cheia | Conta no máximo o horizonte (6 h) | ✅ | `test_avaliacao.py` |
+| CT-45 | Relatório com histórico curto | Unidade | Gerar o relatório sem histórico | Gera `RELATORIO.md` e `demo.md` explicando a falta de dados, sem erro | ✅ | `test_relatorio.py` |
 
 ## Como gerar as evidências para o PDF
 

@@ -8,8 +8,15 @@ select = ["E", "F", "W", "I", "B", "UP"]
 
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib -m 'not integration'"
-testpaths = ["area2-bigdata/ingestor/tests", "area3-mvp/iot/simuladores/tests", "area4-devops/testes"]
+testpaths = [
+    "area1-ia/tests",
+    "area2-bigdata/ingestor/tests",
+    "area3-mvp/iot/simuladores/tests",
+    "area4-devops/testes",
+]
 pythonpath = [
+    "area1-ia",
+    "area1-ia/tests",
     "area2-bigdata/ingestor",
     "area2-bigdata/ingestor/tests",
     "area3-mvp/iot/simuladores",

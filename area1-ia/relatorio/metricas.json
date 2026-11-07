@@ -1,0 +1,347 @@
+{
+  "gerado_em_utc": "2026-11-07 14:53:37.110945+00:00",
+  "previsao": {
+    "dil-ipiranga": {
+      "horas": 720,
+      "inicio_utc": "2026-10-08 13:00:00+00:00",
+      "fim_utc": "2026-11-07 12:00:00+00:00",
+      "modelo": "regra_simples",
+      "erro_modelo": {
+        "mae_m": 0.232,
+        "rmse_m": 0.466,
+        "exemplos": 714
+      },
+      "erro_persistencia": {
+        "mae_m": 0.232,
+        "rmse_m": 0.466,
+        "exemplos": 714
+      },
+      "ganho_mae_pct": 0.0,
+      "ganho_rmse_pct": 0.0,
+      "alarmes": {
+        "alerta": {
+          "modelo": {
+            "cota_m": 2.5,
+            "eventos": 2,
+            "antecipados": 0,
+            "antecedencia_media_h": 0.0,
+            "antecedencias_h": [
+              0,
+              0
+            ],
+            "alarmes_falsos": 0
+          },
+          "persistencia": {
+            "cota_m": 2.5,
+            "eventos": 2,
+            "antecipados": 0,
+            "antecedencia_media_h": 0.0,
+            "antecedencias_h": [
+              0,
+              0
+            ],
+            "alarmes_falsos": 0
+          }
+        },
+        "inundacao": {
+          "modelo": {
+            "cota_m": 3.2,
+            "eventos": 0,
+            "antecipados": 0,
+            "antecedencia_media_h": null,
+            "antecedencias_h": [],
+            "alarmes_falsos": 0
+          },
+          "persistencia": {
+            "cota_m": 3.2,
+            "eventos": 0,
+            "antecipados": 0,
+            "antecedencia_media_h": null,
+            "antecedencias_h": [],
+            "alarmes_falsos": 0
+          }
+        }
+      }
+    },
+    "gra-sarandi": {
+      "horas": 720,
+      "inicio_utc": "2026-10-08 13:00:00+00:00",
+      "fim_utc": "2026-11-07 12:00:00+00:00",
+      "modelo": "random_forest",
+      "erro_modelo": {
+        "mae_m": 0.037,
+        "rmse_m": 0.076,
+        "exemplos": 714
+      },
+      "erro_persistencia": {
+        "mae_m": 0.094,
+        "rmse_m": 0.184,
+        "exemplos": 714
+      },
+      "ganho_mae_pct": 60.6,
+      "ganho_rmse_pct": 58.7,
+      "alarmes": {
+        "alerta": {
+          "modelo": {
+            "cota_m": 3.5,
+            "eventos": 1,
+            "antecipados": 1,
+            "antecedencia_media_h": 6.0,
+            "antecedencias_h": [
+              6
+            ],
+            "alarmes_falsos": 2
+          },
+          "persistencia": {
+            "cota_m": 3.5,
+            "eventos": 1,
+            "antecipados": 0,
+            "antecedencia_media_h": 0.0,
+            "antecedencias_h": [
+              0
+            ],
+            "alarmes_falsos": 0
+          }
+        },
+        "inundacao": {
+          "modelo": {
+            "cota_m": 4.0,
+            "eventos": 0,
+            "antecipados": 0,
+            "antecedencia_media_h": null,
+            "antecedencias_h": [],
+            "alarmes_falsos": 1
+          },
+          "persistencia": {
+            "cota_m": 4.0,
+            "eventos": 0,
+            "antecipados": 0,
+            "antecedencia_media_h": null,
+            "antecedencias_h": [],
+            "alarmes_falsos": 0
+          }
+        }
+      }
+    },
+    "gua-cais": {
+      "horas": 720,
+      "inicio_utc": "2026-10-08 13:00:00+00:00",
+      "fim_utc": "2026-11-07 12:00:00+00:00",
+      "modelo": "random_forest",
+      "erro_modelo": {
+        "mae_m": 0.022,
+        "rmse_m": 0.042,
+        "exemplos": 714
+      },
+      "erro_persistencia": {
+        "mae_m": 0.075,
+        "rmse_m": 0.135,
+        "exemplos": 714
+      },
+      "ganho_mae_pct": 70.7,
+      "ganho_rmse_pct": 68.9,
+      "alarmes": {
+        "alerta": {
+          "modelo": {
+            "cota_m": 2.5,
+            "eventos": 2,
+            "antecipados": 2,
+            "antecedencia_media_h": 4.5,
+            "antecedencias_h": [
+              4,
+              5
+            ],
+            "alarmes_falsos": 0
+          },
+          "persistencia": {
+            "cota_m": 2.5,
+            "eventos": 2,
+            "antecipados": 0,
+            "antecedencia_media_h": 0.0,
+            "antecedencias_h": [
+              0,
+              0
+            ],
+            "alarmes_falsos": 0
+          }
+        },
+        "inundacao": {
+          "modelo": {
+            "cota_m": 3.0,
+            "eventos": 1,
+            "antecipados": 1,
+            "antecedencia_media_h": 5.0,
+            "antecedencias_h": [
+              5
+            ],
+            "alarmes_falsos": 1
+          },
+          "persistencia": {
+            "cota_m": 3.0,
+            "eventos": 1,
+            "antecipados": 0,
+            "antecedencia_media_h": 0.0,
+            "antecedencias_h": [
+              0
+            ],
+            "alarmes_falsos": 0
+          }
+        }
+      }
+    }
+  },
+  "abrigos": {
+    "horas_de_crise": 231,
+    "pontos_de_partida": 200,
+    "pessoas_por_grupo": 4,
+    "estrategias": {
+      "mais_proximo": {
+        "estrategia": "A. Mais próximo (sem o sistema)",
+        "casos": 46200,
+        "lotado_na_chegada_pct": 5.2,
+        "abrigo_alagou_pct": 11.2,
+        "falha_pct": 15.9,
+        "sem_abrigo_apto_pct": 0.0,
+        "distancia_media_km": 1.24,
+        "minutos_a_pe_medio": 24
+      },
+      "regra_fase1": {
+        "estrategia": "B. Regra da fase 1 (vaga e alerta de agora)",
+        "casos": 46200,
+        "lotado_na_chegada_pct": 0.3,
+        "abrigo_alagou_pct": 0.2,
+        "falha_pct": 0.5,
+        "sem_abrigo_apto_pct": 0.0,
+        "distancia_media_km": 1.89,
+        "minutos_a_pe_medio": 37
+      },
+      "ia": {
+        "estrategia": "C. IA (vaga na chegada e risco previsto)",
+        "casos": 46200,
+        "lotado_na_chegada_pct": 0.1,
+        "abrigo_alagou_pct": 0.0,
+        "falha_pct": 0.1,
+        "sem_abrigo_apto_pct": 0.0,
+        "distancia_media_km": 1.95,
+        "minutos_a_pe_medio": 38
+      }
+    }
+  },
+  "treino": {
+    "horizonte_h": 6,
+    "features": [
+      "nivel_atual_m",
+      "variacao_1h_m",
+      "chuva_1h_mm",
+      "chuva_6h_mm",
+      "chuva_24h_mm"
+    ],
+    "alvo": "variação do nível em 6 h (previsão = nível atual + variação)",
+    "treino": {
+      "origem": "simulador da fase 1, calendário misto (uma chuva forte e uma enchente por série)",
+      "sementes": [
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        1011,
+        1012,
+        1013,
+        1014,
+        1015,
+        1016,
+        1017,
+        1018,
+        1019,
+        1020,
+        1021,
+        1022,
+        1023,
+        1024
+      ],
+      "dias_por_semente": 30
+    },
+    "validacao": "GroupKFold(4) por semente: a mesma série nunca fica no treino e na validação",
+    "estacoes": {
+      "dil-ipiranga": {
+        "escolhido": "regra_simples",
+        "exemplos": 17136,
+        "persistencia": {
+          "mae_m": 0.1895,
+          "rmse_m": 0.4084
+        },
+        "candidatos": {
+          "regra_simples": {
+            "mae_m": 0.1895,
+            "rmse_m": 0.4084
+          },
+          "regressao_linear": {
+            "mae_m": 0.2072,
+            "rmse_m": 0.3523
+          },
+          "random_forest": {
+            "mae_m": 0.2058,
+            "rmse_m": 0.3588
+          }
+        },
+        "ganho_mae_pct": 0.0
+      },
+      "gra-sarandi": {
+        "escolhido": "random_forest",
+        "exemplos": 17136,
+        "persistencia": {
+          "mae_m": 0.0894,
+          "rmse_m": 0.1636
+        },
+        "candidatos": {
+          "regra_simples": {
+            "mae_m": 0.0894,
+            "rmse_m": 0.1636
+          },
+          "regressao_linear": {
+            "mae_m": 0.0348,
+            "rmse_m": 0.0645
+          },
+          "random_forest": {
+            "mae_m": 0.0323,
+            "rmse_m": 0.0644
+          }
+        },
+        "ganho_mae_pct": 63.9
+      },
+      "gua-cais": {
+        "escolhido": "random_forest",
+        "exemplos": 17136,
+        "persistencia": {
+          "mae_m": 0.0739,
+          "rmse_m": 0.1283
+        },
+        "candidatos": {
+          "regra_simples": {
+            "mae_m": 0.0739,
+            "rmse_m": 0.1283
+          },
+          "regressao_linear": {
+            "mae_m": 0.022,
+            "rmse_m": 0.0359
+          },
+          "random_forest": {
+            "mae_m": 0.0191,
+            "rmse_m": 0.0342
+          }
+        },
+        "ganho_mae_pct": 74.2
+      }
+    },
+    "versoes": {
+      "python": "3.14.10",
+      "scikit-learn": "1.9.1"
+    }
+  }
+}

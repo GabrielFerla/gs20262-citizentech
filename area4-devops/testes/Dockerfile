@@ -15,6 +15,8 @@ COPY contratos/ contratos/
 COPY area2-bigdata/db/migrations/ db/migrations/
 COPY area2-bigdata/db/seeds/*.csv db/seeds/
 COPY area2-bigdata/ingestor/ingestor/ ingestor/
+# Só o features.py (Python puro) é usado: paridade das features da IA com a visão SQL.
+COPY area1-ia/ia/__init__.py area1-ia/ia/features.py ia/
 COPY area4-devops/testes/ testes/
 
 CMD ["python", "-m", "pytest", "-m", "integration", "-v", "-p", "no:cacheprovider", "--junitxml=/relatorios/integracao.xml", "/app/testes"]

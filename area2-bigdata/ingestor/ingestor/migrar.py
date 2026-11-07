@@ -96,7 +96,11 @@ def carregar_seeds(conn: psycopg.Connection, pasta: Path) -> dict[str, int]:
 
 
 def definir_senhas(conn: psycopg.Connection) -> None:
-    senhas = {"ingestor_rw": variavel("INGESTOR_DB_PASSWORD"), "bi_ro": variavel("BI_DB_PASSWORD")}
+    senhas = {
+        "ingestor_rw": variavel("INGESTOR_DB_PASSWORD"),
+        "bi_ro": variavel("BI_DB_PASSWORD"),
+        "ia_ro": variavel("IA_DB_PASSWORD"),
+    }
     with conn.transaction(), conn.cursor() as cur:
         for papel, senha in senhas.items():
             cur.execute(sql.SQL("ALTER ROLE {} WITH LOGIN PASSWORD {}").format(sql.Identifier(papel), sql.Literal(senha)))

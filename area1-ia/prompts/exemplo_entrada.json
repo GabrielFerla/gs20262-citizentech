@@ -1,0 +1,15 @@
+{
+  "estacao": "Guaíba - Cais Mauá",
+  "corpo_hidrico": "Lago Guaíba",
+  "nivel_atual_m": 2.62,
+  "nivel_previsto_m": 3.08,
+  "severidade_atual": 2,
+  "severidade_prevista": 3,
+  "cota_m": 3.0,
+  "bairro": "Navegantes",
+  "abrigo": {
+    "nome": "Colégio Dom João Becker",
+    "minutos_a_pe": 34,
+    "vagas": 96
+  }
+}

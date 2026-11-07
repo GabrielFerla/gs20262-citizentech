@@ -1,11 +1,12 @@
-# CitizenTech — fase 1: sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold)
+# CitizenTech — sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold) → API de IA
 #
 #   cp .env.example .env
 #   docker compose up -d --build
 #
 # Ferramentas (sob demanda):
-#   docker compose --profile ferramentas run --rm exportar   # CSVs para o Power BI
-#   docker compose --profile ferramentas run --rm testes     # testes de integração
+#   docker compose --profile ferramentas run --rm exportar       # CSVs para o Power BI
+#   docker compose --profile ferramentas run --rm ia-relatorio   # métricas e gráficos da IA
+#   docker compose --profile ferramentas run --rm testes         # testes de integração
 name: citizentech
 
 x-banco: &banco
@@ -28,6 +29,12 @@ x-imagem-simulador: &imagem-simulador
   build:
     context: .
     dockerfile: area3-mvp/iot/simuladores/Dockerfile
+
+x-imagem-ia: &imagem-ia
+  image: citizentech/ia:local
+  build:
+    context: .
+    dockerfile: area1-ia/Dockerfile
 
 x-simulacao: &simulacao
   HISTORICO_DIAS: ${HISTORICO_DIAS:-30}
@@ -82,6 +89,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD:?defina no .env}
       BI_DB_PASSWORD: ${BI_DB_PASSWORD:?defina no .env}
+      IA_DB_PASSWORD: ${IA_DB_PASSWORD:?defina no .env}
     healthcheck:
       disable: true
     depends_on:
@@ -165,7 +173,41 @@ services:
       mosquitto:
         condition: service_healthy
 
+  # IA (área 1): previsão do nível em 6 h, "onde ficar seguro" e mensagens de alerta.
+  # O modelo é treinado no build da imagem; a API lê só a camada gold (usuário ia_ro).
+  # Swagger em http://localhost:8000/docs
+  api:
+    <<: *imagem-ia
+    restart: unless-stopped
+    environment:
+      <<: *banco
+      IA_DB_PASSWORD: ${IA_DB_PASSWORD}
+      API_CORS_ORIGENS: ${API_CORS_ORIGENS:-http://localhost:5173}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+      historico-carregar:
+        condition: service_completed_successfully
+
   # ---------------- ferramentas (sob demanda) ----------------
+  ia-relatorio:
+    <<: *imagem-ia
+    profiles: ["ferramentas"]
+    command: ["python", "-m", "ia.relatorio", "--saida", "/saida"]
+    user: root  # escreve na pasta do projeto montada como volume
+    environment:
+      <<: *banco
+      IA_DB_PASSWORD: ${IA_DB_PASSWORD}
+    volumes:
+      - ./area1-ia/relatorio:/saida
+    healthcheck:
+      disable: true
+    depends_on:
+      historico-carregar:
+        condition: service_completed_successfully
+
   exportar:
     <<: *imagem-ingestor
     profiles: ["ferramentas"]
@@ -195,13 +237,17 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD}
       BI_DB_PASSWORD: ${BI_DB_PASSWORD}
+      IA_DB_PASSWORD: ${IA_DB_PASSWORD}
       MQTT_INGESTOR_PASSWORD: ${MQTT_INGESTOR_PASSWORD}
       MQTT_SIMULADOR_PASSWORD: ${MQTT_SIMULADOR_PASSWORD}
       MQTT_PONTE_PASSWORD: ${MQTT_PONTE_PASSWORD}
+      API_URL: http://api:8000
     volumes:
       - ./relatorios:/relatorios
     depends_on:
       simulador:
+        condition: service_healthy
+      api:
         condition: service_healthy
 
 volumes:

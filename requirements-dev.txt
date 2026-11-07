@@ -2,5 +2,7 @@
 #   python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 -r area2-bigdata/ingestor/requirements.txt
 -r area3-mvp/iot/simuladores/requirements.txt
+-r area1-ia/requirements.txt
+httpx2==2.16.0
 pytest==9.2.0
 ruff==0.17.4
