@@ -7,7 +7,8 @@ Broker público = qualquer um pode publicar. Por isso a ponte só repassa a mens
   1. o sensor estiver na lista permitida (wok-nivel, wok-chuva, wok-ocup);
   2. a assinatura HMAC-SHA256 bater com a chave compartilhada (se WOKWI_CHAVE estiver definida);
   3. o "seq" for maior que o último recebido daquele sensor (impede reenvio de mensagem antiga);
-  4. o horário estiver a no máximo 2 minutos do relógio da ponte;
+  4. o horário estiver a no máximo 2 minutos do relógio da ponte e for posterior ao início
+     da ponte (o reenvio continua barrado mesmo logo depois de a ponte reiniciar);
   5. o sensor não mandar mais de 1 mensagem por segundo.
 E mesmo assim os sensores do Wokwi pertencem a uma estação de demonstração: uma mensagem
 falsa nunca dispara alerta de um rio real. O ingestor ainda valida tudo de novo.
@@ -21,6 +22,7 @@ import hashlib
 import hmac
 import json
 import logging
+import math
 import os
 import signal
 import threading
@@ -57,6 +59,10 @@ def assinar(chave: bytes, texto: str) -> str:
 @dataclass
 class Verificador:
     chave: bytes | None
+    # Só aceita medições feitas depois que a ponte ligou. O controle de "seq" fica em
+    # memória; sem isto, uma mensagem capturada antes de a ponte reiniciar poderia ser
+    # reenviada logo depois do reinício e passaria.
+    aceitar_a_partir_de: datetime | None = None
     ultimo_seq: dict[str, int] = field(default_factory=dict)
     ultimo_repasse: dict[str, float] = field(default_factory=dict)
 
@@ -79,14 +85,22 @@ class Verificador:
         if not isinstance(valor, int | float) or isinstance(valor, bool):
             raise Recusa("valor precisa ser número")
         try:
+            valor = float(valor)
+        except OverflowError:  # inteiro com centenas de dígitos não cabe num float
+            raise Recusa("valor grande demais") from None
+        if not math.isfinite(valor):
+            raise Recusa("valor precisa ser finito")
+        try:
             quando = datetime.fromisoformat(medido_em)
         except ValueError:
             raise Recusa("medido_em inválido") from None
         if quando.tzinfo is None or abs(quando - agora) > JANELA_HORARIO:
             raise Recusa("horário fora da janela de 2 minutos (relógio errado ou reenvio)")
+        if self.aceitar_a_partir_de is not None and quando < self.aceitar_a_partir_de - timedelta(seconds=1):
+            raise Recusa("medição anterior ao início da ponte (possível reenvio)")
 
         if self.chave is not None:
-            esperada = assinar(self.chave, texto_assinado(sensor_topico, seq, medido_em, float(valor)))
+            esperada = assinar(self.chave, texto_assinado(sensor_topico, seq, medido_em, valor))
             if not hmac.compare_digest(esperada, str(m.get("assinatura", ""))):
                 raise Recusa("assinatura inválida")
         if seq <= self.ultimo_seq.get(sensor_topico, -1):
@@ -104,7 +118,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     prefixo = os.environ["WOKWI_PREFIXO"].rstrip("/")
     chave = os.environ.get("WOKWI_CHAVE", "").encode() or None
-    verificador = Verificador(chave)
+    verificador = Verificador(chave, aceitar_a_partir_de=datetime.now(UTC))
     if chave is None:
         log.warning("WOKWI_CHAVE não definida: mensagens sem assinatura serão aceitas")
 
@@ -116,6 +130,7 @@ def main() -> None:
 
     publico = mqtt.Client(CallbackAPIVersion.VERSION2, client_id=f"ponte-{os.urandom(6).hex()}", protocol=mqtt.MQTTv311)
     publico.reconnect_delay_set(1, 60)
+    publico.suppress_exceptions = True  # defesa extra: erro em callback não mata a thread
     contagem = {"repassadas": 0, "recusadas": 0}
 
     def ao_conectar(cliente, _u, _f, reason_code, _p):
@@ -132,6 +147,10 @@ def main() -> None:
         except Recusa as recusa:
             contagem["recusadas"] += 1
             log.warning("Recusada (%s): %s", sensor, recusa)
+            return
+        except Exception:  # nada que venha da internet pode derrubar a ponte
+            contagem["recusadas"] += 1
+            log.exception("Erro inesperado ao verificar mensagem de %s", sensor)
             return
         local.publish(f"citizentech/v1/wokwi/{sensor}", saida, qos=1)
         contagem["repassadas"] += 1

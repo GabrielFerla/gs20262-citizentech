@@ -71,7 +71,10 @@ def validar(
     if payload["unidade"] != sensor.unidade:
         raise Rejeicao(f"unidade: esperado '{sensor.unidade}', veio '{payload['unidade']}'")
 
-    valor = float(payload["valor"])
+    try:
+        valor = float(payload["valor"])
+    except OverflowError:  # inteiro com centenas de dígitos não cabe num float
+        raise Rejeicao("faixa: valor grande demais") from None
     if not math.isfinite(valor):
         raise Rejeicao("faixa: valor não é um número finito")
     if not sensor.valor_min <= valor <= sensor.valor_max:

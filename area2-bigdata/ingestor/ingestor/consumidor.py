@@ -19,7 +19,7 @@ from paho.mqtt.enums import CallbackAPIVersion
 from .config import dsn_ingestor, variavel
 from .contrato import TOPICO_ASSINATURA
 from .db import conectar
-from .processamento import processar
+from .processamento import TAMANHO_MAXIMO, Resultado, calcular_hash, processar
 from .repositorio import Repositorio
 
 log = logging.getLogger("ingestor")
@@ -38,12 +38,17 @@ class Consumidor:
 
         # clean_session=False + client_id fixo: o broker guarda as mensagens QoS 1
         # enquanto o ingestor estiver fora e entrega quando ele voltar.
+        # manual_ack=True: só confirmamos a mensagem ao broker DEPOIS de gravar no banco;
+        # se o banco cair no meio, o broker entrega de novo e nada se perde.
         self.cliente = mqtt.Client(
             CallbackAPIVersion.VERSION2,
             client_id=variavel("MQTT_CLIENT_ID", "ingestor"),
             clean_session=False,
             protocol=mqtt.MQTTv311,
+            manual_ack=True,
         )
+        # Defesa extra: um erro inesperado num callback não pode matar a thread do MQTT.
+        self.cliente.suppress_exceptions = True
         self.cliente.username_pw_set("ingestor", variavel("MQTT_INGESTOR_PASSWORD"))
         self.cliente.reconnect_delay_set(min_delay=1, max_delay=30)
         self.cliente.on_connect = self.ao_conectar
@@ -63,16 +68,25 @@ class Consumidor:
         if not self.parar.is_set():
             log.warning("Desconectado do broker (%s); tentando de novo", reason_code)
 
-    def ao_receber(self, _cliente, _userdata, msg) -> None:
+    def ao_receber(self, cliente, _userdata, msg) -> None:
         conteudo = msg.payload.decode("utf-8", errors="replace")
-        try:
-            resultado = processar(self.repo, conteudo, canal="mqtt", topico=msg.topic)
-            self.conn.commit()
-        except psycopg.Error:
-            log.exception("Erro no banco ao processar %s", msg.topic)
-            self._recuperar_banco()
-            return
+        resultado = None
+        while resultado is None:
+            try:
+                resultado = processar(self.repo, conteudo, canal="mqtt", topico=msg.topic)
+                self.conn.commit()
+            except (psycopg.OperationalError, psycopg.InterfaceError):
+                # Banco fora do ar: espera voltar e tenta de novo a MESMA mensagem.
+                log.exception("Banco indisponível ao processar %s; tentando de novo", msg.topic)
+                self._recuperar_banco()
+                if self.parar.wait(2):
+                    return  # encerrando sem confirmar: o broker entrega de novo depois
+            except Exception as erro:  # erro inesperado: registra e segue, sem derrubar o ingestor
+                log.exception("Erro inesperado ao processar %s", msg.topic)
+                self._recuperar_banco()
+                resultado = self._registrar_erro(conteudo, msg.topic, erro)
 
+        cliente.ack(msg.mid, msg.qos)
         self.contagem[resultado.status] += 1
         if resultado.status == "rejeitada":
             log.warning("Rejeitada %s → %s", msg.topic, resultado.motivo)
@@ -81,6 +95,18 @@ class Consumidor:
         total = sum(self.contagem.values())
         if total % 500 == 0:
             log.info("%s mensagens processadas: %s", total, dict(self.contagem))
+
+    def _registrar_erro(self, conteudo: str, topico: str, erro: Exception) -> Resultado:
+        """Guarda no bronze a mensagem que causou erro interno, para investigar depois."""
+        motivo = f"interno: {type(erro).__name__}"
+        try:
+            hash_ = calcular_hash("mqtt", topico, conteudo)
+            self.repo.inserir_mensagem("mqtt", topico, conteudo[:TAMANHO_MAXIMO], hash_, "rejeitada", motivo)
+            self.conn.commit()
+        except psycopg.Error:
+            log.exception("Não foi possível registrar a mensagem com erro")
+            self._recuperar_banco()
+        return Resultado("rejeitada", motivo)
 
     def _recuperar_banco(self) -> None:
         try:
@@ -102,7 +128,7 @@ class Consumidor:
         log.info("Ingestor iniciado (broker %s:%s)", host, porta)
 
         while not self.parar.wait(5):
-            if self.inscrito and not self.conn.closed:
+            if self.inscrito and self.cliente.is_connected() and not self.conn.closed:
                 BATIMENTO.touch()
 
         log.info("Encerrando. Total: %s", dict(self.contagem))

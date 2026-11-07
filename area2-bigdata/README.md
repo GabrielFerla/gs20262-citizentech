@@ -2,7 +2,7 @@
 
 | Critério do edital | Onde está |
 |---|---|
-| Estrutura dos dados (camadas, data lake) | [`db/migrations/`](db/migrations): esquemas `bronze`, `silver`, `gold`; zona de chegada em `datalake/landing/` |
+| Estrutura dos dados (camadas, data lake) | [`db/migrations/`](db/migrations): esquemas `bronze`, `silver`, `gold`; zona de chegada no volume `datalake` |
 | Ingestão e processamento | [`ingestor/`](ingestor): tempo real (MQTT) e lote (NDJSON), validação, deduplicação, qualidade |
 | Dashboard (3+ indicadores com filtros) | [`powerbi/`](powerbi/README.md): CSVs prontos e montagem sugerida |
 | Funções analíticas (DAX) | [`powerbi/README.md`](powerbi/README.md#medidas-dax) e janelas SQL em `gold.v_ml_features` |
@@ -11,7 +11,7 @@
 
 | Camada | Tabelas e visões | Para quê |
 |---|---|---|
-| **landing** (arquivos) | `datalake/landing/*.ndjson` | Dado bruto da carga histórica, imutável. O banco pode ser refeito a partir daqui |
+| **landing** (arquivos) | volume Docker `datalake` (`/dados/landing/*.ndjson`) | Dado bruto da carga histórica, imutável. O banco pode ser refeito a partir daqui |
 | **bronze** | `bronze.mensagem`, `bronze.carga` | Tudo o que chegou, inclusive o inválido, com status e motivo (auditoria) |
 | **silver** | `silver.leitura`, `silver.alerta` e os cadastros `bairro`, `estacao`, `abrigo`, `sensor` | Dado validado e tratado; regra de alerta aplicada |
 | **gold** | `dim_*`, `v_estacao_horaria`, `v_abrigo_horaria`, `v_ml_features`, `v_estacao_atual`, `v_abrigo_status`, `v_alertas`, `v_qualidade`, `v_kpis` | Visões prontas para o dashboard, o app e a IA |
@@ -46,7 +46,13 @@ Exportar a camada gold para CSV:
 docker compose --profile ferramentas run --rm exportar
 ```
 
-Recarregar o histórico do zero (apaga o banco, mantém o data lake):
+Ver os arquivos do data lake (copia para `datalake/` no projeto, útil para print no PDF):
+
+```bash
+docker compose cp historico-gerar:/dados/landing ./area2-bigdata/datalake/
+```
+
+Gerar um histórico novo do zero (apaga banco e data lake; o novo histórico termina no horário atual):
 
 ```bash
 docker compose down -v
@@ -56,6 +62,8 @@ docker compose down -v
 docker compose up -d --wait
 ```
 
-Gerar um histórico novo: apague o arquivo `.ndjson` de `datalake/landing/` e rode os dois comandos acima.
+**Mudar o banco:** nunca edite uma migração já aplicada. Crie um arquivo novo (`007_...sql`),
+como foi feito em [`006_ml_features_uma_agregacao.sql`](db/migrations/006_ml_features_uma_agregacao.sql).
+O `migrar` guarda o hash de cada migração e para com erro se uma delas for editada.
 
 Consultar o banco direto (senha do usuário `migrador` no `.env`): `localhost:55432`, banco `citizentech`.

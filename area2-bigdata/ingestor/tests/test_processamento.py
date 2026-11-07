@@ -77,3 +77,10 @@ def test_leitura_suspeita_nao_abre_alerta(repo):
     assert r.status == "aceita"
     assert r.qualidade == "suspeita"
     assert repo.alertas == []
+
+
+def test_valor_gigante_e_rejeitado_sem_erro(repo):
+    gigante = '{"v":1,"sensor_id":"gua-cais-nivel","valor":1' + "0" * 400 + ',"unidade":"m","medido_em":"' + horario(0) + '"}'
+    r = enviar(repo, gigante)
+    assert r.status == "rejeitada"
+    assert r.motivo.startswith("faixa:")

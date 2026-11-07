@@ -29,6 +29,7 @@ def test_leitura_valida():
         ({"valor": 99.0}, None, None, "faixa"),
         ({"valor": -0.5}, None, None, "faixa"),
         ({"sensor_id": "abr-01-ocup", "unidade": "pessoas", "valor": 10.5}, None, None, "faixa"),
+        ({"valor": 10**400}, None, None, "faixa"),
         ({"medido_em": "2026-11-07T15:30:00Z"}, None, None, "horario"),
         ({"medido_em": "2026-13-45T15:00:00Z"}, None, None, "horario"),
     ],

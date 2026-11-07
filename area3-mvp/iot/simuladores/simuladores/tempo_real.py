@@ -44,6 +44,20 @@ def cenarios(nome: str) -> Iterator[str]:
     return itertools.repeat(nome)
 
 
+def proximo_envio(anterior: float, agora: float, intervalo: float) -> float:
+    """Quando publicar o próximo passo.
+
+    Mantém o ritmo sem acumular atraso. Mas, se o processo ficou parado (notebook
+    dormindo, container pausado), retoma a partir de agora em vez de disparar de uma
+    vez todos os passos atrasados — isso faria dias simulados passarem em segundos.
+    """
+    proximo = anterior + intervalo
+    if proximo < agora - intervalo:
+        log.warning("Simulador ficou parado por %.0fs; retomando sem rajada", agora - proximo)
+        return agora
+    return proximo
+
+
 def conectar(host: str, porta: int, senha: str) -> mqtt.Client:
     cliente = mqtt.Client(CallbackAPIVersion.VERSION2, client_id=f"simulador-{os.getpid()}", protocol=mqtt.MQTTv311)
     cliente.username_pw_set("simulador", senha)
@@ -101,8 +115,9 @@ def main() -> None:
         if passo % 36 == 0:
             niveis = ", ".join(f"{k}={v:.2f} m" for k, v in estado.nivel_m.items())
             log.info("[%s] %s | pessoas em abrigos: %s", cenario, niveis, sum(estado.ocupacao.values()))
-        proximo += intervalo
-        parar.wait(max(0.0, proximo - time.monotonic()))
+        agora = time.monotonic()
+        proximo = proximo_envio(proximo, agora, intervalo)
+        parar.wait(max(0.0, proximo - agora))
 
     cliente.loop_stop()
     cliente.disconnect()

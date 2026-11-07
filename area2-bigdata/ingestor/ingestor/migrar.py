@@ -1,7 +1,9 @@
 """Cria/atualiza o banco: aplica as migrações SQL pendentes, carrega os cadastros e define as senhas.
 
 Pode rodar quantas vezes quiser (idempotente): migração já aplicada é pulada e os
-cadastros são atualizados por upsert.
+cadastros são atualizados por upsert. Uma migração já aplicada NÃO deve ser editada:
+o hash de cada arquivo fica guardado e, se mudar, o migrar para com erro explicando o
+que fazer (criar uma migração nova).
 
     python -m ingestor.migrar
 """
@@ -9,6 +11,7 @@ cadastros são atualizados por upsert.
 from __future__ import annotations
 
 import csv
+import hashlib
 import logging
 from pathlib import Path
 
@@ -24,6 +27,15 @@ log = logging.getLogger("ingestor.migrar")
 SEEDS = [("bairro", "bairros.csv"), ("estacao", "estacoes.csv"), ("abrigo", "abrigos.csv"), ("sensor", "sensores.csv")]
 
 
+class MigracaoAlterada(RuntimeError):
+    """Um .sql já aplicado foi editado. A mudança não seria aplicada, então paramos com erro."""
+
+
+def hash_da_migracao(arquivo: Path) -> str:
+    # CRLF → LF: o mesmo arquivo dá o mesmo hash no Windows e no Linux
+    return hashlib.sha256(arquivo.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def aplicar_migracoes(conn: psycopg.Connection, pasta: Path) -> list[str]:
     with conn.cursor() as cur:
         cur.execute(
@@ -34,17 +46,28 @@ def aplicar_migracoes(conn: psycopg.Connection, pasta: Path) -> list[str]:
             )
             """
         )
-        cur.execute("SELECT versao FROM public.schema_migrations")
-        feitas = {r[0] for r in cur.fetchall()}
+        cur.execute("ALTER TABLE public.schema_migrations ADD COLUMN IF NOT EXISTS hash char(64)")
+        cur.execute("SELECT versao, hash FROM public.schema_migrations")
+        feitas = dict(cur.fetchall())
     conn.commit()
 
     aplicadas = []
     for arquivo in sorted(pasta.glob("*.sql")):
+        hash_ = hash_da_migracao(arquivo)
         if arquivo.name in feitas:
+            if feitas[arquivo.name] is None:  # aplicada antes de existir a coluna hash
+                with conn.transaction(), conn.cursor() as cur:
+                    cur.execute("UPDATE public.schema_migrations SET hash = %s WHERE versao = %s", (hash_, arquivo.name))
+            elif feitas[arquivo.name] != hash_:
+                raise MigracaoAlterada(
+                    f"{arquivo.name} foi editada depois de aplicada e a mudança NÃO entraria no banco. "
+                    "Desfaça a edição e crie uma migração nova (ex.: 006_minha_mudanca.sql), "
+                    "ou zere o banco com 'docker compose down -v'."
+                )
             continue
         with conn.transaction(), conn.cursor() as cur:
             cur.execute(arquivo.read_text(encoding="utf-8"))
-            cur.execute("INSERT INTO public.schema_migrations (versao) VALUES (%s)", (arquivo.name,))
+            cur.execute("INSERT INTO public.schema_migrations (versao, hash) VALUES (%s, %s)", (arquivo.name, hash_))
         log.info("Migração aplicada: %s", arquivo.name)
         aplicadas.append(arquivo.name)
     return aplicadas

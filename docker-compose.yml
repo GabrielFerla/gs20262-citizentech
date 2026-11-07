@@ -41,7 +41,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-migrador}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
     ports:
-      - "55432:5432"
+      # Só a própria máquina acessa (as senhas de exemplo estão no repositório público).
+      - "127.0.0.1:55432:5432"
     volumes:
       # Postgres 18: o volume vai em /var/lib/postgresql (a imagem mudou a pasta de dados)
       - pg_dados:/var/lib/postgresql
@@ -59,7 +60,7 @@ services:
       MQTT_SIMULADOR_PASSWORD: ${MQTT_SIMULADOR_PASSWORD:?defina no .env}
       MQTT_PONTE_PASSWORD: ${MQTT_PONTE_PASSWORD:?defina no .env}
     ports:
-      - "11883:1883"
+      - "127.0.0.1:11883:1883"
     volumes:
       - ./area3-mvp/iot/mosquitto:/mosquitto/config:ro
       - mosquitto_dados:/mosquitto/data
@@ -88,15 +89,16 @@ services:
         condition: service_healthy
 
   # Roda uma vez: gera a série histórica na zona de chegada do data lake (se ainda não existir).
+  # O data lake fica no volume "datalake": "docker compose down -v" zera banco E data lake
+  # juntos, e na próxima subida o histórico é gerado de novo terminando no horário atual.
   historico-gerar:
     <<: *imagem-simulador
     command: ["python", "-m", "simuladores.historico", "--se-nao-existir"]
-    user: root  # escreve na pasta do projeto montada como volume
     environment:
       <<: *simulacao
       LANDING_DIR: /dados/landing
     volumes:
-      - ./area2-bigdata/datalake/landing:/dados/landing
+      - datalake:/dados/landing
     healthcheck:
       disable: true
 
@@ -108,7 +110,7 @@ services:
       <<: *banco
       INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD}
     volumes:
-      - ./area2-bigdata/datalake/landing:/dados/landing:ro
+      - datalake:/dados/landing:ro
     healthcheck:
       disable: true
     depends_on:
@@ -205,3 +207,4 @@ services:
 volumes:
   pg_dados:
   mosquitto_dados:
+  datalake:

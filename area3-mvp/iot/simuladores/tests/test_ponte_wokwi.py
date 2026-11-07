@@ -64,3 +64,18 @@ def test_sem_chave_aceita_mensagem_sem_assinatura():
     sem_assinatura = json.loads(mensagem())
     del sem_assinatura["assinatura"]
     Verificador(None).verificar("wok-nivel", json.dumps(sem_assinatura).encode(), AGORA, 0.0)
+
+
+def test_valor_gigante_e_recusado_sem_derrubar_a_ponte():
+    medido_em = AGORA.strftime("%Y-%m-%dT%H:%M:%SZ")
+    gigante = '{"v":1,"sensor_id":"wok-nivel","valor":1' + "0" * 400 + ',"unidade":"m","medido_em":"' + medido_em + '","seq":1}'
+    with pytest.raises(Recusa, match="grande demais"):
+        Verificador(CHAVE).verificar("wok-nivel", gigante.encode(), AGORA, 0.0)
+
+
+def test_mensagem_medida_antes_de_a_ponte_reiniciar_e_recusada():
+    capturada = mensagem(seq=100, quando=AGORA - timedelta(seconds=30))
+    reiniciada = Verificador(CHAVE, aceitar_a_partir_de=AGORA)
+    with pytest.raises(Recusa, match="início da ponte"):
+        reiniciada.verificar("wok-nivel", capturada, AGORA, 0.0)
+    reiniciada.verificar("wok-nivel", mensagem(seq=101, quando=AGORA), AGORA, 0.0)

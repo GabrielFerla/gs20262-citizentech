@@ -204,6 +204,21 @@ def test_it11_migracoes_rodam_de_novo_sem_mudar_nada():
         assert aplicar_migracoes(conn, achar_pasta("MIGRACOES_DIR", "area2-bigdata/db/migrations")) == []
 
 
+def test_it14_migracao_editada_depois_de_aplicada_para_com_erro(tmp_path):
+    import shutil
+
+    from ingestor.config import achar_pasta
+    from ingestor.migrar import MigracaoAlterada, aplicar_migracoes
+
+    copia = tmp_path / "migrations"
+    shutil.copytree(achar_pasta("MIGRACOES_DIR", "area2-bigdata/db/migrations"), copia)
+    gold = copia / "004_gold.sql"
+    gold.write_text(gold.read_text(encoding="utf-8") + "\n-- edição depois de aplicada\n", encoding="utf-8")
+    with psycopg.connect(dsn(os.environ.get("POSTGRES_USER", "migrador"), os.environ["POSTGRES_PASSWORD"])) as conn:
+        with pytest.raises(MigracaoAlterada, match="004_gold.sql"):
+            aplicar_migracoes(conn, copia)
+
+
 def test_it12_historico_foi_carregado_e_gera_base_de_treino(db):
     cargas = consultar(db, "SELECT count(*) FROM bronze.carga WHERE concluida_em IS NOT NULL")[0][0]
     assert cargas >= 1

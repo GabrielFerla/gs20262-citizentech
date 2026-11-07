@@ -6,8 +6,8 @@ dos abrigos são calculados corretamente.
 
 | Tipo | Ferramenta | Como rodar | Quantidade |
 |---|---|---|---|
-| Unidade | pytest | `.venv/bin/python -m pytest` | 90 testes |
-| Integração | pytest no docker compose (broker, banco e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 13 testes |
+| Unidade | pytest | `.venv/bin/python -m pytest` | 97 testes |
+| Integração | pytest no docker compose (broker, banco e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 14 testes |
 | Lint | ruff | `.venv/bin/ruff check .` | — |
 | CI | GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) | automático a cada push e pull request | os três acima |
 
@@ -18,7 +18,7 @@ dos abrigos são calculados corretamente.
 
 ## Casos de teste
 
-Execução em 07/11/2026 (macOS, Docker 29): **unidade 90/90 ok · integração 13/13 ok**.
+Execução em 07/11/2026 (macOS, Docker 29), depois da revisão de código: **unidade 97/97 ok · integração 14/14 ok**.
 
 | ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
 |---|---|---|---|---|---|---|
@@ -44,6 +44,12 @@ Execução em 07/11/2026 (macOS, Docker 29): **unidade 90/90 ok · integração 
 | CT-20 | Ponte rejeita reenvio e excesso | Unidade | Repetir `seq`; 2 mensagens em 0,5 s | Recusadas | ✅ | `test_ponte_wokwi.py` |
 | CT-21 | Ponte Wokwi ponta a ponta | Manual | Publicador Python no `broker.hivemq.com` envia 1 leitura assinada e 1 forjada | Assinada no banco (estação `demo-wokwi` entra em alerta com 1,37 m); forjada recusada pela ponte | ✅ | — (log da ponte) |
 | CT-22 | Projeto roda só com o README | Manual | Clone limpo + comandos do README | Todos os serviços `healthy`; dados no gold | ✅ | — |
+| CT-23 | Valor gigante não derruba nada | Unidade | Leitura com valor = inteiro de 400 dígitos, no ingestor e na ponte | Rejeitada com motivo `faixa:` / "grande demais"; processo segue de pé | ✅ | `test_processamento.py::test_valor_gigante_e_rejeitado_sem_erro`, `test_ponte_wokwi.py::test_valor_gigante_e_recusado_sem_derrubar_a_ponte` |
+| CT-24 | Nenhuma leitura perdida se o banco cair | Manual | Desligar o Postgres por 20 s com o simulador publicando (`docker compose stop postgres`, esperar, `start`) | Ingestor espera o banco voltar e grava tudo: 40 leituras em 39 s, maior intervalo 1,0 s | ✅ | — (log do ingestor + consulta) |
+| CT-25 | Migração editada é detectada | Integração | Editar `004_gold.sql` já aplicada e rodar as migrações | Para com erro explicando que é preciso criar uma migração nova | ✅ | `test_it14_migracao_editada_depois_de_aplicada_para_com_erro` |
+| CT-26 | Ponte barra reenvio logo após reiniciar | Unidade | Mensagem medida antes do início da ponte | Recusada | ✅ | `test_ponte_wokwi.py::test_mensagem_medida_antes_de_a_ponte_reiniciar_e_recusada` |
+| CT-27 | Simulador não dispara rajada após pausa | Unidade | Processo parado 10 min | Retoma do horário atual, sem publicar os passos atrasados | ✅ | `test_tempo_real.py` |
+| CT-28 | Banco e broker fechados para a rede | Manual | `docker compose ps` | Portas publicadas só em `127.0.0.1` | ✅ | — |
 
 ## Como gerar as evidências para o PDF
 

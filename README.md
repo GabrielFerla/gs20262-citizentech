@@ -14,7 +14,7 @@ de risco é evitado quando o rio da região está em alerta.
 |---|---|---|
 | 1. IA e automação | *(fase 2)* | A base de treino já sai pronta em `gold.v_ml_features` |
 | 2. Big Data e visualização | [`area2-bigdata/`](area2-bigdata/README.md) | Camadas bronze/silver/gold, ingestão em tempo real e em lote, exportação, Power BI |
-| 3. MVP, IoT e experiência digital | [`area3-mvp/iot/`](area3-mvp/iot/README.md) | Broker MQTT, 29 sensores simulados, circuito ESP32 no Wokwi, ponte segura |
+| 3. MVP, IoT e experiência digital | [`area3-mvp/iot/`](area3-mvp/iot/README.md) | Broker MQTT, 26 sensores simulados + 3 do ESP32 no Wokwi, ponte segura |
 | 4. DevOps, segurança e qualidade | [`area4-devops/`](area4-devops/plano-de-testes.md) | Docker Compose, CI no GitHub Actions, plano de testes, práticas de segurança |
 | Contrato das mensagens | [`contratos/`](contratos/leitura.v1.schema.json) | JSON Schema seguido por todos os serviços |
 | Arquitetura | [`docs/arquitetura.md`](docs/arquitetura.md) | Diagrama e fluxo dos dados |
@@ -70,24 +70,32 @@ Os CSVs saem em `area2-bigdata/powerbi/dados/`. O passo a passo do dashboard est
 
 ### Rodar os testes
 
-Testes de integração (13 casos contra o ambiente rodando; o relatório vai para `relatorios/integracao.xml`):
+Testes de integração (14 casos contra o ambiente rodando; o relatório vai para `relatorios/integracao.xml`):
 
 ```bash
 docker compose --profile ferramentas run --rm --build testes
 ```
 
-Testes de unidade e lint (precisa de Python 3.12 ou mais novo):
+Testes de unidade e lint (precisa de Python 3.12 ou mais novo).
+
+macOS e Linux:
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv && .venv/bin/python -m pip install -r requirements-dev.txt
 ```
 
 ```bash
-.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m ruff check . && .venv/bin/python -m pytest
 ```
 
-```bash
-.venv/bin/ruff check . && .venv/bin/python -m pytest
+Windows (PowerShell):
+
+```powershell
+python -m venv .venv; .venv\Scripts\python -m pip install -r requirements-dev.txt
+```
+
+```powershell
+.venv\Scripts\python -m ruff check .; .venv\Scripts\python -m pytest
 ```
 
 ### Circuito ESP32 no Wokwi (opcional)
@@ -106,7 +114,7 @@ Para tudo e mantém os dados:
 docker compose down
 ```
 
-Para tudo e apaga o banco (o histórico é recarregado do data lake na próxima subida):
+Para tudo e apaga o banco e o data lake (na próxima subida o histórico é gerado de novo, terminando no horário atual):
 
 ```bash
 docker compose down -v
@@ -114,10 +122,12 @@ docker compose down -v
 
 ## Portas
 
-| Serviço | Porta no seu computador | Uso |
+As portas só aceitam conexões da própria máquina (`127.0.0.1`), porque as senhas de exemplo estão públicas no repositório.
+
+| Serviço | Endereço | Uso |
 |---|---|---|
-| PostgreSQL | 55432 | Banco `citizentech`. O usuário `bi_ro` só lê a camada gold |
-| Mosquitto (MQTT) | 11883 | Exige usuário e senha (veja o `.env`) |
+| PostgreSQL | `localhost:55432` | Banco `citizentech`. O usuário `bi_ro` só lê a camada gold |
+| Mosquitto (MQTT) | `localhost:11883` | Exige usuário e senha (veja o `.env`) |
 
 ## Uso de IA generativa
 

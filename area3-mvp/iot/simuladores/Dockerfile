@@ -13,7 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY area2-bigdata/db/seeds/*.csv seeds/
 COPY area3-mvp/iot/simuladores/simuladores/ simuladores/
 
-RUN useradd --uid 10001 --no-create-home app
+# /dados/landing já nasce do usuário app: o volume do data lake herda esse dono.
+RUN useradd --uid 10001 --no-create-home app \
+    && mkdir -p /dados/landing && chown app /dados/landing
 USER app
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=3 \
