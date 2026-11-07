@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://citizentech.example/contratos/leitura.v1.schema.json",
+  "title": "Leitura de sensor (contrato v1)",
+  "description": "Mensagem publicada no tópico MQTT citizentech/v1/{origem}/{sensor_id}. Também é o formato de cada linha dos arquivos NDJSON da carga histórica.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "sensor_id", "valor", "unidade", "medido_em"],
+  "properties": {
+    "v": {
+      "description": "Versão do contrato.",
+      "const": 1
+    },
+    "sensor_id": {
+      "description": "Identificador do sensor cadastrado em silver.sensor (minúsculas, números e hífen).",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 40
+    },
+    "valor": {
+      "description": "Valor medido. nivel_rio em metros, chuva em mm no intervalo de 10 min, ocupacao_abrigo em pessoas presentes agora.",
+      "type": "number"
+    },
+    "unidade": {
+      "description": "Unidade do valor; precisa bater com a unidade do sensor.",
+      "enum": ["m", "mm", "pessoas"]
+    },
+    "medido_em": {
+      "description": "Momento da medição em UTC, formato ISO 8601 terminado em Z.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,6})?Z$"
+    },
+    "seq": {
+      "description": "Contador crescente por dispositivo. Opcional para o simulador; obrigatório na ponte do Wokwi (proteção contra repetição).",
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

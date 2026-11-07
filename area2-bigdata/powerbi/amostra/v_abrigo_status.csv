@@ -1,0 +1,22 @@
+abrigo_id,abrigo,tipo,bairro_id,bairro,lat,lon,capacidade,ocupacao,vagas,pct_lotacao,status_lotacao,ultima_leitura_utc,leitura_velha,em_area_de_risco,estacao_proxima_id,severidade_regiao,motivo_nao_recomendado,recomendavel,demo
+abr-01,Escola Estadual Décio Martins Costa,escola,sarandi,Sarandi,-29.98230,-51.13481,150,0,150,0,disponivel,2026-11-07 12:26:09,false,true,gra-sarandi,0,,true,false
+abr-02,Escola Municipal de Educação Infantil Humaitá,escola,humaita,Humaitá,-29.98014,-51.18584,150,0,150,0,disponivel,2026-11-07 12:26:09,false,true,gra-sarandi,0,,true,false
+abr-03,Colégio Cândido José de Godoi,escola,navegantes,Navegantes,-30.00230,-51.20271,150,0,150,0,disponivel,2026-11-07 12:26:09,false,true,gua-cais,0,,true,false
+abr-04,Ginásio Tesourinha,ginasio,menino-deus,Menino Deus,-30.04554,-51.21976,300,0,300,0,disponivel,2026-11-07 12:26:09,false,true,dil-ipiranga,0,,true,false
+abr-05,Escola La Salle Pão dos Pobres,escola,cidade-baixa,Cidade Baixa,-30.04053,-51.22744,150,0,150,0,disponivel,2026-11-07 12:26:09,false,true,dil-ipiranga,0,,true,false
+abr-06,Colégio ACM Centro,escola,centro-historico,Centro Histórico,-30.03734,-51.22978,150,0,150,0,disponivel,2026-11-07 12:26:09,false,true,gua-cais,0,,true,false
+abr-07,Colégio Florinda Tubino Sampaio,escola,petropolis,Petrópolis,-30.04072,-51.18162,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-08,Colégio Caldas Junior,escola,partenon,Partenon,-30.05817,-51.15995,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-09,Colégio Estadual Júlio de Castilhos,escola,santana,Santana,-30.04413,-51.21258,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-10,Escola Professora Maria Thereza da Silveira,escola,bela-vista,Bela Vista,-30.02832,-51.18409,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-11,Colégio Leonardo da Vinci Unidade Alfa,escola,rio-branco,Rio Branco,-30.03452,-51.20279,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-12,Colégio Estadual Professor Otávio de Souza,escola,jardim-botanico,Jardim Botânico,-30.05275,-51.18611,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-13,Escola Antão de Faria,escola,bom-jesus,Bom Jesus,-30.04395,-51.15235,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-14,Ginásio de Esportes Lupi Martins,ginasio,teresopolis,Teresópolis,-30.08080,-51.20630,300,0,300,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-15,Colégio Marista Assunção,escola,gloria,Glória,-30.07580,-51.20307,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-16,CPOR,escola,santa-tereza,Santa Tereza,-30.06217,-51.22045,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-17,Colégio General Álvaro Alves da Silva Braga,escola,medianeira,Medianeira,-30.06298,-51.21705,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,dil-ipiranga,0,,true,false
+abr-18,Colégio Dom João Becker,escola,passo-da-areia,Passo da Areia,-30.01252,-51.17670,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,gua-cais,0,,true,false
+abr-19,Escola República Argentina,escola,jardim-lindoia,Jardim Lindóia,-30.00312,-51.14871,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,gra-sarandi,0,,true,false
+abr-20,Escola Estadual Especial Cristo Redentor,escola,cristo-redentor,Cristo Redentor,-30.01223,-51.15245,150,0,150,0,disponivel,2026-11-07 12:26:09,false,false,gra-sarandi,0,,true,false
+abr-demo,Abrigo de demonstração (Wokwi),ginasio,farroupilha,Farroupilha,-30.03460,-51.21770,50,0,50,0,disponivel,,true,false,demo-wokwi,0,abrigo de demonstração,false,true

@@ -1,0 +1,6 @@
+# Garante final de linha LF (scripts .sh quebram com CRLF no Windows)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.pbix binary

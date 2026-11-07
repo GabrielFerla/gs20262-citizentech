@@ -1,0 +1,22 @@
+id,osm_ref,nome,tipo,bairro_id,lat,lon,capacidade,capacidade_estimada,em_area_de_risco,estacao_proxima_id,demo
+abr-01,way/244050546,Escola Estadual Décio Martins Costa,escola,sarandi,-29.98230,-51.13481,150,true,true,gra-sarandi,false
+abr-02,way/426387181,Escola Municipal de Educação Infantil Humaitá,escola,humaita,-29.98014,-51.18584,150,true,true,gra-sarandi,false
+abr-03,way/331246358,Colégio Cândido José de Godoi,escola,navegantes,-30.00230,-51.20271,150,true,true,gua-cais,false
+abr-04,way/40446356,Ginásio Tesourinha,ginasio,menino-deus,-30.04554,-51.21976,300,true,true,dil-ipiranga,false
+abr-05,way/287533436,Escola La Salle Pão dos Pobres,escola,cidade-baixa,-30.04053,-51.22744,150,true,true,dil-ipiranga,false
+abr-06,way/235750709,Colégio ACM Centro,escola,centro-historico,-30.03734,-51.22978,150,true,true,gua-cais,false
+abr-07,way/272808353,Colégio Florinda Tubino Sampaio,escola,petropolis,-30.04072,-51.18162,150,true,false,dil-ipiranga,false
+abr-08,way/246687554,Colégio Caldas Junior,escola,partenon,-30.05817,-51.15995,150,true,false,dil-ipiranga,false
+abr-09,way/233995875,Colégio Estadual Júlio de Castilhos,escola,santana,-30.04413,-51.21258,150,true,false,dil-ipiranga,false
+abr-10,way/333909682,Escola Professora Maria Thereza da Silveira,escola,bela-vista,-30.02832,-51.18409,150,true,false,dil-ipiranga,false
+abr-11,way/245577975,Colégio Leonardo da Vinci Unidade Alfa,escola,rio-branco,-30.03452,-51.20279,150,true,false,dil-ipiranga,false
+abr-12,way/243118480,Colégio Estadual Professor Otávio de Souza,escola,jardim-botanico,-30.05275,-51.18611,150,true,false,dil-ipiranga,false
+abr-13,way/244050543,Escola Antão de Faria,escola,bom-jesus,-30.04395,-51.15235,150,true,false,dil-ipiranga,false
+abr-14,way/496328985,Ginásio de Esportes Lupi Martins,ginasio,teresopolis,-30.08080,-51.20630,300,true,false,dil-ipiranga,false
+abr-15,way/244633502,Colégio Marista Assunção,escola,gloria,-30.07580,-51.20307,150,true,false,dil-ipiranga,false
+abr-16,node/2422063322,CPOR,escola,santa-tereza,-30.06217,-51.22045,150,true,false,dil-ipiranga,false
+abr-17,way/428490694,Colégio General Álvaro Alves da Silva Braga,escola,medianeira,-30.06298,-51.21705,150,true,false,dil-ipiranga,false
+abr-18,way/296037191,Colégio Dom João Becker,escola,passo-da-areia,-30.01252,-51.17670,150,true,false,gua-cais,false
+abr-19,way/296029869,Escola República Argentina,escola,jardim-lindoia,-30.00312,-51.14871,150,true,false,gra-sarandi,false
+abr-20,way/467743074,Escola Estadual Especial Cristo Redentor,escola,cristo-redentor,-30.01223,-51.15245,150,true,false,gra-sarandi,false
+abr-demo,,Abrigo de demonstração (Wokwi),ginasio,farroupilha,-30.0346,-51.2177,50,true,false,demo-wokwi,true

@@ -1,0 +1,14 @@
+# Quem pode ler/escrever em quais tópicos (o que não está aqui é negado).
+
+# Ingestor: só lê as leituras (e o $SYS, usado no healthcheck).
+user ingestor
+topic read citizentech/v1/#
+topic read $SYS/#
+
+# Simulador Python: só publica como origem "sim".
+user simulador
+topic write citizentech/v1/sim/#
+
+# Ponte do Wokwi: só publica como origem "wokwi".
+user ponte
+topic write citizentech/v1/wokwi/#

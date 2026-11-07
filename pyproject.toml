@@ -1,0 +1,18 @@
+# Configuração das ferramentas de qualidade (ruff e pytest) para o repositório todo.
+[tool.ruff]
+line-length = 130
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib -m 'not integration'"
+testpaths = ["area2-bigdata/ingestor/tests", "area3-mvp/iot/simuladores/tests", "area4-devops/testes"]
+pythonpath = [
+    "area2-bigdata/ingestor",
+    "area2-bigdata/ingestor/tests",
+    "area3-mvp/iot/simuladores",
+    "area3-mvp/iot/simuladores/tests",
+]
+markers = ["integration: precisa do docker compose rodando (python -m pytest -m integration)"]

@@ -1,0 +1,18 @@
+# Segredos (copie .env.example para .env)
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Dados gerados (data lake e exportações completas)
+area2-bigdata/datalake/landing/*
+!area2-bigdata/datalake/landing/.gitkeep
+area2-bigdata/powerbi/dados/
+relatorios/
+
+# Sistema
+.DS_Store

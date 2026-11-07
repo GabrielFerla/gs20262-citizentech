@@ -1,0 +1,5 @@
+estacao_id,estacao,bairro_id,nivel_m,medido_em_utc,medido_em_local,chuva_1h_mm,chuva_24h_mm,cota_atencao_m,cota_alerta_m,cota_inundacao_m,situacao,alerta_severidade,alerta_aberto_em_utc,leitura_velha,demo
+gua-cais,Guaíba - Cais Mauá,centro-historico,1.37,2026-11-07 12:26:09,2026-11-07 09:26:09,0,3.5,2,2.50,3,normal,0,,false,false
+dil-ipiranga,Arroio Dilúvio - Av. Ipiranga,menino-deus,0.40,2026-11-07 12:26:09,2026-11-07 09:26:09,0,3.6,1.80,2.50,3.20,normal,0,,false,false
+gra-sarandi,Rio Gravataí - Sarandi,sarandi,1.38,2026-11-07 12:26:09,2026-11-07 09:26:09,0,3.1,3,3.50,4,normal,0,,false,false
+demo-wokwi,Estação de demonstração (Wokwi),farroupilha,,,,0,0,0.80,1.20,1.60,sem_dados,0,,true,true

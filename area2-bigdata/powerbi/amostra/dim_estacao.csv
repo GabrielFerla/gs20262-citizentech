@@ -1,0 +1,5 @@
+estacao_id,estacao,corpo_hidrico,bairro_id,bairro,lat,lon,nivel_base_m,cota_atencao_m,cota_alerta_m,cota_inundacao_m,demo
+gua-cais,Guaíba - Cais Mauá,Lago Guaíba,centro-historico,Centro Histórico,-30.02700,-51.23100,1,2,2.50,3,false
+dil-ipiranga,Arroio Dilúvio - Av. Ipiranga,Arroio Dilúvio,menino-deus,Menino Deus,-30.04880,-51.21960,0.40,1.80,2.50,3.20,false
+gra-sarandi,Rio Gravataí - Sarandi,Rio Gravataí,sarandi,Sarandi,-29.97900,-51.12000,1.20,3,3.50,4,false
+demo-wokwi,Estação de demonstração (Wokwi),Simulação,farroupilha,Farroupilha,-30.03460,-51.21770,0.20,0.80,1.20,1.60,true

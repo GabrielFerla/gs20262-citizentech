@@ -1,0 +1,10 @@
+.git
+.venv
+**/__pycache__
+**/.pytest_cache
+.ruff_cache
+.env
+area2-bigdata/datalake/landing
+area2-bigdata/powerbi
+relatorios
+docs

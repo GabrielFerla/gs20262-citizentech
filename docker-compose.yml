@@ -1,0 +1,207 @@
+# CitizenTech — fase 1: sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold)
+#
+#   cp .env.example .env
+#   docker compose up -d --build
+#
+# Ferramentas (sob demanda):
+#   docker compose --profile ferramentas run --rm exportar   # CSVs para o Power BI
+#   docker compose --profile ferramentas run --rm testes     # testes de integração
+name: citizentech
+
+x-banco: &banco
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: ${POSTGRES_DB:-citizentech}
+
+x-mqtt: &mqtt
+  MQTT_HOST: mosquitto
+  MQTT_PORT: "1883"
+
+x-imagem-ingestor: &imagem-ingestor
+  image: citizentech/ingestor:local
+  build:
+    context: .
+    dockerfile: area2-bigdata/ingestor/Dockerfile
+
+x-imagem-simulador: &imagem-simulador
+  image: citizentech/simulador:local
+  build:
+    context: .
+    dockerfile: area3-mvp/iot/simuladores/Dockerfile
+
+x-simulacao: &simulacao
+  HISTORICO_DIAS: ${HISTORICO_DIAS:-30}
+  SIM_SEMENTE: ${SIM_SEMENTE:-42}
+
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-citizentech}
+      POSTGRES_USER: ${POSTGRES_USER:-migrador}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    ports:
+      - "55432:5432"
+    volumes:
+      # Postgres 18: o volume vai em /var/lib/postgresql (a imagem mudou a pasta de dados)
+      - pg_dados:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0.22
+    entrypoint: ["/bin/sh", "/mosquitto/config/entrypoint.sh"]
+    environment:
+      MQTT_INGESTOR_PASSWORD: ${MQTT_INGESTOR_PASSWORD:?defina no .env}
+      MQTT_SIMULADOR_PASSWORD: ${MQTT_SIMULADOR_PASSWORD:?defina no .env}
+      MQTT_PONTE_PASSWORD: ${MQTT_PONTE_PASSWORD:?defina no .env}
+    ports:
+      - "11883:1883"
+    volumes:
+      - ./area3-mvp/iot/mosquitto:/mosquitto/config:ro
+      - mosquitto_dados:/mosquitto/data
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -u ingestor -P \"$$MQTT_INGESTOR_PASSWORD\" -t '$$SYS/broker/uptime' -C 1 -W 3"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+
+  # Roda uma vez: cria tabelas/visões, carrega cadastros e define as senhas dos usuários do banco.
+  migrar:
+    <<: *imagem-ingestor
+    command: ["python", "-m", "ingestor.migrar"]
+    environment:
+      <<: *banco
+      POSTGRES_USER: ${POSTGRES_USER:-migrador}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD:?defina no .env}
+      BI_DB_PASSWORD: ${BI_DB_PASSWORD:?defina no .env}
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Roda uma vez: gera a série histórica na zona de chegada do data lake (se ainda não existir).
+  historico-gerar:
+    <<: *imagem-simulador
+    command: ["python", "-m", "simuladores.historico", "--se-nao-existir"]
+    user: root  # escreve na pasta do projeto montada como volume
+    environment:
+      <<: *simulacao
+      LANDING_DIR: /dados/landing
+    volumes:
+      - ./area2-bigdata/datalake/landing:/dados/landing
+    healthcheck:
+      disable: true
+
+  # Roda uma vez: carrega os arquivos da zona de chegada (ignora os já carregados).
+  historico-carregar:
+    <<: *imagem-ingestor
+    command: ["python", "-m", "ingestor.lote", "--pasta", "/dados/landing"]
+    environment:
+      <<: *banco
+      INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD}
+    volumes:
+      - ./area2-bigdata/datalake/landing:/dados/landing:ro
+    healthcheck:
+      disable: true
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+      historico-gerar:
+        condition: service_completed_successfully
+
+  # Tempo real: assina o MQTT e grava cada leitura.
+  ingestor:
+    <<: *imagem-ingestor
+    restart: unless-stopped
+    environment:
+      <<: [*banco, *mqtt]
+      INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD}
+      MQTT_INGESTOR_PASSWORD: ${MQTT_INGESTOR_PASSWORD}
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+      mosquitto:
+        condition: service_healthy
+
+  # Sensores simulados publicando em tempo real (acelerado para a demonstração).
+  simulador:
+    <<: *imagem-simulador
+    restart: unless-stopped
+    environment:
+      <<: [*mqtt, *simulacao]
+      MQTT_SIMULADOR_PASSWORD: ${MQTT_SIMULADOR_PASSWORD}
+      SIM_CENARIO: ${SIM_CENARIO:-ciclo}
+      SIM_VELOCIDADE: ${SIM_VELOCIDADE:-600}
+    depends_on:
+      ingestor:
+        condition: service_healthy
+      historico-carregar:
+        condition: service_completed_successfully
+
+  # Traz as leituras do ESP32 no Wokwi (broker público) para o broker local.
+  #   docker compose --profile wokwi up -d ponte-wokwi
+  ponte-wokwi:
+    <<: *imagem-simulador
+    profiles: ["wokwi"]
+    command: ["python", "-m", "simuladores.ponte_wokwi"]
+    restart: unless-stopped
+    environment:
+      <<: *mqtt
+      MQTT_PONTE_PASSWORD: ${MQTT_PONTE_PASSWORD}
+      WOKWI_BROKER: ${WOKWI_BROKER:-broker.hivemq.com}
+      WOKWI_PREFIXO: ${WOKWI_PREFIXO:?defina WOKWI_PREFIXO no .env}
+      WOKWI_CHAVE: ${WOKWI_CHAVE:-}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+
+  # ---------------- ferramentas (sob demanda) ----------------
+  exportar:
+    <<: *imagem-ingestor
+    profiles: ["ferramentas"]
+    command: ["python", "-m", "ingestor.exportar", "--saida", "/saida"]
+    user: root  # escreve na pasta do projeto montada como volume
+    environment:
+      <<: *banco
+      BI_DB_PASSWORD: ${BI_DB_PASSWORD}
+    volumes:
+      - ./area2-bigdata/powerbi/dados:/saida
+    healthcheck:
+      disable: true
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+
+  testes:
+    profiles: ["ferramentas"]
+    image: citizentech/testes:local
+    build:
+      context: .
+      dockerfile: area4-devops/testes/Dockerfile
+    user: root  # grava o relatório JUnit na pasta do projeto
+    environment:
+      <<: [*banco, *mqtt]
+      POSTGRES_USER: ${POSTGRES_USER:-migrador}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      INGESTOR_DB_PASSWORD: ${INGESTOR_DB_PASSWORD}
+      BI_DB_PASSWORD: ${BI_DB_PASSWORD}
+      MQTT_INGESTOR_PASSWORD: ${MQTT_INGESTOR_PASSWORD}
+      MQTT_SIMULADOR_PASSWORD: ${MQTT_SIMULADOR_PASSWORD}
+      MQTT_PONTE_PASSWORD: ${MQTT_PONTE_PASSWORD}
+    volumes:
+      - ./relatorios:/relatorios
+    depends_on:
+      simulador:
+        condition: service_healthy
+
+volumes:
+  pg_dados:
+  mosquitto_dados:

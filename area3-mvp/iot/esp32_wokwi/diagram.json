@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "author": "CitizenTech - Global Solution 2026/2",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-hc-sr04", "id": "nivel", "top": -150, "left": -40, "attrs": { "distance": "300" } },
+    { "type": "wokwi-potentiometer", "id": "chuva", "top": -130, "left": 160, "attrs": {} },
+    { "type": "wokwi-pir-motion-sensor", "id": "entrada", "top": 40, "left": 230, "attrs": {} },
+    { "type": "wokwi-pushbutton", "id": "saida", "top": 160, "left": 230, "attrs": { "color": "blue", "label": "Saída" } },
+    { "type": "wokwi-led", "id": "alerta", "top": 60, "left": -120, "attrs": { "color": "red", "label": "Alerta" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 140, "left": -130, "rotate": 90, "attrs": { "value": "220" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "nivel:VCC", "esp:5V", "red", [] ],
+    [ "nivel:GND", "esp:GND.1", "black", [] ],
+    [ "nivel:TRIG", "esp:5", "green", [] ],
+    [ "nivel:ECHO", "esp:18", "orange", [] ],
+    [ "chuva:VCC", "esp:3V3", "red", [] ],
+    [ "chuva:GND", "esp:GND.2", "black", [] ],
+    [ "chuva:SIG", "esp:34", "blue", [] ],
+    [ "entrada:VCC", "esp:3V3", "red", [] ],
+    [ "entrada:GND", "esp:GND.2", "black", [] ],
+    [ "entrada:OUT", "esp:27", "violet", [] ],
+    [ "saida:1.l", "esp:26", "yellow", [] ],
+    [ "saida:2.l", "esp:GND.3", "black", [] ],
+    [ "alerta:A", "esp:2", "red", [] ],
+    [ "alerta:C", "r1:1", "black", [] ],
+    [ "r1:2", "esp:GND.1", "black", [] ]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,6 @@
+dia_local,canal,status,motivo,mensagens
+2026-11-07,mqtt,aceita,,621
+2026-11-07,arquivo,rejeitada,json,19
+2026-11-07,arquivo,aceita,,111670
+2026-11-07,arquivo,rejeitada,faixa,15
+2026-11-07,arquivo,rejeitada,contrato,62

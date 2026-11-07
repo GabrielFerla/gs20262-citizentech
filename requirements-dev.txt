@@ -1,0 +1,6 @@
+# Para rodar os testes de unidade e o lint fora do Docker:
+#   python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+-r area2-bigdata/ingestor/requirements.txt
+-r area3-mvp/iot/simuladores/requirements.txt
+pytest==9.2.0
+ruff==0.17.4

@@ -1,0 +1,5 @@
+id,nome,corpo_hidrico,bairro_id,lat,lon,nivel_base_m,cota_atencao_m,cota_alerta_m,cota_inundacao_m,salto_max_m,demo,fonte_cotas
+gua-cais,Guaíba - Cais Mauá,Lago Guaíba,centro-historico,-30.0270,-51.2310,1.00,2.00,2.50,3.00,0.30,false,"Alerta 2,50 m e inundação 3,00 m: referências públicas do Cais Mauá (conferir fonte oficial); atenção 2,00 m definida pelo grupo"
+dil-ipiranga,Arroio Dilúvio - Av. Ipiranga,Arroio Dilúvio,menino-deus,-30.0488,-51.2196,0.40,1.80,2.50,3.20,0.80,false,Cotas simuladas pelo grupo (sem cota oficial publicada)
+gra-sarandi,Rio Gravataí - Sarandi,Rio Gravataí,sarandi,-29.9790,-51.1200,1.20,3.00,3.50,4.00,0.30,false,Cotas simuladas pelo grupo (sem cota oficial publicada)
+demo-wokwi,Estação de demonstração (Wokwi),Simulação,farroupilha,-30.0346,-51.2177,0.20,0.80,1.20,1.60,2.00,true,Estação fictícia para o circuito ESP32 no Wokwi
