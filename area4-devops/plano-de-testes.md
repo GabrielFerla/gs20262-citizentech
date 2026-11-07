@@ -76,6 +76,17 @@ Execução em 07/11/2026 (macOS, Docker 29), com a fase 2: **unidade 271/271 ok 
 | CT-44 | Antecedência honesta | Unidade | Previsão avisando 30 h antes da cheia | Conta no máximo o horizonte (6 h) | ✅ | `test_avaliacao.py` |
 | CT-45 | Relatório com histórico curto | Unidade | Gerar o relatório sem histórico | Gera `RELATORIO.md` e `demo.md` explicando a falta de dados, sem erro | ✅ | `test_relatorio.py` |
 
+### Circuito ESP32 no Wokwi (área 3)
+
+Execução manual em 07/11/2026 no [Wokwi](https://wokwi.com), com a ponte local ligada (`docker compose --profile wokwi up -d ponte-wokwi`). Print: [`docs/evidencias/wokwi-simulacao.jpg`](../docs/evidencias/wokwi-simulacao.jpg).
+
+| ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
+|---|---|---|---|---|---|---|
+| CT-46 | ESP32 publica e a ponte repassa | Manual | Rodar `sketch.ino` + `diagram.json` no Wokwi por alguns minutos | Leituras de `wok-nivel`, `wok-chuva` e `wok-ocup` aceitas no bronze e gravadas no silver | ✅ 150 aceitas, 0 rejeitadas | — (a ponte tem testes em `test_ponte_wokwi.py`) |
+| CT-47 | Alerta local e no pipeline | Manual | Distância do HC-SR04: 300 → 270 → 220 → 360 cm | LED acende a partir de 1,20 m; alerta da `demo-wokwi` abre, escala para inundação e fecha quando o nível cai | ✅ 0,97 → 1,28 → 1,78 → 0,37 m; alerta aberto e fechado | — |
+| CT-48 | Chuva pelo potenciômetro | Manual | Girar o potenciômetro | Valor em mm aparece em `wok-chuva` | ✅ 7,63 mm | — |
+| CT-49 | Contagem de pessoas no abrigo | Manual | 2 entradas no PIR e 1 toque rápido no botão de saída | `abr-demo` com 1 pessoa em `gold.v_abrigo_status` | ✅ depois da correção (antes, o toque rápido se perdia) | — |
+
 ## Como gerar as evidências para o PDF
 
 Rodar os testes de integração e guardar o relatório em `relatorios/integracao.xml`:
@@ -90,4 +101,4 @@ Rodar os testes de unidade e guardar o relatório em `relatorios/unitarios.xml`:
 .venv/bin/python -m pytest --junitxml=relatorios/unitarios.xml
 ```
 
-Para o PDF: print do terminal com os testes passando e print da aba **Actions** do GitHub com o pipeline verde.
+Para o PDF: print do terminal com os testes passando, print da aba **Actions** do GitHub com o pipeline verde e o print do circuito rodando no Wokwi (`docs/evidencias/wokwi-simulacao.jpg`).

@@ -6,6 +6,8 @@
     - Potenciômetro fazendo papel de pluviômetro: chuva (mm) nos últimos 10 minutos
     - Sensor de presença (PIR) na porta do abrigo: +1 pessoa a cada entrada
     - Botão "saída": -1 pessoa
+    PIR e botão são lidos por interrupção: um toque rápido no botão, ou uma entrada enquanto
+    a placa publica ou reconecta ao broker, não se perde.
   Atuador:
     - LED vermelho acende quando o nível passa da cota de alerta (funciona mesmo sem internet)
 
@@ -40,10 +42,31 @@ const int PINO_LED = 2;
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
 int ocupacao = 0;
-int pirAnterior = LOW;
-int botaoAnterior = HIGH;
 unsigned long ultimoEnvio = 0;
 float ultimoNivel = 0;
+
+// Contadores preenchidos pelas interrupções e esvaziados no loop()
+const unsigned long DEBOUNCE_MS = 200;  // ignora o "repique" mecânico do botão
+volatile int entradasPendentes = 0;
+volatile int saidasPendentes = 0;
+volatile unsigned long ultimaSaidaMs = 0;
+portMUX_TYPE trava = portMUX_INITIALIZER_UNLOCKED;  // protege os contadores entre interrupção e loop()
+
+void IRAM_ATTR aoEntrar() {  // borda de subida do PIR = alguém entrou
+  portENTER_CRITICAL_ISR(&trava);
+  entradasPendentes++;
+  portEXIT_CRITICAL_ISR(&trava);
+}
+
+void IRAM_ATTR aoSair() {  // botão pressionado (vai para LOW) = alguém saiu
+  unsigned long agora = millis();
+  portENTER_CRITICAL_ISR(&trava);
+  if (agora - ultimaSaidaMs >= DEBOUNCE_MS) {
+    saidasPendentes++;
+    ultimaSaidaMs = agora;
+  }
+  portEXIT_CRITICAL_ISR(&trava);
+}
 
 String hmacHex(const String& texto) {
   byte saida[32];
@@ -137,6 +160,8 @@ void setup() {
   pinMode(PINO_PIR, INPUT);
   pinMode(PINO_SAIDA, INPUT_PULLUP);
   pinMode(PINO_LED, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(PINO_PIR), aoEntrar, RISING);
+  attachInterrupt(digitalPinToInterrupt(PINO_SAIDA), aoSair, FALLING);
   conectarWifi();
   mqtt.setServer(BROKER, 1883);
   conectarMqtt();
@@ -146,13 +171,14 @@ void loop() {
   if (!mqtt.connected()) conectarMqtt();
   mqtt.loop();
 
-  // Contagem de pessoas no abrigo (borda de subida do PIR = entrada; botão = saída)
-  int pir = digitalRead(PINO_PIR);
-  if (pir == HIGH && pirAnterior == LOW) ocupacao++;
-  pirAnterior = pir;
-  int botao = digitalRead(PINO_SAIDA);
-  if (botao == LOW && botaoAnterior == HIGH && ocupacao > 0) ocupacao--;
-  botaoAnterior = botao;
+  // Contagem de pessoas no abrigo: soma o que as interrupções registraram desde a última volta
+  portENTER_CRITICAL(&trava);
+  int entradas = entradasPendentes;
+  int saidas = saidasPendentes;
+  entradasPendentes = 0;
+  saidasPendentes = 0;
+  portEXIT_CRITICAL(&trava);
+  ocupacao = max(0, ocupacao + entradas - saidas);
 
   // Alerta local: funciona mesmo sem internet
   ultimoNivel = medirNivel();

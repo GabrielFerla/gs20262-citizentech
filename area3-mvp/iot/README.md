@@ -45,10 +45,10 @@ A física fica em [`modelo.py`](simuladores/simuladores/modelo.py) e é determin
    docker compose --profile wokwi up -d ponte-wokwi
    ```
 
-4. Rode a simulação no Wokwi. Para interagir:
-   - clique no HC-SR04 e mude a distância (menos distância = rio mais alto; o LED acende a partir de 1,20 m);
-   - gire o potenciômetro para simular chuva;
-   - acione o PIR para contar entradas no abrigo e aperte o botão azul para contar saídas.
+4. Rode a simulação no Wokwi (a primeira compilação leva cerca de 20 s). Para interagir:
+   - clique no HC-SR04 e mude a distância no controle deslizante (menos distância = rio mais alto). O sensor fica a 4 m do fundo: 270 cm dá 1,30 m e acende o LED (cota de alerta 1,20 m); 220 cm dá 1,80 m (inundação);
+   - clique no potenciômetro e use as setas do teclado, ou arraste o botão, para simular chuva;
+   - clique no PIR e em **Simulate motion** para contar uma entrada no abrigo; clique no botão azul para contar uma saída.
 5. Acompanhe a ponte:
 
    ```bash
@@ -75,5 +75,13 @@ Os sensores do Wokwi pertencem a uma estação de demonstração: nada que venha
 
 > A chave no sketch é de **demonstração**, porque o projeto no Wokwi fica público. Para uso real, gere outra chave e troque no `.env` e no sketch.
 
-> **Validado:** a ponte foi testada de ponta a ponta pelo broker público, com um publicador Python fazendo o papel do ESP32. A mensagem assinada chegou ao banco e a forjada foi recusada.
-> **Ainda não validado:** o `sketch.ino` e o `diagram.json` não foram rodados no Wokwi. Confira na primeira execução e anote ajustes aqui.
+**Validado no Wokwi em 07/11/2026** (casos CT-46 a CT-49 do [plano de testes](../../area4-devops/plano-de-testes.md), print em [`docs/evidencias/wokwi-simulacao.jpg`](../../docs/evidencias/wokwi-simulacao.jpg)):
+- o sketch compila com o `diagram.json` e a biblioteca PubSubClient;
+- 150 leituras assinadas passaram pela ponte e entraram no banco, sem nenhuma rejeitada;
+- o nível subiu de 0,97 m para 1,28 m (LED aceso) e 1,78 m: o pipeline abriu o alerta da estação `demo-wokwi`, escalou para inundação e fechou quando o nível caiu para 0,37 m;
+- a chuva do potenciômetro chegou como `wok-chuva` (7,63 mm);
+- duas entradas no PIR e um toque no botão deixaram o abrigo `abr-demo` com 1 pessoa.
+
+O teste achou um defeito, já corrigido: um toque rápido no botão de saída se perdia, porque o loop só olhava o pino a cada 80 ms ou mais e fica parado enquanto reconecta ao broker. Agora o PIR e o botão são lidos por interrupção, com 200 ms de debounce no botão.
+
+A ponte também foi testada antes com um publicador Python no papel do ESP32: a mensagem assinada chegou ao banco e a forjada foi recusada.
