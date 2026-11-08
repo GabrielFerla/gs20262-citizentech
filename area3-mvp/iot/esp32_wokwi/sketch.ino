@@ -1,5 +1,5 @@
 /*
-  CitizenTech — estação de demonstração no Wokwi (ESP32)
+  Abriga — estação de demonstração no Wokwi (ESP32)
 
   Sensores:
     - HC-SR04 (ultrassônico) instalado acima do rio: nível = altura do sensor - distância até a água

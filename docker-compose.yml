@@ -1,4 +1,4 @@
-# CitizenTech — sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold) → API de IA
+# Abriga — sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold) → API de IA
 #
 #   cp .env.example .env
 #   docker compose up -d --build

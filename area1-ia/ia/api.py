@@ -212,7 +212,7 @@ async def ciclo_de_vida(app: FastAPI):
 
 
 app = FastAPI(
-    title="CitizenTech — IA de enchentes (Porto Alegre)",
+    title="Abriga — IA de enchentes (Porto Alegre)",
     version="2.0.0",
     description=(
         "Previsão do nível dos rios para daqui a 6 h, recomendação de abrigo seguro e mensagens de alerta "

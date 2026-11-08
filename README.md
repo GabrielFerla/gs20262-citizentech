@@ -1,12 +1,14 @@
-# CitizenTech — Alerta de enchentes e "onde ficar seguro" (Porto Alegre)
+# Abriga — Alerta de enchentes e "onde ficar seguro" (Porto Alegre)
 
-Global Solution 2026/2 · FIAP · Engenharia de Software (4ESOA)
+Global Solution 2026/2 (desafio CitizenTech) · FIAP · Engenharia de Software (4ESOA)
 
 Sensores de nível de rio, chuva e ocupação de abrigos alimentam um pipeline de dados em
 tempo real. Com ele a Defesa Civil acompanha os rios, recebe alertas de cheia e sabe quais
 abrigos ainda têm vaga. Uma IA prevê o nível dos rios para daqui a 6 horas e avisa antes de
 a cheia chegar. O cidadão recebe um alerta em linguagem simples e é orientado para um abrigo
 que vai ter vaga quando ele chegar e que não vai alagar.
+
+O nome técnico continua `citizentech` (repositório, banco, tópicos MQTT e imagens Docker), igual ao nome do desafio.
 
 > **Fases 1 e 2 (este README):** sensores → MQTT → ingestão → PostgreSQL (bronze/silver/gold) → CSVs do Power BI,
 > e a API de IA (previsão, "onde ficar seguro" e mensagens). O app entra na fase 3.
