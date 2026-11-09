@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Abriga — Entregáveis da Global Solution 2026/2</title>
+<!--
+  Fonte do PDF de entregáveis (docs/pdf/Abriga-Entregaveis.pdf).
+  Como gerar de novo: veja docs/pdf/fonte/README.md.
+  Os prints do Power BI entram sozinhos quando existirem em docs/evidencias/powerbi-1.png, -2.png e -3.png.
+-->
+<style>
+@page { size: A4; margin: 15mm 14mm 15mm 14mm; }
+@page paisagem { size: A4 landscape; margin: 12mm 12mm 12mm 12mm; }
+:root { --ink:#1d2330; --muted:#5b6472; --line:#e1e4e8; --panel:#f5f6f8; --accent:#1f5fbf; --ok:#0f7b4f; --warn:#b26a00; --bad:#b3261e; --falta:#fff4cc; }
+* { box-sizing: border-box; }
+html, body { background:#fff; }
+body { margin:0; color:var(--ink); font: 9.4pt/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+h1 { font: 400 30pt/1.1 Georgia, "Times New Roman", serif; margin:0 0 4pt; }
+h2 { font: 400 16pt/1.2 Georgia, "Times New Roman", serif; margin:0 0 6pt; padding-bottom:3pt; border-bottom:2px solid var(--ink); }
+h3 { font-size:10.5pt; margin:12pt 0 4pt; }
+h4 { font-size:9.4pt; margin:8pt 0 3pt; }
+p { margin:0 0 6pt; }
+ul, ol { margin:0 0 6pt; padding-left:15pt; }
+li { margin-bottom:2pt; }
+a { color:var(--accent); text-decoration:none; }
+.muted { color:var(--muted); }
+.ok { color:var(--ok); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+.quebra { break-before: page; }
+.paisagem { page: paisagem; }
+.evitar { break-inside: avoid; }
+.capa { padding-top:30mm; }
+.capa .sub { font-size:14pt; color:var(--muted); margin:0 0 18pt; }
+.capa .meta { font-size:10pt; margin-bottom:22pt; }
+.card { border:1px solid var(--line); border-radius:6pt; padding:8pt 10pt; margin:0 0 9pt; break-inside: avoid; }
+.card > h3:first-child, .card > h4:first-child { margin-top:0; }
+.nota { background:var(--panel); border-radius:6pt; padding:7pt 9pt; margin:0 0 9pt; font-size:8.6pt; break-inside: avoid; }
+.falta { background:var(--falta); border:1px dashed var(--warn); border-radius:5pt; padding:2pt 5pt; }
+div.falta { padding:16pt 12pt; text-align:center; color:var(--warn); margin:0 0 9pt; font-size:9pt; }
+.tiles { display:grid; grid-template-columns: repeat(4, 1fr); gap:7pt; margin:0 0 14pt; }
+.tile { background:var(--panel); border-radius:6pt; padding:9pt; break-inside: avoid; }
+.tile .big { font: 400 22pt/1.1 Georgia, serif; margin:0 0 3pt; font-variant-numeric: tabular-nums; }
+.tile .tl { font-size:8pt; color:var(--muted); }
+.grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:9pt; }
+.grid3 { display:grid; grid-template-columns: repeat(3, 1fr); gap:9pt; }
+.telas { display:grid; grid-template-columns: repeat(5, 1fr); gap:7pt; margin:0 0 8pt; }
+.telas4 { display:grid; grid-template-columns: repeat(4, 1fr); gap:9pt; margin:0 0 8pt; }
+figure { margin:0 0 9pt; break-inside: avoid; }
+figure img { width:100%; display:block; border:1px solid var(--line); border-radius:4pt; }
+figcaption { font-size:7.8pt; color:var(--muted); margin-top:3pt; line-height:1.35; }
+.telas figure img, .telas4 figure img { border-radius:8pt; }
+table { width:100%; border-collapse:collapse; font-size:8.3pt; margin:0 0 9pt; font-variant-numeric: tabular-nums; }
+th { text-align:left; font-weight:600; color:var(--muted); border-bottom:1.5px solid var(--line); padding:3pt 5pt; vertical-align:bottom; }
+td { border-bottom:1px solid var(--line); padding:3pt 5pt; vertical-align:top; }
+tr { break-inside: avoid; }
+td.n, th.n { text-align:right; white-space:nowrap; }
+code { font: 7.9pt "SF Mono", Menlo, Consolas, monospace; background:var(--panel); padding:0 2pt; border-radius:2pt; }
+pre { background:var(--panel); border-radius:6pt; padding:7pt 9pt; font: 7.4pt/1.45 "SF Mono", Menlo, Consolas, monospace; margin:0 0 8pt; white-space:pre-wrap; word-break:break-word; break-inside: avoid; }
+pre.longo { break-inside: auto; }
+pre code { background:none; padding:0; font: inherit; }
+.selo { display:inline-block; border:1px solid currentColor; border-radius:4pt; padding:0 4pt; font-size:7.6pt; white-space:nowrap; }
+.edital { border-left:3px solid var(--accent); background:#f1f5fc; padding:6pt 9pt; margin:0 0 9pt; font-size:8.6pt; break-inside: avoid; }
+.edital b { color:var(--accent); }
+.sumario td:first-child, .casos td:first-child { white-space:nowrap; }
+#arq svg { display:block; margin:0 auto; width:auto !important; max-width:100% !important; height:auto; max-height:198mm; }
+#arq { min-height:60mm; }
+.rodape-capa { margin-top:20pt; font-size:8.4pt; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ============================== CAPA ============================== -->
+<section class="capa">
+  <h1>Abriga</h1>
+  <p class="sub">Alerta de enchentes e "onde ficar seguro" em Porto Alegre</p>
+  <p class="meta">Entregáveis da Global Solution 2026/2 · desafio CitizenTech<br>
+  FIAP · Engenharia de Software · turma 4ESOA · entrega em 19/11/2026</p>
+
+  <div class="card">
+    <h3>Grupo</h3>
+    <p><b>Nome do grupo:</b> <span class="falta">(nome do grupo)</span></p>
+    <table>
+      <tr><th style="width:28mm">RM</th><th>Nome</th></tr>
+      <tr><td><span class="falta">RM00000</span></td><td><span class="falta">Nome completo</span></td></tr>
+      <tr><td><span class="falta">RM00000</span></td><td><span class="falta">Nome completo</span></td></tr>
+      <tr><td><span class="falta">RM00000</span></td><td><span class="falta">Nome completo</span></td></tr>
+      <tr><td><span class="falta">RM00000</span></td><td><span class="falta">Nome completo</span></td></tr>
+      <tr><td><span class="falta">RM00000</span></td><td><span class="falta">Nome completo</span></td></tr>
+    </table>
+    <p><b>Vídeo pitch:</b> <span class="falta">(link público)</span><br>
+    <b>Repositório:</b> <a href="https://github.com/GabrielFerla/gs20262-citizentech">github.com/GabrielFerla/gs20262-citizentech</a></p>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="big">−71%</div><div class="tl">erro da previsão do Guaíba para daqui a 6 h, comparado com a regra simples</div></div>
+    <div class="tile"><div class="big">4–6 h</div><div class="tl">de antecedência do alerta, antes de o rio chegar à cota</div></div>
+    <div class="tile"><div class="big">0,1%</div><div class="tl">das famílias mandadas a abrigo lotado ou alagado, contra 15,9% indo ao mais próximo</div></div>
+    <div class="tile"><div class="big">410</div><div class="tl">testes automatizados passando: 275 de unidade, 112 do app e 23 de integração</div></div>
+  </div>
+
+  <p class="rodape-capa">Os rios, a chuva e a ocupação dos abrigos são simulados. O Abriga é um protótipo acadêmico e não é um canal oficial:
+  em emergência real, ligue 199 (Defesa Civil) ou 193 (Bombeiros).</p>
+</section>
+
+<!-- ============================== SUMÁRIO ============================== -->
+<section class="quebra">
+  <h2>Onde está cada item do edital</h2>
+  <p class="muted">As 4 áreas resolvem o mesmo problema e estão integradas: os sensores alimentam o pipeline, a IA lê a camada gold, o app fala com a IA e o Power BI lê os CSVs da camada gold.</p>
+  <table class="sumario">
+    <tr><th>Área</th><th>Item do edital</th><th class="n">Pts</th><th>Onde está</th></tr>
+    <tr><td rowspan="4">1. IA e automação</td><td>IA aplicada</td><td class="n">1,5</td><td>Seção 5.1 · <code>area1-ia/</code></td></tr>
+    <tr><td>Prompts, agentes ou automação</td><td class="n">1</td><td>Seção 5.2 · <code>area1-ia/prompts/</code></td></tr>
+    <tr><td>Demonstração com entrada e saída</td><td class="n">0,5</td><td>Seção 5.3 · <code>area1-ia/relatorio/demo.md</code></td></tr>
+    <tr><td>Lógica e ganho (antes × depois)</td><td class="n">1</td><td>Seção 5.4 · <code>area1-ia/relatorio/RELATORIO.md</code></td></tr>
+    <tr><td rowspan="4">2. Big Data e visualização</td><td>Estrutura dos dados</td><td class="n">1</td><td>Seção 6.1 · <code>area2-bigdata/db/migrations/</code></td></tr>
+    <tr><td>Ingestão e processamento</td><td class="n">1</td><td>Seção 6.2 · <code>area2-bigdata/ingestor/</code></td></tr>
+    <tr><td>Dashboard com 3+ indicadores e filtros</td><td class="n">1,5</td><td>Seção 6.3 · Power BI</td></tr>
+    <tr><td>Funções analíticas (DAX)</td><td class="n">0,5</td><td>Seção 6.4 · <code>area2-bigdata/powerbi/</code></td></tr>
+    <tr><td rowspan="4">3. MVP, IoT e experiência digital</td><td>Protótipo com 4+ telas</td><td class="n">1</td><td>Seção 7.1 · <code>area3-mvp/app/</code></td></tr>
+    <tr><td>IoT com 2+ sensores</td><td class="n">1</td><td>Seção 7.2 · <code>area3-mvp/iot/</code></td></tr>
+    <tr><td>Fluxo funcional do início ao fim</td><td class="n">1</td><td>Seção 7.3</td></tr>
+    <tr><td>Diagrama da arquitetura</td><td class="n">1</td><td>Seção 4 · <code>docs/arquitetura.md</code></td></tr>
+    <tr><td rowspan="4">4. DevOps, segurança e qualidade</td><td>Organização e Git</td><td class="n">0,5</td><td>Seção 8.1</td></tr>
+    <tr><td>Docker e CI/CD funcionando</td><td class="n">1</td><td>Seção 8.2 · <code>docker-compose.yml</code>, <code>.github/workflows/ci.yml</code></td></tr>
+    <tr><td>2+ práticas de segurança</td><td class="n">0,5</td><td>Seção 8.3 · <code>area4-devops/seguranca.md</code></td></tr>
+    <tr><td>Plano com 5+ casos e evidências</td><td class="n">1</td><td>Seção 8.4 · <code>area4-devops/plano-de-testes.md</code></td></tr>
+    <tr><td>Proposta</td><td>Problema, solução, ODS e uso de IA generativa</td><td class="n">—</td><td>Seções 1 a 3 e 9 · <code>README.md</code></td></tr>
+  </table>
+
+  <h3>Seções</h3>
+  <ol>
+    <li>O problema e o cidadão</li>
+    <li>A solução</li>
+    <li>Impacto e ODS</li>
+    <li>Arquitetura geral</li>
+    <li>Área 1 — IA e automação</li>
+    <li>Área 2 — Big Data e visualização</li>
+    <li>Área 3 — MVP, IoT e experiência digital</li>
+    <li>Área 4 — DevOps, segurança e qualidade</li>
+    <li>Uso de IA generativa, como rodar e limitações</li>
+  </ol>
+</section>
+
+<!-- ============================== 1 e 2 ============================== -->
+<section class="quebra">
+  <h2>1. O problema e o cidadão</h2>
+  <p>Na cheia, o morador descobre que o rio subiu quando a água já está na rua. E o abrigo mais perto pode estar
+  lotado ou dentro da área que vai alagar. A enchente de maio de 2024 em Porto Alegre mostrou os dois problemas:
+  aviso tarde e gente mandada para o lugar errado.</p>
+  <table>
+    <tr><th>Quem</th><th>O que precisa saber</th><th>O que o Abriga entrega</th></tr>
+    <tr><td><b>Morador de bairro de risco</b> (ex.: Navegantes, Sarandi)</td><td>Se precisa sair agora e para onde ir</td><td>Alerta em linguagem simples no app e os 3 abrigos aptos mais perto, com o tempo a pé e o caminho</td></tr>
+    <tr><td><b>Defesa Civil</b></td><td>Qual rio vai passar da cota e quando</td><td>Previsão do nível em 6 h por estação e alerta antecipado automático (o vigia)</td></tr>
+    <tr><td><b>Gestor de abrigo</b></td><td>Quantas vagas restam e quanta gente está chegando</td><td>Ocupação em tempo real, vagas e minutos até lotar</td></tr>
+    <tr><td><b>Gestão pública</b></td><td>Onde e quando as cheias acontecem</td><td>Dashboard no Power BI com o histórico de níveis, alertas e lotação</td></tr>
+  </table>
+
+  <h2 style="margin-top:14pt">2. A solução</h2>
+  <p><b>A funcionalidade central é "onde ficar seguro":</b> um abrigo que vai ter vaga quando a pessoa chegar
+  e que não fica numa área que o rio deve alagar nas próximas 6 horas.</p>
+  <ol>
+    <li><b>Sensores</b> de nível do rio, chuva e ocupação dos abrigos publicam leituras por MQTT (26 simulados e um ESP32 no Wokwi).</li>
+    <li>O <b>pipeline</b> valida cada leitura e guarda em três camadas no PostgreSQL: bronze (tudo o que chegou), silver (dado tratado) e gold (visões para decidir).</li>
+    <li>A <b>IA</b> prevê o nível de cada rio para daqui a 6 h, abre o alerta antes da cota, escolhe os abrigos seguros e escreve o alerta em linguagem simples.</li>
+    <li>O <b>app</b> avisa o cidadão, mostra os rios e leva a pessoa ao abrigo, sem enviar a posição dela ao servidor.</li>
+    <li>O <b>Power BI</b> mostra o histórico para a gestão pública decidir onde agir.</li>
+  </ol>
+
+  <h3>Tecnologias</h3>
+  <table>
+    <tr><th>Área</th><th>Tecnologias</th></tr>
+    <tr><td>IA e automação</td><td>Python 3.14, scikit-learn (random forest e regressão linear), FastAPI</td></tr>
+    <tr><td>Big Data</td><td>PostgreSQL 18 (bronze/silver/gold), data lake em arquivos NDJSON, Power BI com DAX</td></tr>
+    <tr><td>MVP e IoT</td><td>React Native com Expo (exportado para a web), MQTT (Mosquitto 2), ESP32 no Wokwi, simulador em Python</td></tr>
+    <tr><td>DevOps</td><td>Git e GitHub, Docker Compose, GitHub Actions, GitHub Container Registry, pytest, Jest, ruff, ESLint</td></tr>
+  </table>
+
+  <h3>Ecossistema</h3>
+  <p>Cidadão (recebe o alerta e escolhe o abrigo), Defesa Civil (acompanha os rios e dispara os alertas),
+  gestores dos abrigos (escolas e ginásios), Prefeitura (planejamento com o dashboard) e operadores de sensores.</p>
+
+  <div class="nota"><b>Simples, segura e inclusiva.</b> O alerta usa frases curtas, sem jargão, com a ação primeiro.
+  O app não tem login nem cadastro e a localização fica só no celular (LGPD). Se a conexão cair, ele continua mostrando os últimos dados com a hora.
+  A IA também escreve a versão em SMS (sem acento, até 160 caracteres), que chega a qualquer celular quando o envio for ligado.</div>
+</section>
+
+<!-- ============================== 3. ODS ============================== -->
+<section class="quebra">
+  <h2>3. Impacto e ODS</h2>
+  <p>O Abriga contribui para três Objetivos de Desenvolvimento Sustentável da ONU (Agenda 2030).</p>
+  <table>
+    <tr><th style="width:24%">ODS e meta</th><th style="width:40%">Como o Abriga contribui</th><th>Como medimos</th></tr>
+    <tr>
+      <td><b>ODS 11 — Cidades e comunidades sustentáveis</b><br><span class="muted">Meta 11.5: reduzir as mortes e o número de pessoas afetadas por desastres, inclusive os ligados à água, protegendo quem está em situação vulnerável.</span></td>
+      <td>Manda a família para um abrigo que vai ter vaga quando ela chegar e que fica fora da área que deve alagar. Os bairros de risco são os atingidos em maio de 2024.</td>
+      <td>Famílias que chegariam a um abrigo lotado ou alagado: <b>15,9%</b> indo ao mais próximo, <b>0,1%</b> com a IA (46.200 escolhas conferidas no histórico).</td>
+    </tr>
+    <tr>
+      <td><b>ODS 13 — Ação contra a mudança global do clima</b><br><span class="muted">Meta 13.1: resiliência a riscos do clima. Meta 13.3: capacidade de alerta precoce.</span></td>
+      <td>Prevê o nível dos rios para daqui a 6 h e abre o alerta antes de o rio chegar à cota, para a pessoa sair de casa com tempo.</td>
+      <td>Antecedência do alerta: <b>4 a 5 h</b> no Guaíba e <b>6 h</b> no Gravataí. A regra simples só avisa quando o rio já passou da cota (0 h).</td>
+    </tr>
+    <tr>
+      <td><b>ODS 3 — Saúde e bem-estar</b><br><span class="muted">Meta 3.d: alerta precoce e gestão de riscos à saúde.</span></td>
+      <td>Alerta em linguagem simples, com a ação primeiro ("Saia agora para um lugar alto"), um cuidado prático ("Não atravesse ruas alagadas") e os telefones 199 e 193.</td>
+      <td>Todas as combinações de situação, abrigo e bairro passam na verificação automática de linguagem simples (caso de teste CT-34).</td>
+    </tr>
+  </table>
+
+  <h3>Como o impacto é medido</h3>
+  <ul>
+    <li><b>Erro da previsão</b> contra a regra simples ("daqui a 6 h o rio estará igual"), em 30 dias que a IA nunca viu.</li>
+    <li><b>Antecedência do alerta:</b> há quantas horas a previsão já avisava quando o rio passou da cota.</li>
+    <li><b>Abrigo certo:</b> 200 pontos de partida nos bairros de risco × 231 horas de crise, conferindo o que aconteceu depois.</li>
+    <li><b>Qualidade do dado:</b> mensagens rejeitadas e leituras suspeitas, auditadas no bronze e fora das decisões.</li>
+  </ul>
+
+  <h3>Como ampliar</h3>
+  <ul>
+    <li><b>Outras cidades:</b> só precisam das cotas das estações, do cadastro de abrigos e dos bairros (arquivos em <code>area2-bigdata/db/seeds/</code>).</li>
+    <li><b>Sensores reais:</b> entram no lugar do simulador publicando no mesmo contrato MQTT, com a mesma validação.</li>
+    <li><b>Mais canais:</b> as mensagens já saem prontas para SMS, push e WhatsApp, e o envio pode ser ligado aos canais da Defesa Civil.</li>
+  </ul>
+</section>
+
+<!-- ============================== 4. ARQUITETURA ============================== -->
+<section class="quebra">
+  <h2>4. Arquitetura geral</h2>
+  <p class="muted">Tudo dentro do quadro "docker compose" sobe com um comando e roda sem internet. Fonte do diagrama: <code>docs/arquitetura.md</code>.</p>
+  <div id="arq"><p class="muted">Carregando o diagrama…</p></div>
+  <div class="grid3" style="margin-top:6pt">
+    <div class="nota"><b>Duas entradas, mesmas regras.</b> O tempo real (MQTT) e o lote (arquivos NDJSON do data lake) chamam a mesma função <code>processar()</code>, então nenhum dado entra por um caminho mais frouxo.</div>
+    <div class="nota"><b>Áreas integradas.</b> Os sensores alimentam o pipeline. A IA e o Power BI leem só a camada gold, cada um com um usuário que só lê. O app só fala com a API.</div>
+    <div class="nota"><b>Privacidade.</b> O servidor só recebe o bairro. Com o GPS, o app calcula a distância no aparelho com a mesma regra da IA, conferida por um teste de paridade.</div>
+  </div>
+</section>
+
+<!-- ============================== 5. ÁREA 1 ============================== -->
+<section class="quebra">
+  <h2>5. Área 1 — IA e automação</h2>
+  <div class="edital"><b>Edital:</b> IA aplicada (1,5) · prompts, agentes ou automação documentados (1) · demonstração com entrada e saída (0,5) · lógica e ganho com métrica antes e depois (1).</div>
+
+  <h3>5.1 IA aplicada</h3>
+  <table>
+    <tr><th style="width:20%">Peça</th><th style="width:44%">O que faz</th><th>Como funciona</th></tr>
+    <tr><td><b>Previsão do nível em 6 h</b></td><td>Diz o nível de cada rio daqui a 6 horas e a situação prevista (normal, atenção, alerta ou inundação).</td><td>Aprendizado supervisionado com nível atual, variação da última hora e chuva de 1, 6 e 24 h. Para cada rio, a validação cruzada escolhe entre regra simples, regressão linear e random forest.</td></tr>
+    <tr><td><b>Onde ficar seguro</b></td><td>Os 3 abrigos aptos mais perto e os que foram evitados, com o motivo.</td><td>Descarta o abrigo sem vaga na chegada (pelo ritmo de chegada da última hora) e o que fica em área de risco de um rio em alerta agora ou previsto para 6 h.</td></tr>
+    <tr><td><b>Vigia (agente de alerta)</b></td><td>Abre, escala e fecha o alerta antecipado de cada rio sozinho.</td><td>A cada 2 s repete a previsão e aplica a mesma regra de alerta do pipeline, só que com o nível previsto.</td></tr>
+    <tr><td><b>Mensagens</b></td><td>Escreve o alerta para SMS, push, WhatsApp e um resumo técnico.</td><td>Modelos de texto que seguem um prompt de sistema documentado, com verificação automática das regras.</td></tr>
+  </table>
+  <p class="muted">O treino usa 24 meses simulados com outras sementes e acontece no build da imagem. O teste usa os 30 dias que passaram pelo pipeline, que o modelo nunca viu.</p>
+
+  <h3>5.2 Prompts e automação</h3>
+  <p>O projeto não chama uma API de LLM, porque o avaliador não teria a chave e a área precisa rodar só com o README.
+  A IA generativa é <b>simulada</b> por modelos de texto (<code>area1-ia/ia/mensagens.py</code>) que seguem exatamente o prompt abaixo.
+  Ele é ao mesmo tempo a especificação do gerador e o prompt que iria para um LLM. Para trocar o gerador, basta mudar a função <code>gerar()</code>:
+  a entrada, a saída e a verificação continuam as mesmas.</p>
+  <pre><code>fatos (JSON: previsão + recomendação) ──► [prompt de sistema] + [exemplos] ──► gerador (modelos de texto ou LLM)
+        ──► mensagens por canal (JSON) ──► verificação automática (verificar()) ──► envio</code></pre>
+
+  <h4>Prompt de sistema (<code>area1-ia/prompts/sistema.md</code>)</h4>
+  <pre class="longo"><code>Você é o redator de alertas da Defesa Civil de Porto Alegre. Você recebe FATOS em JSON
+sobre um rio (nível de agora, nível previsto para daqui a 6 horas, situação de agora e
+prevista) e, às vezes, um abrigo recomendado e o bairro da pessoa. Escreva o alerta para
+cada canal, em português do Brasil, em LINGUAGEM SIMPLES.
+
+INTENÇÃO (pela situação mais grave entre agora e a prevista):
+- 1 atenção   → "Fique atento."
+- 2 alerta    → "Prepare-se para sair de casa."
+- 3 inundação → "Saia agora para um lugar alto."
+- Se a prevista é MENOS grave que a de agora (o rio está baixando): depois de inundação
+  (quem saiu de casa) → "Não volte para casa ainda."; depois de alerta ou atenção →
+  "Fique atento."
+- Situação 0 nos dois → não escreva mensagem para o cidadão (só o resumo técnico).
+
+REGRAS PARA O CIDADÃO:
+1. Comece pela AÇÃO (o que a pessoa deve fazer), antes de qualquer explicação.
+2. Frases curtas: no máximo 20 palavras cada.
+3. Sem jargão técnico. Nunca use: cota, persistência, modelo, algoritmo, severidade,
+   probabilidade, hidrológico, regressão, random forest. (Nomes próprios vindos dos fatos,
+   como "Escola Modelo", não contam.)
+4. Se a previsão é pior que o agora, fale no futuro e diga o prazo:
+   "deve alagar ruas nas próximas 6 horas". Se já está acontecendo, fale no presente.
+5. Alerta ou inundação (e o rio não está baixando):
+   - diga para onde ir. SMS e push: "Vá para &lt;abrigo&gt; (&lt;minutos&gt; min a pé)". WhatsApp, em
+     duas frases curtas: "Vá para &lt;abrigo&gt;. Fica a &lt;minutos&gt; min a pé e tem &lt;vagas&gt; vagas."
+     Sem abrigo nos fatos: "Procure o abrigo mais perto no app";
+   - inclua o telefone de emergência: 199 (Defesa Civil) ou 193 (Bombeiros).
+6. Termine com um cuidado prático: atenção → "Evite as margens e acompanhe os avisos";
+   alerta → "Separe documentos, remédios e água"; inundação → "Não atravesse ruas
+   alagadas". Baixando: depois de inundação → "Espere a Defesa Civil liberar a volta";
+   depois de alerta → "Mantenha documentos e remédios à mão"; depois de atenção → "Evite
+   as margens até o rio voltar ao normal".
+7. Nunca invente números, abrigos ou bairros que não estejam nos fatos.
+
+CANAIS (responda só com este JSON):
+{
+  "sms":          até 160 caracteres, SEM acentos (padrão GSM), começa com "DEFESA CIVIL:".
+                  Se não couber, encurte o nome do abrigo com "..." (nunca tire o telefone);
+  "push_titulo":  até 50 caracteres;
+  "push_corpo":   até 178 caracteres;
+  "whatsapp":     até 700 caracteres, com a ação em *negrito* e uma ideia por linha;
+  "defesa_civil": resumo técnico, até 700 caracteres, com o rótulo [ALERTA ANTECIPADO],
+                  [ALERTA EM CURSO], [RIO BAIXANDO] ou [NORMAL], os níveis com vírgula
+                  decimal, a cota, a variação prevista e, se houver nos fatos, o erro
+                  médio da IA comparado com o da regra simples.
+}</code></pre>
+  <p class="muted">O prompt escreve as mensagens que a Defesa Civil enviaria numa operação real. No protótipo elas aparecem só na API e no app, que nunca usa "Defesa Civil" como remetente (caso CT-66).</p>
+
+  <h4>Regras de automação</h4>
+  <table>
+    <tr><th style="width:26%">Automação</th><th>Regra</th></tr>
+    <tr><td><b>Vigia</b> (<code>area1-ia/ia/vigia.py</code>)</td><td>A cada 2 s prevê o nível de cada rio. Abre o alerta antecipado quando o nível previsto passa da cota, escala quando piora e fecha só quando a previsão cai 0,10 m abaixo da cota, para não ficar abrindo e fechando. Dado velho ou incompleto não decide.</td></tr>
+    <tr><td><b>Verificação das mensagens</b></td><td>Confere o tamanho de cada canal, o SMS sem acento e com o telefone, as palavras proibidas e o tamanho das frases. Um texto que quebre uma regra aparece em <code>verificacao</code> com o problema.</td></tr>
+    <tr><td><b>Escolha do modelo</b></td><td>A regra simples também concorre no treino. A IA só substitui a regra onde provou ser melhor; por isso o Arroio Dilúvio, que sobe rápido demais, fica com a regra simples.</td></tr>
+  </table>
+</section>
+
+<section class="quebra">
+  <h3>5.3 Demonstração com entrada e saída</h3>
+  <p>Momento real do histórico do pipeline: <b>28/10 03h</b> (horário de Brasília), Guaíba no Cais Mauá. Saída de <code>python -m ia.relatorio</code> (<code>area1-ia/relatorio/demo.md</code>).</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>Previsão do nível em 6 h</h4>
+      <pre><code>{ "nivel_atual_m": 2.47, "variacao_1h_m": 0.11,
+  "chuva_1h_mm": 13.0, "chuva_6h_mm": 84.3,
+  "chuva_24h_mm": 152.2 }</code></pre>
+      <table>
+        <tr><th></th><th class="n">Nível em 6 h</th><th>Situação</th></tr>
+        <tr><td>IA (random forest)</td><td class="n">3,09 m</td><td>inundação</td></tr>
+        <tr><td>Regra simples</td><td class="n">2,47 m</td><td>atenção</td></tr>
+        <tr><td><b>O que aconteceu</b></td><td class="n"><b>3,12 m</b></td><td><b>inundação</b></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>Onde ficar seguro (família de 4 em Navegantes)</h4>
+      <pre><code>GET /abrigos/recomendacao?bairro=navegantes&amp;pessoas=4</code></pre>
+      <table>
+        <tr><th>Estratégia</th><th>Abrigo</th><th>O que aconteceu</th></tr>
+        <tr><td>Mais próximo</td><td>Colégio Cândido José de Godoi (1,0 km)</td><td class="bad">alagou nas 6 h seguintes</td></tr>
+        <tr><td>IA</td><td>Colégio Dom João Becker (3,1 km, 61 min a pé)</td><td class="ok">seguro, com vaga</td></tr>
+      </table>
+      <p class="muted" style="font-size:8pt">Evitado: o Colégio Cândido José de Godoi fica em área de risco e o rio da região está em alerta.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h4>Mensagem de alerta (<code>POST /mensagens/gerar</code>, trecho da saída)</h4>
+    <pre><code>"sms": "DEFESA CIVIL: Saia agora para um lugar alto. O Lago Guaiba deve alagar ruas em ate 6 h.
+        Va para Colegio Dom Joao Becker (61 min a pe). Emergencia: 199 ou 193."
+"push_titulo": "Saia agora: risco de alagamento"
+"whatsapp": "*Saia agora para um lugar alto.* O Lago Guaíba deve alagar ruas no bairro Navegantes nas
+             próximas 6 horas. Vá para Colégio Dom João Becker. Fica a 61 min a pé e tem 47 vagas.
+             Não atravesse ruas alagadas. Emergência: 199 (Defesa Civil) ou 193 (Bombeiros)."
+"defesa_civil": "[ALERTA ANTECIPADO] Guaíba - Cais Mauá: 2,47 m agora (atenção). Previsão para 6 h: 3,09 m
+                 (inundação; cota 3,00 m), variação +0,62 m. Erro médio da IA no teste: 0,022 m (regra simples: 0,075 m)."
+"verificacao": { "sms": [], "push_titulo": [], "push_corpo": [], "whatsapp": [], "defesa_civil": [] }</code></pre>
+  </div>
+  <div class="grid2">
+    <figure><img src="../../evidencias/api-swagger.png" alt="Swagger da API de IA">
+      <figcaption>A API de IA no ar (<code>localhost:8000/docs</code>): previsão, abrigos, alertas e mensagens. Todas as rotas podem ser testadas no navegador.</figcaption></figure>
+    <div class="telas4" style="grid-template-columns:1fr 1fr">
+      <figure><img src="../../evidencias/app-agora.png" alt="Tela Agora com alerta antecipado">
+        <figcaption>O app mostra a previsão da IA e o selo "Alerta antecipado" antes de o rio chegar à cota.</figcaption></figure>
+      <figure><img src="../../evidencias/app-abrigos-evitados.png" alt="Abrigo evitado com motivo">
+        <figcaption>A IA explica por que evitou o abrigo mais perto.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h3 style="margin-top:14pt">5.4 Lógica e ganho: antes × depois</h3>
+  <p><b>Antes:</b> a regra simples, "daqui a 6 h o nível é igual ao de agora", e ir ao abrigo mais próximo. <b>Depois:</b> a IA.
+  Teste nos 30 dias do pipeline (720 horas por rio), que o modelo nunca viu. Fonte: <code>area1-ia/relatorio/RELATORIO.md</code>.</p>
+  <table>
+    <tr><th>Rio</th><th>Modelo escolhido</th><th class="n">Erro médio IA</th><th class="n">Erro médio regra simples</th><th class="n">Erro caiu</th></tr>
+    <tr><td>Guaíba - Cais Mauá</td><td>random forest</td><td class="n">0,022 m</td><td class="n">0,075 m</td><td class="n ok"><b>70,7%</b></td></tr>
+    <tr><td>Rio Gravataí - Sarandi</td><td>random forest</td><td class="n">0,037 m</td><td class="n">0,094 m</td><td class="n ok"><b>60,6%</b></td></tr>
+    <tr><td>Arroio Dilúvio - Av. Ipiranga</td><td>regra simples</td><td class="n">0,232 m</td><td class="n">0,232 m</td><td class="n">0%</td></tr>
+  </table>
+  <table>
+    <tr><th>Rio e cota</th><th class="n">Vezes que passou</th><th class="n">Antecedência da IA</th><th class="n">Regra simples</th><th class="n">Alarmes falsos da IA</th></tr>
+    <tr><td>Guaíba · alerta (2,50 m)</td><td class="n">2</td><td class="n">4 h e 5 h</td><td class="n">0 h</td><td class="n">0</td></tr>
+    <tr><td>Guaíba · inundação (3,00 m)</td><td class="n">1</td><td class="n">5 h</td><td class="n">0 h</td><td class="n">1</td></tr>
+    <tr><td>Gravataí · alerta (3,50 m)</td><td class="n">1</td><td class="n">6 h</td><td class="n">0 h</td><td class="n">2</td></tr>
+  </table>
+  <div class="grid2">
+    <figure><img src="../../../area1-ia/relatorio/previsao_gua-cais.png" alt="Previsão do Guaíba"><figcaption>Guaíba: cada ponto da previsão foi calculado 6 h antes, só com o nível e a chuva até ali.</figcaption></figure>
+    <figure><img src="../../../area1-ia/relatorio/previsao_gra-sarandi.png" alt="Previsão do Gravataí"><figcaption>Gravataí: a previsão acompanha a cheia antes de ela chegar.</figcaption></figure>
+  </div>
+  <div class="evitar">
+  <h4>Onde ficar seguro: 46.200 escolhas conferidas com o que aconteceu depois</h4>
+  <table>
+    <tr><th>Estratégia</th><th class="n">Lotado na chegada</th><th class="n">Abrigo alagou</th><th class="n">Falha</th><th class="n">Tempo a pé médio</th></tr>
+    <tr><td>A. Mais próximo (sem o sistema)</td><td class="n">5,2%</td><td class="n">11,2%</td><td class="n bad"><b>15,9%</b></td><td class="n">24 min</td></tr>
+    <tr><td>B. Regra só com o agora (vaga e alerta atuais)</td><td class="n">0,3%</td><td class="n">0,2%</td><td class="n"><b>0,5%</b></td><td class="n">37 min</td></tr>
+    <tr><td>C. IA (vaga na chegada e risco previsto)</td><td class="n">0,1%</td><td class="n">0,0%</td><td class="n ok"><b>0,1%</b></td><td class="n">38 min</td></tr>
+  </table>
+  </div>
+  <div class="grid2">
+    <figure><img src="../../../area1-ia/relatorio/abrigos.png" alt="Comparação das estratégias de abrigo"><figcaption>Falha por estratégia: abrigo lotado na chegada ou que alagou.</figcaption></figure>
+    <div class="nota" style="align-self:start"><b>Leitura.</b> Sem o sistema, 15,9% das famílias iriam para um abrigo lotado ou que alagou.
+    Olhando só o agora, cai para 0,5%. A IA, que olha a vaga na chegada e o rio previsto para 6 h, chega a 0,1%.
+    O custo é andar em média 14 min a mais que até o abrigo mais próximo.<br><br>
+    <b>Ao vivo no app</b> (caso CT-62): o vigia avisou a atenção do Guaíba 50 s antes de o rio chegar à cota, cerca de 8 h simuladas, e o alerta 31 s antes, cerca de 5 h.</div>
+  </div>
+</section>
+
+<!-- ============================== 6. ÁREA 2 ============================== -->
+<section class="quebra">
+  <h2>6. Área 2 — Big Data e visualização</h2>
+  <div class="edital"><b>Edital:</b> estrutura dos dados (1) · ingestão e processamento (1) · dashboard com 3+ indicadores e filtros (1,5) · funções analíticas como DAX (0,5).</div>
+
+  <h3>6.1 Estrutura dos dados</h3>
+  <p>Arquitetura em camadas (medalhão) no PostgreSQL 18, com um data lake de arquivos na entrada do lote. Todos os horários ficam em UTC; o horário de Brasília aparece só no gold.</p>
+  <table>
+    <tr><th style="width:15%">Camada</th><th style="width:45%">O que guarda</th><th>Tabelas e visões</th></tr>
+    <tr><td><b>Landing</b> (data lake)</td><td>Arquivos NDJSON do histórico, como chegaram</td><td><code>datalake/landing/*.ndjson</code></td></tr>
+    <tr><td><b>Bronze</b></td><td>Toda mensagem recebida, inclusive JSON inválido, com o status e o motivo. Reentregas idênticas são barradas pelo hash.</td><td><code>bronze.mensagem</code>, <code>bronze.carga</code></td></tr>
+    <tr><td><b>Silver</b></td><td>Leituras validadas, alertas e cadastros. Leitura com salto impossível fica marcada como suspeita.</td><td><code>silver.leitura</code>, <code>silver.alerta</code>, <code>silver.sensor</code>, <code>silver.estacao</code>, <code>silver.abrigo</code>, <code>silver.bairro</code></td></tr>
+    <tr><td><b>Gold</b></td><td>Visões prontas para decidir, para o dashboard e para a IA</td><td><code>dim_bairro</code>, <code>dim_estacao</code>, <code>dim_abrigo</code>, <code>v_estacao_horaria</code>, <code>v_estacao_atual</code>, <code>v_abrigo_horaria</code>, <code>v_abrigo_status</code>, <code>v_abrigo_tendencia</code>, <code>v_alertas</code>, <code>v_kpis</code>, <code>v_qualidade</code>, <code>v_ml_features</code>, <code>v_ml_features_atual</code></td></tr>
+  </table>
+  <p class="muted">Cadastros: 94 bairros e 20 escolas e ginásios reais do OpenStreetMap (mais 1 abrigo de demonstração), 4 estações e 29 sensores. As migrações (<code>area2-bigdata/db/migrations/</code>) rodam a cada subida, são idempotentes e param com erro se uma já aplicada for editada.</p>
+
+  <h3>6.2 Ingestão e processamento</h3>
+  <table>
+    <tr><th>Caminho</th><th>Entrada</th><th>Uso</th></tr>
+    <tr><td>Tempo real</td><td>MQTT, uma mensagem por leitura (QoS 1)</td><td>Situação atual, alertas e app</td></tr>
+    <tr><td>Lote</td><td>30 dias de histórico, cerca de 112 mil leituras em NDJSON</td><td>Série histórica, dashboard e teste da IA</td></tr>
+  </table>
+  <p>As duas entradas passam pela mesma função <code>processar()</code>:</p>
+  <ol>
+    <li>grava a mensagem bruta no bronze;</li>
+    <li>valida o schema, o tópico, se o sensor está cadastrado e com a origem certa, a unidade, a faixa de valor e o horário (o que falha fica no bronze como rejeitado, com o motivo);</li>
+    <li>grava no silver e marca como suspeita a leitura com salto impossível;</li>
+    <li>se for nível de rio, abre, escala ou fecha o alerta da estação.</li>
+  </ol>
+  <div class="card">
+    <h4>No ambiente de demonstração em 09/11/2026 (no ar há cerca de 46 h)</h4>
+    <table>
+      <tr><th>Indicador</th><th class="n">Valor</th></tr>
+      <tr><td>Leituras aceitas (bronze → silver)</td><td class="n">2.466.322</td></tr>
+      <tr><td>Mensagens rejeitadas, auditadas no bronze com o motivo</td><td class="n">2.245</td></tr>
+      <tr><td>Leituras suspeitas (fora das visões gold)</td><td class="n">277</td></tr>
+      <tr><td>Alertas abertos e fechados pelo pipeline</td><td class="n">502</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="quebra">
+  <h3>6.3 Dashboard (Power BI)</h3>
+  <p>O Power BI lê os CSVs exportados da camada gold pelo usuário <code>bi_ro</code>, que só lê o gold
+  (<code>docker compose --profile ferramentas run --rm exportar</code>). O passo a passo está em <code>area2-bigdata/powerbi/README.md</code>.</p>
+  <figure><img src="../../evidencias/powerbi-1.png" alt="Dashboard Power BI: rios e alertas"
+    onerror="this.outerHTML='&lt;div class=&quot;falta&quot;&gt;Print do Power BI a inserir: visão dos rios e alertas, com os filtros.&lt;br&gt;Salve em docs/evidencias/powerbi-1.png e gere o PDF de novo.&lt;/div&gt;'">
+    <figcaption>Nível dos rios contra as cotas, chuva × nível e alertas, com filtro de estação e período.</figcaption></figure>
+  <figure><img src="../../evidencias/powerbi-2.png" alt="Dashboard Power BI: abrigos"
+    onerror="this.outerHTML='&lt;div class=&quot;falta&quot;&gt;Print do Power BI a inserir: ocupação e vagas dos abrigos, com mapa e filtros.&lt;br&gt;Salve em docs/evidencias/powerbi-2.png e gere o PDF de novo.&lt;/div&gt;'">
+    <figcaption>Ocupação e vagas dos abrigos, com filtro de bairro e área de risco.</figcaption></figure>
+  <table>
+    <tr><th>#</th><th>Indicador</th><th>Visual</th><th>Decisão que ele apoia</th></tr>
+    <tr><td>1</td><td><b>Nível do rio contra as cotas</b></td><td>Linha no tempo com as cotas de atenção, alerta e inundação</td><td>Quando emitir alerta e evacuar cada região</td></tr>
+    <tr><td>2</td><td><b>Ocupação e vagas dos abrigos</b></td><td>Barras por abrigo e mapa</td><td>Para onde encaminhar as pessoas e quando abrir abrigos novos</td></tr>
+    <tr><td>3</td><td><b>Chuva acumulada × nível</b></td><td>Colunas de chuva e linha de nível</td><td>Mostra o atraso entre a chuva e a cheia, base da previsão</td></tr>
+    <tr><td>4</td><td><b>Alertas por estação e severidade</b></td><td>Tabela e cartões</td><td>Quantas horas cada região passou em risco</td></tr>
+    <tr><td>5</td><td><b>Qualidade dos dados</b></td><td>Rosca por status e motivo</td><td>Confiança nos sensores</td></tr>
+  </table>
+  <p><b>Filtros:</b> estação, bairro, período, tipo de abrigo, abrigo em área de risco e severidade do alerta.</p>
+
+  <h3>6.4 Funções analíticas (DAX)</h3>
+  <figure><img src="../../evidencias/powerbi-3.png" alt="Medidas DAX no Power BI"
+    onerror="this.outerHTML='&lt;div class=&quot;falta&quot;&gt;Print do Power BI a inserir: tela das medidas DAX.&lt;br&gt;Salve em docs/evidencias/powerbi-3.png e gere o PDF de novo.&lt;/div&gt;'">
+    <figcaption>Medidas DAX aplicadas aos indicadores.</figcaption></figure>
+  <pre><code>Nível Máx (m) = MAX ( v_estacao_horaria[nivel_max_m] )
+Chuva Total (mm) = SUM ( v_estacao_horaria[chuva_mm] )
+Horas em Alerta = CALCULATE ( COUNTROWS ( v_estacao_horaria ),
+                  v_estacao_horaria[situacao] IN { "alerta", "inundacao" } )
+% Tempo em Alerta = DIVIDE ( [Horas em Alerta], COUNTROWS ( v_estacao_horaria ) )
+Folga até a Cota de Inundação (m) = MAX ( dim_estacao[cota_inundacao_m] ) - [Nível Máx (m)]
+Lotação Máx (%) = MAX ( v_abrigo_horaria[pct_lotacao_max] )
+Pessoas Abrigadas (pico) = MAXX ( VALUES ( v_abrigo_horaria[hora_local] ),
+                           CALCULATE ( SUM ( v_abrigo_horaria[ocupacao_max] ) ) )
+Vagas Recomendáveis Agora = CALCULATE ( SUM ( v_abrigo_status[vagas] ),
+                            v_abrigo_status[recomendavel] = "true" )
+Qtde Alertas = COUNTROWS ( v_alertas )
+Duração Média do Alerta (h) = AVERAGE ( v_alertas[duracao_h] )
+Taxa de Rejeição (%) = DIVIDE (
+    CALCULATE ( SUM ( v_qualidade[mensagens] ), v_qualidade[status] = "rejeitada" ),
+    SUM ( v_qualidade[mensagens] ) )</code></pre>
+</section>
+
+<!-- ============================== 7. ÁREA 3 ============================== -->
+<section class="quebra">
+  <h2>7. Área 3 — MVP, IoT e experiência digital</h2>
+  <div class="edital"><b>Edital:</b> protótipo com 4+ telas (1) · IoT com 2+ sensores (1) · fluxo funcional do início ao fim (1) · diagrama da arquitetura (1, na seção 4).</div>
+
+  <h3>7.1 Protótipo: app Abriga com 5 telas</h3>
+  <p>React Native com Expo. O mesmo código roda no celular e no navegador; a entrega usa a versão web,
+  servida pelo Docker em <code>localhost:5173</code>. A atualização é automática: rios e alertas a cada 3 s, abrigos a cada 5 s.</p>
+  <div class="telas">
+    <figure><img src="../../evidencias/app-agora-normal.png" alt="Tela Agora"><figcaption><b>Agora:</b> a pior situação entre os rios, agora ou em 6 h, em linguagem simples.</figcaption></figure>
+    <figure><img src="../../evidencias/app-rio.png" alt="Tela Rio"><figcaption><b>Rio:</b> gráfico com as cotas, as leituras e a previsão de 6 h.</figcaption></figure>
+    <figure><img src="../../evidencias/app-abrigos.png" alt="Tela Onde ficar seguro"><figcaption><b>Onde ficar seguro:</b> os 3 abrigos recomendados, com tempo a pé e vagas na chegada.</figcaption></figure>
+    <figure><img src="../../evidencias/app-abrigo.png" alt="Tela Detalhe do abrigo"><figcaption><b>Detalhe do abrigo:</b> ocupação, em quanto tempo lota, risco e "Como chegar".</figcaption></figure>
+    <figure><img src="../../evidencias/app-ajustes.png" alt="Tela Ajustes"><figcaption><b>Ajustes:</b> bairro, tamanho do grupo, avisos e situação do servidor.</figcaption></figure>
+  </div>
+  <div class="telas">
+    <figure><img src="../../evidencias/app-aviso.png" alt="Aviso de alerta novo"><figcaption>Aviso de alerta novo: faixa no topo e notificação, uma vez por alerta.</figcaption></figure>
+    <figure><img src="../../evidencias/app-agora.png" alt="Agora na cheia"><figcaption>Na cheia: selo "Alerta antecipado" e a ação para o bairro salvo.</figcaption></figure>
+    <figure><img src="../../evidencias/app-localizacao.png" alt="Minha localização"><figcaption>"Minha localização": a distância é calculada no aparelho.</figcaption></figure>
+    <figure><img src="../../evidencias/app-abrigos-evitados.png" alt="Abrigos evitados"><figcaption>Os abrigos evitados aparecem com o motivo.</figcaption></figure>
+    <figure><img src="../../evidencias/app-erro.png" alt="Servidor fora do ar"><figcaption>Sem servidor: aviso amigável e os últimos dados, sem tela branca.</figcaption></figure>
+  </div>
+</section>
+
+<section class="quebra">
+  <h3>7.2 IoT: 29 sensores</h3>
+  <table>
+    <tr><th>Origem</th><th>Sensores</th><th>Como publica</th></tr>
+    <tr><td><b>Simulador Python</b> (<code>area3-mvp/iot/simuladores/</code>)</td><td>3 estações com nível do rio e chuva (6 sensores) e a ocupação de 20 abrigos (20 sensores)</td><td>MQTT no Mosquitto local, com usuário, senha e permissão por tópico</td></tr>
+    <tr><td><b>ESP32 no Wokwi</b> (<code>area3-mvp/iot/esp32_wokwi/</code>)</td><td>Ultrassônico HC-SR04 (nível), potenciômetro (chuva), PIR com botão (ocupação) e LED de alerta local</td><td>MQTT num broker público; uma ponte valida a assinatura HMAC e traz para o broker local</td></tr>
+  </table>
+  <p>O simulador tem física de verdade: a chuva segue uma cadeia de Markov e o rio sobe com atraso (rápido no Dilúvio, lento no Guaíba),
+  o que torna a cheia previsível para a IA. Ele também imita defeitos de sensor: 0,5% das leituras não chegam, 0,1% têm pico absurdo e 0,1% chegam corrompidas.</p>
+  <pre><code>Tópico:   citizentech/v1/{sim|wokwi}/{sensor_id}
+Mensagem: {"v":1,"sensor_id":"gua-cais-nivel","valor":2.87,"unidade":"m","medido_em":"2026-11-07T15:00:00Z","seq":812}</code></pre>
+  <figure><img src="../../evidencias/wokwi-simulacao.jpg" alt="Circuito ESP32 no Wokwi">
+    <figcaption>Circuito do ESP32 rodando no Wokwi. Testado de ponta a ponta: 150 leituras aceitas no bronze; o alerta da estação de demonstração abriu, escalou e fechou (casos CT-46 a CT-49).</figcaption></figure>
+
+</section>
+
+<section class="quebra">
+  <h3>7.3 Fluxo funcional do início ao fim</h3>
+  <p>Teste ao vivo com o simulador (<code>docker compose restart simulador</code>), o app no navegador em largura de celular e o bairro Navegantes:</p>
+  <table>
+    <tr><th>#</th><th>Etapa</th><th>Quem faz</th><th>Evidência</th></tr>
+    <tr><td>1</td><td>O sensor publica o nível do Guaíba subindo</td><td>Simulador → MQTT → ingestor → banco</td><td>CT-01, CT-13</td></tr>
+    <tr><td>2</td><td>A IA prevê a cheia e o vigia abre o alerta antecipado: 50 s antes da cota de atenção (cerca de 8 h simuladas) e 31 s antes da de alerta (cerca de 5 h)</td><td>API de IA</td><td>CT-39, CT-62</td></tr>
+    <tr><td>3</td><td>O app avisa uma vez, com a faixa no topo e a notificação</td><td>App</td><td>CT-61, print do aviso</td></tr>
+    <tr><td>4</td><td>A pessoa toca em "Onde ficar seguro" e vê os abrigos de Navegantes</td><td>App + API</td><td>CT-63, print dos abrigos</td></tr>
+    <tr><td>5</td><td>Escolhe o 1º abrigo e toca em "Como chegar": o mapa abre a pé, só com o destino</td><td>App</td><td>CT-57, CT-63</td></tr>
+  </table>
+  <div class="telas4">
+    <figure><img src="../../evidencias/app-agora-normal.png" alt="Rios normais"><figcaption>1. Rios normais</figcaption></figure>
+    <figure><img src="../../evidencias/app-aviso.png" alt="Aviso"><figcaption>2–3. Alerta antecipado e aviso</figcaption></figure>
+    <figure><img src="../../evidencias/app-abrigos.png" alt="Abrigos"><figcaption>4. Onde ficar seguro</figcaption></figure>
+    <figure><img src="../../evidencias/app-abrigo.png" alt="Detalhe"><figcaption>5. Abrigo e "Como chegar"</figcaption></figure>
+  </div>
+</section>
+
+<!-- ============================== 8. ÁREA 4 ============================== -->
+<section class="quebra">
+  <h2>8. Área 4 — DevOps, segurança e qualidade</h2>
+  <div class="edital"><b>Edital:</b> organização por módulos e Git (0,5) · Docker e CI/CD funcionando (1) · 2+ práticas de segurança (0,5) · plano com 5+ casos e evidências (1).</div>
+
+  <h3>8.1 Organização</h3>
+  <div class="grid2">
+    <pre><code>gs20262-citizentech/
+├── README.md            como rodar, ODS, IA
+├── docker-compose.yml   sobe tudo com 1 comando
+├── .github/workflows/   CI/CD
+├── contratos/           JSON Schema das leituras
+├── area1-ia/            IA, API, prompts, relatório
+├── area2-bigdata/       banco, ingestor, Power BI
+├── area3-mvp/app/       app Abriga (Expo)
+├── area3-mvp/iot/       broker, simulador, ESP32
+├── area4-devops/        plano de testes, segurança
+└── docs/                arquitetura, prints, PDF</code></pre>
+    <table>
+      <tr><th>Commit</th><th>Data</th><th>O que entrou</th></tr>
+      <tr><td><code>0224220</code></td><td>07/11</td><td>Fase 1: sensores, MQTT e pipeline</td></tr>
+      <tr><td><code>4b49355</code></td><td>07/11</td><td>Correções da revisão de código</td></tr>
+      <tr><td><code>22872fe</code></td><td>07/11</td><td>Fase 2: IA, abrigo seguro e mensagens</td></tr>
+      <tr><td><code>a2337c9</code></td><td>07/11</td><td>Circuito ESP32 validado no Wokwi</td></tr>
+      <tr><td><code>9cc1abd</code></td><td>07/11</td><td>Correções da segunda revisão</td></tr>
+      <tr><td><code>113c4b0</code></td><td>07/11</td><td>Produto renomeado para Abriga</td></tr>
+      <tr><td><code>9e199be</code></td><td>08/11</td><td>Fase 3: app com Agora, Rio e Onde ficar seguro</td></tr>
+      <tr><td><code>67b4209</code></td><td>09/11</td><td>Fase 3: GPS no aparelho e aviso de alerta</td></tr>
+      <tr><td><code>7e729f6</code></td><td>09/11</td><td>Correções da revisão da fase 3</td></tr>
+    </table>
+  </div>
+  <p class="muted">Cada fase passou por uma revisão de código antes do commit seguinte, e cada push na <code>main</code> roda o CI.</p>
+
+</section>
+
+<section class="quebra">
+  <h3>8.2 Docker e CI/CD</h3>
+  <p><b>Docker Compose:</b> <code>docker compose up -d --build --wait</code> sobe e conecta tudo sozinho. Os serviços que rodam uma vez preparam o ambiente:
+  <code>migrar</code> cria as tabelas, e <code>historico-gerar</code> e <code>historico-carregar</code> geram e carregam os 30 dias. Ficam no ar:</p>
+  <pre><code>$ docker compose ps
+SERVICE     IMAGE                         STATUS                       PORTS
+api         citizentech/ia:local          Up About an hour (healthy)   127.0.0.1:8000-&gt;8000/tcp
+app         citizentech/app:local         Up About an hour (healthy)   127.0.0.1:5173-&gt;8080/tcp
+ingestor    citizentech/ingestor:local    Up About an hour (healthy)
+mosquitto   eclipse-mosquitto:2.0.22      Up 46 hours (healthy)        127.0.0.1:11883-&gt;1883/tcp
+postgres    postgres:18.6-alpine          Up 46 hours (healthy)        127.0.0.1:55432-&gt;5432/tcp
+simulador   citizentech/simulador:local   Up About an hour (healthy)</code></pre>
+  <p><b>CI/CD no GitHub Actions:</b> cada push na <code>main</code> roda 4 jobs sem passo manual. Os dois primeiros rodam juntos;
+  a integração sobe o mesmo <code>docker compose</code> do README num ambiente limpo e roda os testes contra ele; no fim, as imagens são publicadas no GitHub Container Registry.</p>
+  <figure><img src="../../evidencias/ci-github-actions.png" alt="GitHub Actions verde">
+    <figcaption>Execução #9 do CI, no commit <code>7e729f6</code>: lint e testes de unidade, app (lint, tipos e testes), integração com docker compose e publicação das imagens, todos verdes, em 5 min 27 s.</figcaption></figure>
+</section>
+
+<section class="quebra">
+  <h3>8.3 Segurança: 12 práticas</h3>
+  <table>
+    <tr><th>#</th><th style="width:30%">Prática</th><th>Como</th><th>Evidência</th></tr>
+    <tr><td>1</td><td><b>Autenticação no broker MQTT</b></td><td>Sem acesso anônimo; uma senha por serviço, gerada do <code>.env</code></td><td>CT-05</td></tr>
+    <tr><td>2</td><td><b>Autorização por tópico (ACL)</b></td><td>O simulador só publica em <code>sim/</code>, a ponte só em <code>wokwi/</code>, o ingestor só lê</td><td>CT-06</td></tr>
+    <tr><td>3</td><td><b>Validação de entrada</b></td><td>JSON Schema, sensor cadastrado, origem, unidade, faixa, horário e tamanho máximo de 4 KB; o rejeitado fica auditado</td><td>CT-03, CT-04, CT-23</td></tr>
+    <tr><td>4</td><td><b>Menor privilégio no banco</b></td><td>O ingestor não apaga; o dashboard e a IA só leem o gold</td><td>CT-07, CT-08, CT-33</td></tr>
+    <tr><td>5</td><td><b>Segredos fora do código</b></td><td>Senhas só no <code>.env</code>, fora do git</td><td>revisão do repositório</td></tr>
+    <tr><td>6</td><td><b>Integridade do que vem da internet</b></td><td>Assinatura HMAC-SHA256, lista de sensores, <code>seq</code> crescente, janela de 2 min e 1 mensagem/s</td><td>CT-19, CT-20, CT-26</td></tr>
+    <tr><td>7</td><td><b>Contenção</b></td><td>O que vem do Wokwi só alimenta a estação de demonstração; nunca dispara alerta de rio real</td><td>CT-04</td></tr>
+    <tr><td>8</td><td><b>Containers sem root</b></td><td>Ingestor, simulador e IA rodam como usuário <code>app</code>; o app web roda no nginx sem root</td><td><code>docker compose exec api id</code></td></tr>
+    <tr><td>9</td><td><b>Rede fechada</b></td><td>Banco, broker, API e app só aceitam conexões da própria máquina (<code>127.0.0.1</code>)</td><td>CT-28</td></tr>
+    <tr><td>10</td><td><b>Resiliência a entrada maliciosa</b></td><td>Nenhuma mensagem derruba o ingestor ou a ponte; a leitura só é confirmada ao broker depois de gravada</td><td>CT-23, CT-24</td></tr>
+    <tr><td>11</td><td><b>API com entrada validada</b></td><td>Tipos e faixas validados; 404 e 422 claros; 503 sem vazar detalhes quando o banco cai; CORS restrito</td><td>CT-40, CT-42</td></tr>
+    <tr><td>12</td><td><b>Cabeçalhos de segurança no app</b></td><td>CSP só do próprio endereço e sem script inline, <code>nosniff</code>, proteção contra clickjacking e <code>no-referrer</code></td><td>CT-54</td></tr>
+  </table>
+  <div class="nota"><b>Proteção de dados (LGPD).</b> O sistema não coleta dado pessoal: não há login nem cadastro, e as leituras são de rios e contagens anônimas.
+  A localização do cidadão nunca sai do celular: a API só recebe o bairro, e com o GPS o app calcula a distância no aparelho. A posição não entra em URL nem é gravada (CT-41, CT-57).</div>
+
+  <h3>8.4 Plano de testes e evidências</h3>
+  <p>O plano completo tem <b>66 casos</b> (CT-01 a CT-66), cada um com requisito, passos, resultado esperado, obtido e o teste automatizado que o cobre: <code>area4-devops/plano-de-testes.md</code>.</p>
+  <table>
+    <tr><th>Tipo</th><th>Ferramenta</th><th class="n">Testes</th><th>Resultado em 09/11/2026</th></tr>
+    <tr><td>Unidade</td><td>pytest</td><td class="n">275</td><td class="ok">275 passaram</td></tr>
+    <tr><td>Integração (broker, banco, API e app reais no Compose)</td><td>pytest</td><td class="n">23</td><td class="ok">23 passaram</td></tr>
+    <tr><td>App (unidade e telas)</td><td>Jest e Testing Library</td><td class="n">112</td><td class="ok">112 passaram</td></tr>
+    <tr><td>Lint e tipos</td><td>ruff, ESLint e TypeScript</td><td class="n">—</td><td class="ok">sem problemas</td></tr>
+  </table>
+</section>
+
+<section class="quebra">
+  <h4>Casos de teste selecionados</h4>
+  <table class="casos">
+    <tr><th>ID</th><th>Requisito</th><th>Resultado esperado</th><th>Obtido</th></tr>
+    <tr><td>CT-01</td><td>Leitura válida chega ao banco</td><td>1 linha em <code>silver.leitura</code> em até 15 s</td><td class="ok">ok</td></tr>
+    <tr><td>CT-02</td><td>Não duplicar reentregas do QoS 1</td><td>1 linha no bronze e 1 no silver</td><td class="ok">ok</td></tr>
+    <tr><td>CT-03</td><td>Rejeitar dado fora do contrato</td><td>Bronze com status rejeitada e motivo; nada no silver</td><td class="ok">ok</td></tr>
+    <tr><td>CT-05</td><td>Broker exige autenticação</td><td>Conexão anônima recusada</td><td class="ok">ok</td></tr>
+    <tr><td>CT-09</td><td>Alerta abre, escala e fecha uma vez</td><td>1 alerta, pico certo, fechado</td><td class="ok">ok</td></tr>
+    <tr><td>CT-22</td><td>Projeto roda só com o README</td><td>Clone limpo: todos os serviços saudáveis e dados no gold</td><td class="ok">ok</td></tr>
+    <tr><td>CT-24</td><td>Nenhuma leitura perdida se o banco cair</td><td>Postgres desligado por 20 s: 40 leituras gravadas, nenhuma perdida</td><td class="ok">ok</td></tr>
+    <tr><td>CT-31</td><td>Recomendação só traz abrigo apto</td><td>Com vaga agora e na chegada, fora de área de risco com alerta</td><td class="ok">ok</td></tr>
+    <tr><td>CT-34</td><td>Mensagem em linguagem simples</td><td>SMS de até 160 caracteres, sem acento e com 199; verificação sem problemas</td><td class="ok">ok</td></tr>
+    <tr><td>CT-35</td><td>IA melhor que a regra simples</td><td>Erro menor no Guaíba e no Gravataí e alerta antes da cota</td><td class="ok">Guaíba −71%</td></tr>
+    <tr><td>CT-46</td><td>ESP32 publica e a ponte repassa</td><td>Leituras do Wokwi aceitas no bronze e gravadas no silver</td><td class="ok">150 aceitas</td></tr>
+    <tr><td>CT-57</td><td>A posição não sai do aparelho</td><td>Só <code>GET /abrigos?pessoas=</code>; nenhuma URL com latitude ou longitude</td><td class="ok">ok</td></tr>
+    <tr><td>CT-59</td><td>API fora do ar: aviso amigável</td><td>Últimos dados com a hora; o app volta sozinho</td><td class="ok">ok</td></tr>
+    <tr><td>CT-62</td><td>Alerta antecipado no app antes da cota</td><td>Selo e aviso antes de o rio passar da cota</td><td class="ok">50 s e 31 s antes</td></tr>
+    <tr><td>CT-63</td><td>Fluxo completo até "Como chegar"</td><td>Recomendados do bairro, detalhe e mapa só com o destino</td><td class="ok">ok</td></tr>
+  </table>
+  <h4>Execução dos testes em 09/11/2026</h4>
+  <pre><code>$ .venv/bin/python -m ruff check . &amp;&amp; .venv/bin/python -m pytest -q
+All checks passed!
+275 passed, 23 deselected in 2.55s
+
+$ cd area3-mvp/app &amp;&amp; npx jest
+Test Suites: 12 passed, 12 total
+Tests:       112 passed, 112 total
+
+$ docker compose --profile ferramentas run --rm --build testes
+testes/test_integracao.py::test_it22_abrigo_desativado_nao_e_recomendado_pela_ia PASSED [ 95%]
+testes/test_integracao.py::test_it23_app_web_no_ar_e_api_pelo_proxy PASSED              [100%]
+---------------- generated xml file: /relatorios/integracao.xml ----------------
+============================= 23 passed in 14.84s ==============================</code></pre>
+  <p class="muted">Os relatórios JUnit ficam em <code>relatorios/</code> e o CI guarda os mesmos relatórios como artefatos de cada execução.</p>
+</section>
+
+<!-- ============================== 9 ============================== -->
+<section class="quebra">
+  <h2>9. Uso de IA generativa, como rodar e limitações</h2>
+  <h3>Uso de IA generativa (declaração exigida pelo edital)</h3>
+  <table>
+    <tr><th style="width:26%">Ferramenta</th><th>Para quê</th></tr>
+    <tr><td>Claude (Anthropic), via Claude Code</td><td>Fase 1: pesquisa de versões e limitações (Wokwi, Mosquitto 2, PostgreSQL 18), desenho da arquitetura, código, testes e documentação, calibração do simulador.</td></tr>
+    <tr><td>Claude (Anthropic), via Claude Code</td><td>Fase 2: desenho do treino sem vazamento e da métrica antes e depois, código da IA e da API, prompt de sistema das mensagens.</td></tr>
+    <tr><td>Claude (Anthropic), via Claude Code</td><td>Fase 3: versões do Expo SDK 58, desenho das telas e do fluxo, código do app e dos testes, cálculo da distância no aparelho com teste de paridade, Dockerfile e nginx, roteiro da demonstração e prints. Também a montagem deste PDF.</td></tr>
+  </table>
+  <p>A solução não chama nenhuma IA generativa em execução: as mensagens saem de modelos de texto que seguem o prompt documentado.
+  O grupo revisou, executou e testou todo o código entregue e consegue explicar cada parte.</p>
+
+  <h3>Como rodar</h3>
+  <p>Só precisa do Docker Desktop aberto (Windows, macOS ou Linux). O passo a passo completo está no <code>README.md</code>.</p>
+  <pre><code>cp .env.example .env                 (no Windows: Copy-Item .env.example .env)
+docker compose up -d --build --wait  (na primeira vez, de 3 a 5 minutos)
+
+App do cidadão:  http://localhost:5173   (de preferência em largura de celular)
+API de IA:       http://localhost:8000/docs
+Demonstração:    docker compose restart simulador   (a cheia chega em cerca de 4 minutos)</code></pre>
+
+  <h3>Limitações conhecidas</h3>
+  <ul>
+    <li>Os dados são simulados. As cotas, a zona de risco e a capacidade dos abrigos (150 pessoas por escola, 300 por ginásio) são estimativas documentadas.</li>
+    <li>O app foi testado no navegador. O código cobre o celular, mas o Expo Go das lojas ainda não roda o SDK 58 e a API só aceita conexões da própria máquina.</li>
+    <li>O aviso de alerta funciona com o app aberto (consulta a cada 3 s). Push com o app fechado exigiria um servidor de push.</li>
+    <li>O MQTT local não usa TLS e as senhas de exemplo são de desenvolvimento. Num ambiente real, o broker teria TLS e as senhas ficariam num cofre.</li>
+    <li>A chave HMAC do Wokwi é de demonstração, porque o projeto no Wokwi é público.</li>
+  </ul>
+
+  <h3>Créditos de dados</h3>
+  <p class="muted">Bairros, escolas e ginásios de Porto Alegre: © colaboradores do OpenStreetMap (ODbL).</p>
+</section>
+
+<script type="text/plain" id="arq-fonte">
+flowchart TB
+    subgraph Campo["Sensores (IoT)"]
+        SIM["Simulador Python<br/>26 sensores<br/>nível · chuva · ocupação"]
+        ESP["ESP32 no Wokwi<br/>HC-SR04 · potenciômetro · PIR<br/>LED de alerta local"]
+    end
+    subgraph Internet
+        PUB[("Broker público<br/>broker.hivemq.com")]
+    end
+    subgraph Compose["docker compose (sem internet)"]
+        PONTE["Ponte Wokwi<br/>HMAC · lista de sensores<br/>seq · horário · 1 msg/s"]
+        MQ[("Mosquitto<br/>usuário + senha + ACL")]
+        ING["Ingestor<br/>valida contrato e regras<br/>regra de alerta"]
+        GER["Gerador de histórico<br/>30 dias (NDJSON)"]
+        LAND[/"Data lake: landing<br/>arquivos NDJSON"/]
+        LOTE["Carga em lote<br/>mesmas regras do MQTT"]
+        subgraph PG["PostgreSQL"]
+            B[("bronze<br/>tudo o que chegou")]
+            S[("silver<br/>leituras validadas · alertas · cadastros")]
+            G[("gold<br/>visões para decisão")]
+        end
+        EXP["Exportador<br/>usuário bi_ro (só lê gold)"]
+        API["API de IA (FastAPI)<br/>usuário ia_ro (só lê gold)<br/>previsão 6 h · abrigos · mensagens<br/>vigia: alerta antecipado"]
+        WEB["App web (nginx sem root)<br/>arquivos do expo export<br/>repassa /api para a API"]
+    end
+    TREINO["Treino no build da imagem<br/>24 meses simulados<br/>(outras sementes)"]
+    PBI["Power BI<br/>dashboard"]
+    APP["App Abriga (React Native/Expo)<br/>no navegador ou no celular<br/>aviso de alerta · onde ficar seguro<br/>GPS e distância só no aparelho"]
+    SIM -- "MQTT QoS 1<br/>citizentech/v1/sim/#" --> MQ
+    ESP -- "MQTT" --> PUB --> PONTE -- "citizentech/v1/wokwi/#" --> MQ
+    MQ --> ING --> B
+    GER --> LAND --> LOTE --> B
+    B --> S --> G
+    G --> EXP -- "CSV" --> PBI
+    G -- "v_ml_features_atual · v_abrigo_status<br/>v_abrigo_tendencia · v_ml_features (teste)" --> API
+    TREINO -- "modelo.joblib" --> API
+    APP -- "HTTP localhost:5173<br/>a cada 3–5 s" --> WEB -- "/api (proxy)" --> API
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var alvo = document.getElementById('arq');
+    if (!window.mermaid) { alvo.innerHTML = '<div class="falta">Sem internet para desenhar o diagrama. Veja docs/arquitetura.md.</div>'; return; }
+    mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' }, fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif' });
+    mermaid.render('arq-svg', document.getElementById('arq-fonte').textContent.trim())
+      .then(function (r) { alvo.innerHTML = r.svg; })
+      .catch(function (e) { alvo.innerHTML = '<div class="falta">Erro ao desenhar o diagrama: ' + e + '</div>'; });
+  })();
+</script>
+</body>
+</html>

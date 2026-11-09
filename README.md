@@ -22,6 +22,21 @@ O nome técnico continua `citizentech` (repositório, banco, tópicos MQTT e ima
 | 4. DevOps, segurança e qualidade | [`area4-devops/`](area4-devops/plano-de-testes.md) | Docker Compose, CI no GitHub Actions, plano de testes, práticas de segurança |
 | Contrato das mensagens | [`contratos/`](contratos/leitura.v1.schema.json) | JSON Schema seguido por todos os serviços |
 | Arquitetura | [`docs/arquitetura.md`](docs/arquitetura.md) | Diagrama e fluxo dos dados |
+| Entregáveis (PDF) | [`docs/pdf/Abriga-Entregaveis.pdf`](docs/pdf/Abriga-Entregaveis.pdf) | Solução, ODS, arquitetura e evidências de cada área, com os prints |
+
+## Impacto e ODS
+
+O Abriga contribui para três Objetivos de Desenvolvimento Sustentável da ONU (Agenda 2030).
+
+| ODS | Meta | Como o Abriga contribui | Como medimos |
+|---|---|---|---|
+| **11 — Cidades e comunidades sustentáveis** | 11.5: reduzir as mortes e o número de pessoas afetadas por desastres, inclusive os ligados à água, protegendo quem está em situação vulnerável | Manda a família para um abrigo que vai ter vaga quando ela chegar e que fica fora da área que deve alagar nas próximas 6 h | Famílias que chegariam a um abrigo lotado ou alagado: 15,9% indo ao mais próximo, 0,1% com a IA ([relatório](area1-ia/relatorio/RELATORIO.md#2-onde-ficar-seguro-recomendação-de-abrigo)) |
+| **13 — Ação contra a mudança global do clima** | 13.1: resiliência a riscos do clima; 13.3: capacidade de alerta precoce | Prevê o nível dos rios para daqui a 6 h e abre o alerta antes de o rio chegar à cota | Antecedência do alerta: 4 a 5 h no Guaíba e 6 h no Gravataí; a regra simples só avisa quando o rio já passou da cota ([relatório](area1-ia/relatorio/RELATORIO.md#antecedência-do-alerta)) |
+| **3 — Saúde e bem-estar** | 3.d: alerta precoce e gestão de riscos à saúde | Alerta em linguagem simples, com a ação primeiro ("Saia agora para um lugar alto"), um cuidado prático ("Não atravesse ruas alagadas") e os telefones 199 e 193 | Todas as combinações de situação, abrigo e bairro passam na verificação automática de linguagem simples (CT-34) |
+
+**Como ampliar:** outra cidade só precisa das cotas das estações, do cadastro de abrigos e dos
+bairros (arquivos em [`area2-bigdata/db/seeds/`](area2-bigdata/db/seeds/README.md)). Sensores
+reais entram no lugar do simulador publicando no mesmo contrato MQTT.
 
 ## Como rodar
 
