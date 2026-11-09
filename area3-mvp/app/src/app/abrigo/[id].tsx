@@ -9,14 +9,16 @@ import { useAbrigos, usePrevisao } from '@/api/consultas';
 import type { AbrigoAvaliado, EstacaoPrevisao } from '@/api/tipos';
 import { Botao } from '@/componentes/Botao';
 import { AvisoDeErro, EstadoDaConsulta } from '@/componentes/EstadoDaConsulta';
-import { Tela } from '@/componentes/Tela';
+import { Icone } from '@/componentes/Icones';
+import { Selo } from '@/componentes/Selo';
+import { Tela, TituloDaTela } from '@/componentes/Tela';
 import { usePosicao } from '@/estado/posicao';
 import { usePreferencias } from '@/estado/preferencias';
 import { horaCurta, km, minutosAPeTexto } from '@/logica/formato';
 import { distanciaKm, lotaAntesDeChegar, minutosAPe, vagasNaChegada } from '@/logica/geo';
 import { urlComoChegar } from '@/logica/rota';
 import { capitalizar } from '@/logica/texto';
-import { cores, espaco, raio, situacoes, texto } from '@/tema';
+import { cartao, cores, espaco, peso, raio, situacoes, texto } from '@/tema';
 
 type Parametros = { id: string; minutos?: string; km?: string; origem?: 'bairro' | 'localizacao' };
 
@@ -28,16 +30,14 @@ function numeroOuNulo(valor: string | undefined): number | null {
 function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
     <View style={estilos.linha}>
-      <Text style={texto.suave}>{rotulo}</Text>
-      <Text style={[texto.corpo, estilos.valor]}>{valor}</Text>
+      <Text style={texto.apoio}>{rotulo}</Text>
+      <Text style={estilos.valor}>{valor}</Text>
     </View>
   );
 }
 
 function BarraDeOcupacao({ abrigo }: { abrigo: AbrigoAvaliado }) {
   const fracao = abrigo.capacidade > 0 ? Math.min(abrigo.ocupacao / abrigo.capacidade, 1) : 1;
-  const cor =
-    fracao >= 0.9 ? situacoes.inundacao.forte : fracao >= 0.7 ? situacoes.alerta.forte : situacoes.normal.forte;
   return (
     <View
       accessible
@@ -45,7 +45,7 @@ function BarraDeOcupacao({ abrigo }: { abrigo: AbrigoAvaliado }) {
       accessibilityLabel={`Ocupação: ${abrigo.ocupacao} de ${abrigo.capacidade} lugares`}
       style={estilos.barra}
     >
-      <View style={[estilos.barraCheia, { width: `${Math.round(fracao * 100)}%`, backgroundColor: cor }]} />
+      <View style={[estilos.barraCheia, { width: `${Math.round(fracao * 100)}%` }]} />
     </View>
   );
 }
@@ -73,35 +73,41 @@ function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios, semPosicao
 
   return (
     <>
-      <Text style={texto.titulo}>{abrigo.abrigo}</Text>
+      <TituloDaTela titulo={abrigo.abrigo} />
 
       {incerto ? (
-        <View style={[estilos.situacao, estilos.incerto]} accessibilityRole="alert">
-          <Text style={[texto.subtitulo, { color: situacoes.atencao.texto }]}>Tem vaga agora, mas está enchendo</Text>
-          <Text style={texto.corpo}>
+        <View style={[estilos.caixa, estilos.incerto]} accessibilityRole="alert">
+          <View style={estilos.linhaComIcone}>
+            <Icone nome="relogio" cor={cores.aviso} tamanho={22} />
+            <Text style={[texto.tituloCartao, estilos.tituloDaCaixa]}>Tem vaga agora, mas está enchendo</Text>
+          </View>
+          <Text style={texto.corpoCartao}>
             Para {grupo}, lota em cerca de {abrigo.minutos_ate_lotar} min. Sem saber de onde você sai, não dá para
             garantir a vaga quando você chegar.
           </Text>
           {semPosicao ? (
-            <Text style={texto.suave}>
+            <Text style={texto.apoio}>
               Sua localização fica só na memória e foi apagada quando o app recarregou. Volte para Onde ficar seguro e
               toque em Minha localização para refazer a conta.
             </Text>
           ) : null}
         </View>
+      ) : seguro ? (
+        <View style={estilos.situacao} accessibilityRole="summary">
+          <Selo tipo="recomendado" texto={`Recomendado para ${grupo}`} />
+          <Text style={texto.corpoCartao}>
+            Deve ter vaga quando você chegar e não fica em área que deve alagar nas próximas 6 horas.
+          </Text>
+        </View>
       ) : (
-        <View
-          style={[estilos.situacao, seguro ? estilos.seguro : estilos.inseguro]}
-          accessibilityRole={seguro ? 'summary' : 'alert'}
-        >
-          <Text style={[texto.subtitulo, { color: seguro ? situacoes.normal.texto : situacoes.inundacao.texto }]}>
-            {seguro ? `Recomendado para ${grupo}` : 'Não recomendado agora'}
-          </Text>
-          <Text style={texto.corpo}>
-            {seguro
-              ? 'Deve ter vaga quando você chegar e não fica em área que deve alagar nas próximas 6 horas.'
-              : capitalizar(motivo ?? 'não é seguro agora') + '.'}
-          </Text>
+        <View style={[estilos.caixa, estilos.inseguro]} accessibilityRole="alert">
+          <View style={estilos.linhaComIcone}>
+            <Icone nome="proibido" cor={cores.risco} tamanho={22} />
+            <Text style={[texto.tituloCartao, estilos.tituloDaCaixa, { color: cores.erro }]}>
+              Não recomendado agora
+            </Text>
+          </View>
+          <Text style={texto.corpoCartao}>{capitalizar(motivo ?? 'não é seguro agora') + '.'}</Text>
         </View>
       )}
 
@@ -109,12 +115,13 @@ function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios, semPosicao
         titulo={seguro || incerto ? 'Como chegar' : 'Como chegar mesmo assim'}
         variante={seguro ? 'principal' : 'secundario'}
         grande={seguro}
+        icone="navegar"
         dica="Abre o mapa com o caminho a pé até o abrigo"
         aoTocar={() => void Linking.openURL(urlComoChegar(abrigo.lat, abrigo.lon))}
       />
 
       <View style={estilos.cartao}>
-        <Text style={texto.subtitulo} accessibilityRole="header">
+        <Text style={texto.rotulo} accessibilityRole="header">
           Vagas
         </Text>
         <BarraDeOcupacao abrigo={abrigo} />
@@ -140,7 +147,7 @@ function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios, semPosicao
       </View>
 
       <View style={estilos.cartao}>
-        <Text style={texto.subtitulo} accessibilityRole="header">
+        <Text style={texto.rotulo} accessibilityRole="header">
           Caminho e risco
         </Text>
         {minutos !== null ? (
@@ -158,7 +165,7 @@ function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios, semPosicao
         />
       </View>
 
-      <Text style={texto.suave}>
+      <Text style={texto.apoio}>
         &quot;Como chegar&quot; abre o mapa só com o endereço do abrigo. O Abriga não envia a sua localização a ninguém.
       </Text>
     </>
@@ -178,6 +185,7 @@ export default function DetalheDoAbrigo() {
       aoAtualizar={() => abrigos.refetch()}
       atualizando={abrigos.isRefetching}
       rodape={abrigos.dataUpdatedAt ? `atualizado às ${horaCurta(new Date(abrigos.dataUpdatedAt))}` : undefined}
+      telefones
     >
       <Stack.Screen options={{ title: 'Abrigo' }} />
       <EstadoDaConsulta consulta={abrigos} carregando="Lendo as vagas…">
@@ -207,27 +215,20 @@ export default function DetalheDoAbrigo() {
 }
 
 const estilos = StyleSheet.create({
-  situacao: { borderRadius: raio.lg, padding: espaco.lg, gap: espaco.xs, borderWidth: 1 },
-  seguro: { backgroundColor: situacoes.normal.fundo, borderColor: situacoes.normal.forte },
-  inseguro: { backgroundColor: situacoes.inundacao.fundo, borderColor: situacoes.inundacao.forte },
-  incerto: { backgroundColor: situacoes.atencao.fundo, borderColor: situacoes.atencao.forte },
-  cartao: {
-    backgroundColor: cores.superficie,
-    borderRadius: raio.lg,
-    padding: espaco.lg,
-    gap: espaco.md,
-    borderWidth: 1,
-    borderColor: cores.borda,
-  },
+  situacao: { gap: espaco.sm },
+  caixa: { borderRadius: raio.botao, padding: 14, gap: espaco.sm, borderWidth: 1 },
+  inseguro: { backgroundColor: cores.erroFundo, borderColor: cores.erroFundo },
+  incerto: { backgroundColor: cores.avisoFundo, borderColor: cores.bordaAviso },
+  linhaComIcone: { flexDirection: 'row', alignItems: 'center', gap: espaco.sm },
+  tituloDaCaixa: { flexShrink: 1 },
+  cartao: { ...cartao, gap: espaco.md },
   linha: { gap: 2 },
-  valor: { fontWeight: '600' },
+  valor: { ...texto.corpoCartao, ...peso('600') },
   barra: {
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: cores.fundo,
+    height: 12,
+    borderRadius: raio.selo,
+    backgroundColor: cores.borda,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: cores.borda,
   },
-  barraCheia: { height: '100%' },
+  barraCheia: { height: '100%', borderRadius: raio.selo, backgroundColor: cores.primaria },
 });

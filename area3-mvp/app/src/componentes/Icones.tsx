@@ -3,10 +3,16 @@
  * Ícones de traço numa grade de 24, traço de 2,2 a 2,4 e pontas arredondadas. São decorativos:
  * o texto ao lado (ou o rótulo de acessibilidade do botão) diz o que eles querem dizer.
  */
-import type { ColorValue } from 'react-native';
+import { Platform, type ColorValue } from 'react-native';
 import Svg, { Circle, G, Path } from 'react-native-svg';
 
 import { cores } from '@/tema';
+
+/** Esconde o desenho do leitor de tela (no navegador, o <svg> só entende aria-hidden). */
+export const DECORATIVO =
+  Platform.OS === 'web'
+    ? ({ 'aria-hidden': true } as const)
+    : ({ accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' } as const);
 
 interface PropsIcone {
   cor?: ColorValue;
@@ -110,15 +116,7 @@ export type NomeDoIcone = keyof typeof DESENHOS;
 /** Um ícone de traço. Decorativo: fica escondido do leitor de tela. */
 export function Icone({ nome, cor = cores.texto, tamanho = 24 }: PropsIcone & { nome: NomeDoIcone }) {
   return (
-    <Svg
-      width={tamanho}
-      height={tamanho}
-      viewBox="0 0 24 24"
-      fill="none"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      aria-hidden
-    >
+    <Svg width={tamanho} height={tamanho} viewBox="0 0 24 24" fill="none" {...DECORATIVO}>
       <FormasDoIcone nome={nome} cor={cor} x={0} y={0} tamanho={24} />
     </Svg>
   );
@@ -174,13 +172,7 @@ export function FormasDoIcone({
 /** Telhado com uma gota: "um teto seguro na cheia". */
 export function Logo({ cor = cores.primaria, tamanho = 32 }: PropsIcone) {
   return (
-    <Svg
-      width={tamanho}
-      height={tamanho}
-      viewBox="0 0 48 48"
-      accessibilityElementsHidden
-      importantForAccessibility="no"
-    >
+    <Svg width={tamanho} height={tamanho} viewBox="0 0 48 48" {...DECORATIVO}>
       <Path
         d="M5 23 L24 7 L43 23"
         stroke={cor}
@@ -193,19 +185,4 @@ export function Logo({ cor = cores.primaria, tamanho = 32 }: PropsIcone) {
       <Path d="M24 19 C24 19 17 27.5 17 31.5 A7 7 0 0 0 31 31.5 C31 27.5 24 19 24 19 Z" fill={cor} />
     </Svg>
   );
-}
-
-/** Aba "Agora": a linha de um sinal (o rio sendo medido). */
-export function IconeRio(props: PropsIcone) {
-  return <Icone nome="abaAgora" tamanho={22} {...props} />;
-}
-
-/** Aba "Abrigos": casa. */
-export function IconeAbrigo(props: PropsIcone) {
-  return <Icone nome="abaAbrigos" tamanho={22} {...props} />;
-}
-
-/** Aba "Ajustes": controles deslizantes. */
-export function IconeAjustes(props: PropsIcone) {
-  return <Icone nome="abaAjustes" tamanho={22} {...props} />;
 }

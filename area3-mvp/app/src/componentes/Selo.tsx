@@ -126,7 +126,8 @@ export function SelosDoRio({ rio, tamanho = 'p' }: { rio: EstacaoPrevisao; taman
 }
 
 const estilos = StyleSheet.create({
-  linha: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  // Os selos quebram a linha dentro da largura disponível (nunca saem do cartão).
+  linha: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, maxWidth: '100%' },
   selo: {
     alignSelf: 'flex-start',
     maxWidth: '100%',

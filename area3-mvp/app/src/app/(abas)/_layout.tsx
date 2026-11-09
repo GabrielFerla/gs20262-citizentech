@@ -1,67 +1,47 @@
-/** Abas do app: Agora · Abrigos · Ajustes. */
+/** Abas do app: Agora · Abrigos · Ajustes, com o cabeçalho claro e a barra inferior (199, 193 e abas). */
 import { Tabs } from 'expo-router/js-tabs';
-import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { IconeAbrigo, IconeAjustes, IconeRio, Logo } from '@/componentes/Icones';
+import { BarraInferior, IconeDaAba, opcoesDasAbas } from '@/componentes/BarraInferior';
+import { Cabecalho } from '@/componentes/Cabecalho';
 import { cores } from '@/tema';
 
-function Marca() {
-  return (
-    <View style={estilos.marca} accessibilityRole="header" accessibilityLabel="Abriga">
-      <Logo cor="#FFFFFF" tamanho={28} />
-      <Text style={estilos.marcaTexto}>Abriga</Text>
-    </View>
-  );
-}
-
 export default function LayoutDasAbas() {
-  // Barra de abas mais alta que o padrão: rótulo maior, mais fácil de tocar.
+  // A barra fica acima da área do gesto de "home" do celular.
   const { bottom } = useSafeAreaInsets();
 
   return (
     <Tabs
+      tabBar={(props) => <BarraInferior {...props} />}
       screenOptions={{
-        headerStyle: { backgroundColor: cores.primaria },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: { fontWeight: '700' },
-        tabBarActiveTintColor: cores.primaria,
-        tabBarInactiveTintColor: cores.textoSuave,
-        tabBarLabelStyle: { fontSize: 13, fontWeight: '600' },
-        tabBarStyle: { height: 68 + bottom, paddingTop: 4, paddingBottom: 4 + bottom },
+        header: () => <Cabecalho />,
         sceneStyle: { backgroundColor: cores.fundo },
+        ...opcoesDasAbas(bottom),
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Agora',
-          headerTitle: () => <Marca />,
           tabBarAccessibilityLabel: 'Agora: situação dos rios',
-          tabBarIcon: ({ color }) => <IconeRio cor={color} />,
+          tabBarIcon: ({ focused }) => <IconeDaAba nome="abaAgora" ativa={focused} />,
         }}
       />
       <Tabs.Screen
         name="abrigos"
         options={{
           title: 'Abrigos',
-          headerTitle: 'Onde ficar seguro',
           tabBarAccessibilityLabel: 'Abrigos: onde ficar seguro',
-          tabBarIcon: ({ color }) => <IconeAbrigo cor={color} />,
+          tabBarIcon: ({ focused }) => <IconeDaAba nome="abaAbrigos" ativa={focused} />,
         }}
       />
       <Tabs.Screen
         name="ajustes"
         options={{
           title: 'Ajustes',
-          tabBarIcon: ({ color }) => <IconeAjustes cor={color} />,
+          tabBarIcon: ({ focused }) => <IconeDaAba nome="abaAjustes" ativa={focused} />,
         }}
       />
     </Tabs>
   );
 }
-
-const estilos = StyleSheet.create({
-  marca: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  marcaTexto: { color: '#FFFFFF', fontSize: 22, fontWeight: '800', letterSpacing: 0.3 },
-});

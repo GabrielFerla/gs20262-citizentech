@@ -10,6 +10,7 @@ import { Botao } from '@/componentes/Botao';
 import { CartaoDoRio } from '@/componentes/CartaoDoRio';
 import { EstadoDaConsulta } from '@/componentes/EstadoDaConsulta';
 import { FaixaDeSituacao } from '@/componentes/FaixaDeSituacao';
+import { Icone } from '@/componentes/Icones';
 import { Tela } from '@/componentes/Tela';
 import { usePreferencias } from '@/estado/preferencias';
 import { horaCurta } from '@/logica/formato';
@@ -20,8 +21,11 @@ function CartaoEscolherBairro() {
   const router = useRouter();
   return (
     <View style={estilos.convite}>
-      <Text style={texto.subtitulo}>Qual é o seu bairro?</Text>
-      <Text style={texto.corpo}>
+      <View style={estilos.conviteTitulo}>
+        <Icone nome="alfinete" cor={cores.primariaEscura} tamanho={22} />
+        <Text style={[texto.tituloCartao, estilos.textoDoConvite]}>Qual é o seu bairro?</Text>
+      </View>
+      <Text style={texto.corpoCartao}>
         Com o bairro, o alerta já diz qual abrigo seguro fica mais perto de você. Ele fica guardado só neste aparelho.
       </Text>
       <Botao titulo="Escolher meu bairro" variante="secundario" aoTocar={() => router.navigate('/abrigos')} />
@@ -48,12 +52,12 @@ export default function Agora() {
       atualizando={previsao.isRefetching}
       rodape={atualizadoEm}
     >
-      <EstadoDaConsulta consulta={previsao} carregando="Lendo os rios…">
+      <EstadoDaConsulta consulta={previsao} carregando="Lendo os rios…" esqueleto>
         {(rios) => (
           <>
             <FaixaDeSituacao resumo={resumoDosRios(rios, alertas.data)} />
             {carregado && !valores.bairroId ? <CartaoEscolherBairro /> : null}
-            <Text style={[texto.subtitulo, estilos.secao]} accessibilityRole="header">
+            <Text style={[texto.tituloSecao, estilos.secao]} accessibilityRole="header">
               Os rios agora e em 6 horas
             </Text>
             {ordenarPorGravidade(rios).map((rio) => (
@@ -67,13 +71,14 @@ export default function Agora() {
 }
 
 const estilos = StyleSheet.create({
-  secao: { marginTop: espaco.sm },
+  // Entre seções, 28 (os 12 entre cartões + 16).
+  secao: { marginTop: espaco.entreSecoes - espaco.entreCartoes },
   convite: {
     backgroundColor: cores.primariaClara,
-    borderRadius: raio.lg,
-    padding: espaco.lg,
-    gap: espaco.sm,
-    borderWidth: 1,
-    borderColor: '#B9DCE6',
+    borderRadius: raio.cartao,
+    padding: espaco.cartao,
+    gap: espaco.md,
   },
+  conviteTitulo: { flexDirection: 'row', alignItems: 'center', gap: espaco.sm },
+  textoDoConvite: { color: cores.primariaEscura, flexShrink: 1 },
 });

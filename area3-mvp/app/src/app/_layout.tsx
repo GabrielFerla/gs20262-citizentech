@@ -13,6 +13,7 @@ import { AppState, Platform } from 'react-native';
 
 import { criarClienteDeConsultas } from '@/api/consultas';
 import { AvisoDeAlertaNovo } from '@/componentes/AvisoDeAlertaNovo';
+import { Cabecalho } from '@/componentes/Cabecalho';
 import { dispensarAviso, useAvisoAtual, useAvisosDeAlerta } from '@/estado/avisos';
 import { cores, familias } from '@/tema';
 
@@ -68,14 +69,12 @@ export default function Raiz() {
 
   return (
     <QueryClientProvider client={cliente}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: cores.primaria },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: '700' },
+          // Cabeçalho claro: "Voltar" quando há para onde voltar e o selo "Dados simulados".
+          header: ({ navigation, back }) => <Cabecalho aoVoltar={back ? navigation.goBack : undefined} />,
           contentStyle: { backgroundColor: cores.fundo },
-          headerBackTitle: 'Voltar',
         }}
       >
         <Stack.Screen name="(abas)" options={{ headerShown: false, title: 'Abriga' }} />

@@ -37,9 +37,7 @@ export function Alternador<T extends string>({ opcoes, valor, aoMudar, rotulo }:
             ]}
           >
             {o.icone ? <Icone nome={o.icone} cor={ativa ? '#FFFFFF' : cores.textoSuave} tamanho={18} /> : null}
-            <Text style={[estilos.texto, ativa && estilos.textoAtivo]} numberOfLines={1}>
-              {o.rotulo}
-            </Text>
+            <Text style={[estilos.texto, ativa && estilos.textoAtivo]}>{o.rotulo}</Text>
           </Pressable>
         );
       })}
@@ -63,10 +61,11 @@ const estilos = StyleSheet.create({
     borderRadius: raio.md,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingHorizontal: espaco.sm,
+    gap: 5,
+    paddingHorizontal: 2,
   },
   ativa: { backgroundColor: cores.primaria },
-  texto: { ...peso('700'), fontSize: 16, lineHeight: 20, color: cores.texto, flexShrink: 1 },
+  // 15 px: "Minha localização" com o ícone cabe numa linha em 390 de largura (em tela menor, quebra).
+  texto: { ...peso('700'), fontSize: 15, lineHeight: 20, color: cores.texto, flexShrink: 1, textAlign: 'center' },
   textoAtivo: { color: '#FFFFFF' },
 });

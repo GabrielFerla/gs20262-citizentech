@@ -13,7 +13,7 @@ import { metros } from '@/logica/formato';
 import { faixaDoGrafico, marcasDoEixo, paraY, posicoesX } from '@/logica/grafico';
 import { cartao, cores, espaco, familias, peso, situacoes } from '@/tema';
 
-import { FormasDoIcone, type NomeDoIcone } from './Icones';
+import { DECORATIVO, FormasDoIcone, type NomeDoIcone } from './Icones';
 
 const ALTURA = 224;
 // À esquerda, as marcas do eixo; os rótulos das cotas ficam dentro das faixas, à esquerda.
@@ -231,7 +231,7 @@ export function GraficoDoRio({ rio, leituras }: Props) {
 
 function Amostra({ tracejada }: { tracejada?: boolean }) {
   return (
-    <Svg width={28} height={10} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <Svg width={28} height={10} {...DECORATIVO}>
       <Line
         x1={tracejada ? 0 : 1.5}
         x2={tracejada ? 28 : 26.5}

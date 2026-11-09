@@ -132,10 +132,12 @@ const estilos = StyleSheet.create({
   caminhoTexto: { ...texto.corpoCartao, ...peso('500'), color: cores.textoSuave, flexShrink: 1 },
   chevron: { marginTop: 6 },
   numeros: { flexDirection: 'row', gap: espaco.sm },
+  // Rótulo em cima e número embaixo: se um rótulo quebra a linha, os números continuam alinhados.
   numero: {
     flex: 1,
     minWidth: 0,
     gap: 2,
+    justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: espaco.md,
     borderRadius: raio.controle,

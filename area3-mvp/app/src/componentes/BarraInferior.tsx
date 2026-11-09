@@ -15,11 +15,8 @@ import { Icone, type NomeDoIcone } from './Icones';
 function Telefone({ numero, quem }: { numero: string; quem: string }) {
   return (
     <Link href={`tel:${numero}`} asChild>
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel={`Ligar ${numero}, ${quem}`}
-        style={({ pressed }) => [estilos.telefone, pressed && { backgroundColor: cores.borda }]}
-      >
+      {/* Estilo fixo: o Link (asChild) não repassa estilo em forma de função. */}
+      <Pressable accessibilityRole="link" accessibilityLabel={`Ligar ${numero}, ${quem}`} style={estilos.telefone}>
         <Icone nome="telefone" cor={cores.primaria} tamanho={20} />
         <Text style={estilos.numero}>{numero}</Text>
         <Text style={estilos.quem} numberOfLines={1}>

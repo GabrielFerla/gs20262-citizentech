@@ -10,6 +10,9 @@ import { ALVO_DE_TOQUE, cores, espaco, peso, raio, texto } from '@/tema';
 import { Icone, Logo } from './Icones';
 import { Selo } from './Selo';
 
+/** Altura da linha do cabeçalho (sem a área da barra de status). */
+export const ALTURA_DO_CABECALHO = 56;
+
 export function Cabecalho({ aoVoltar }: { aoVoltar?: () => void }) {
   const { top } = useSafeAreaInsets();
   return (
@@ -31,7 +34,10 @@ export function Cabecalho({ aoVoltar }: { aoVoltar?: () => void }) {
             <Text style={estilos.marcaTexto}>Abriga</Text>
           </View>
         )}
-        <Selo tipo="simulado" />
+        {/* O selo se alinha ao topo por padrão; aqui fica centrado na linha. */}
+        <View>
+          <Selo tipo="simulado" />
+        </View>
       </View>
     </View>
   );
@@ -40,7 +46,7 @@ export function Cabecalho({ aoVoltar }: { aoVoltar?: () => void }) {
 const estilos = StyleSheet.create({
   cabecalho: { backgroundColor: cores.fundo },
   linha: {
-    height: 56,
+    height: ALTURA_DO_CABECALHO,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',

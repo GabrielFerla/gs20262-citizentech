@@ -11,6 +11,7 @@ import type { Aviso } from '@/logica/alertas';
 import { ALVO_DE_TOQUE, cores, espaco, peso, raio, sombra, texto } from '@/tema';
 
 import { Botao } from './Botao';
+import { ALTURA_DO_CABECALHO } from './Cabecalho';
 import { Icone } from './Icones';
 import { SeloDaSituacao } from './Selo';
 
@@ -26,7 +27,8 @@ export function AvisoDeAlertaNovo({ aviso, aoAbrir, aoFechar }: Props) {
 
   return (
     <View
-      style={[estilos.faixa, { top: top + espaco.sm }]}
+      // Logo abaixo do cabeçalho: o selo "Dados simulados" continua à vista.
+      style={[estilos.faixa, { top: top + ALTURA_DO_CABECALHO + espaco.xs }]}
       accessibilityRole="alert"
       accessibilityLiveRegion="assertive"
       testID="aviso-de-alerta-novo"

@@ -36,14 +36,7 @@ export function Tela({ children, titulo, subtitulo, aoAtualizar, atualizando = f
       }
     >
       <View style={estilos.coluna}>
-        {titulo ? (
-          <View style={estilos.titulo}>
-            <Text style={texto.tituloTela} accessibilityRole="header">
-              {titulo}
-            </Text>
-            {subtitulo ? <Text style={texto.apoio}>{subtitulo}</Text> : null}
-          </View>
-        ) : null}
+        {titulo ? <TituloDaTela titulo={titulo} subtitulo={subtitulo} /> : null}
         {children}
         <Rodape extra={rodape} />
       </View>
@@ -55,6 +48,18 @@ export function Tela({ children, titulo, subtitulo, aoAtualizar, atualizando = f
     <View style={estilos.comBarra}>
       {rolagem}
       <BarraDeTelefones />
+    </View>
+  );
+}
+
+/** Título grande da tela (28/34) e a linha de apoio. Use direto quando o título depende dos dados. */
+export function TituloDaTela({ titulo, subtitulo }: { titulo: string; subtitulo?: string }) {
+  return (
+    <View style={estilos.titulo}>
+      <Text style={texto.tituloTela} accessibilityRole="header">
+        {titulo}
+      </Text>
+      {subtitulo ? <Text style={texto.apoio}>{subtitulo}</Text> : null}
     </View>
   );
 }
