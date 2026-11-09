@@ -42,7 +42,7 @@ export function SeletorDeBairro({ bairroNome, aoEscolher }: Props) {
             </View>
             {/* "Trocar" tem cara de botão, mas o toque vale para a linha inteira. */}
             {bairroNome ? (
-              <View style={[estilos.trocar, pressed && { backgroundColor: cores.primariaClara }]}>
+              <View style={[estilos.trocar, pressed && { backgroundColor: cores.neutroFundo }]}>
                 <Text style={estilos.trocarTexto}>Trocar</Text>
               </View>
             ) : (
@@ -78,7 +78,7 @@ function ListaDeBairros({ aoFechar, aoEscolher }: { aoFechar: () => void; aoEsco
           <Pressable
             onPress={aoFechar}
             accessibilityRole="button"
-            style={({ pressed }) => [estilos.fechar, pressed && { backgroundColor: cores.primariaClara }]}
+            style={({ pressed }) => [estilos.fechar, pressed && { backgroundColor: cores.neutroFundo }]}
           >
             <Text style={estilos.trocarTexto}>Fechar</Text>
           </Pressable>

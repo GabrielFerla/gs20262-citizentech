@@ -23,7 +23,7 @@ export function Cabecalho({ aoVoltar }: { aoVoltar?: () => void }) {
             onPress={aoVoltar}
             accessibilityRole="button"
             accessibilityLabel="Voltar"
-            style={({ pressed }) => [estilos.voltar, pressed && { backgroundColor: cores.primariaClara }]}
+            style={({ pressed }) => [estilos.voltar, pressed && { backgroundColor: cores.neutroFundo }]}
           >
             <Icone nome="chevronEsquerda" cor={cores.primaria} tamanho={26} />
             <Text style={[texto.botao, { color: cores.primaria }]}>Voltar</Text>

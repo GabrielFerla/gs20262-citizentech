@@ -81,7 +81,8 @@ export function Botao({
 const PRESSIONADO = StyleSheet.create({
   // No toque, o verde escurece (sem sombra nem escala).
   principal: { backgroundColor: cores.primariaEscura },
-  secundario: { backgroundColor: cores.primariaClara },
+  // Cinza-claro, não verde-claro: o texto verde mantém 4,5:1 também no toque.
+  secundario: { backgroundColor: cores.neutroFundo },
   claro: { backgroundColor: cores.neutroFundo },
   escuro: { opacity: 0.85 },
 });
