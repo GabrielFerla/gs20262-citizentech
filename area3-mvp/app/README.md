@@ -147,11 +147,12 @@ A cena forte do vídeo fica entre 4 e 6 minutos depois do `restart`.
 
 ### Identidade
 
-O nome é **Abriga**, com logotipo próprio: um telhado com uma gota. Os ícones de [`assets/`](assets) saem de
-[`scripts/gerar_icones.py`](scripts/gerar_icones.py). O app não usa nome, brasão nem cores de órgão público
-e não se apresenta como a Defesa Civil: mostra só os textos de push da IA, e um teste confere isso.
-A cor da situação vem sempre junto da palavra (normal, atenção, alerta, inundação). Os botões têm 48 px ou mais
-e rótulos de acessibilidade em português.
+O nome é **Abriga**, com logotipo próprio: um telhado branco acima de uma onda verde-clara, em fundo verde
+(`#1F7A5C`). A fonte é a Inter. As cores, os textos e os espaços ficam em [`src/tema.ts`](src/tema.ts).
+Os ícones de [`assets/`](assets) saem de [`scripts/gerar_icones.py`](scripts/gerar_icones.py). O app não usa
+nome, brasão nem cores de órgão público e não se apresenta como a Defesa Civil: mostra só os textos de push
+da IA, e um teste confere isso. A situação vem sempre com cor, palavra e ícone (normal, atenção, alerta,
+inundação). Os botões têm 48 px ou mais e rótulos de acessibilidade em português.
 
 ## Testes e qualidade
 

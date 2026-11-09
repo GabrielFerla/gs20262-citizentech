@@ -8,13 +8,13 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "primaryColor": "#0B5D73",
+    "primaryColor": "#1F7A5C",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0B5D73",
+        "backgroundColor": "#1F7A5C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -27,8 +27,8 @@
       "name": "Abriga",
       "shortName": "Abriga",
       "lang": "pt-BR",
-      "themeColor": "#0B5D73",
-      "backgroundColor": "#F4F7F9",
+      "themeColor": "#1F7A5C",
+      "backgroundColor": "#F5F8FA",
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
@@ -42,7 +42,7 @@
       [
         "expo-notifications",
         {
-          "color": "#0B5D73"
+          "color": "#1F7A5C"
         }
       ],
       "expo-font",

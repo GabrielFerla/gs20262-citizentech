@@ -4,7 +4,7 @@
  * o texto ao lado (ou o rótulo de acessibilidade do botão) diz o que eles querem dizer.
  */
 import { Platform, type ColorValue } from 'react-native';
-import Svg, { Circle, G, Path } from 'react-native-svg';
+import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
 
 import { cores } from '@/tema';
 
@@ -169,20 +169,30 @@ export function FormasDoIcone({
   );
 }
 
-/** Telhado com uma gota: "um teto seguro na cheia". */
-export function Logo({ cor = cores.primaria, tamanho = 32 }: PropsIcone) {
+/**
+ * Logotipo: "um telhado acima da água". Telhado branco sobre uma onda verde-clara, em fundo verde
+ * (o mesmo desenho do ícone do app, gerado por scripts/gerar_icones.py).
+ */
+export function Logo({ tamanho = 32 }: { tamanho?: number }) {
   return (
-    <Svg width={tamanho} height={tamanho} viewBox="0 0 48 48" {...DECORATIVO}>
+    <Svg width={tamanho} height={tamanho} viewBox="0 0 64 64" {...DECORATIVO}>
+      <Rect width={64} height={64} rx={16} fill={cores.primaria} />
       <Path
-        d="M5 23 L24 7 L43 23"
-        stroke={cor}
-        strokeWidth={4.5}
+        d="M14 34L32 17l18 17"
+        stroke="#FFFFFF"
+        strokeWidth={6}
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
-      <Path d="M11 21 V41 H37 V21" stroke={cor} strokeWidth={4} strokeLinejoin="round" fill="none" />
-      <Path d="M24 19 C24 19 17 27.5 17 31.5 A7 7 0 0 0 31 31.5 C31 27.5 24 19 24 19 Z" fill={cor} />
+      <Path
+        d="M12 46q5-5 10 0t10 0 10 0 10 0"
+        stroke={cores.primariaSobreEscuro}
+        strokeWidth={5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </Svg>
   );
 }
