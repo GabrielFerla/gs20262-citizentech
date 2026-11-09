@@ -14,7 +14,7 @@ e o `docker compose up` usam a versão web, em largura de celular.
 
 | Agora (na cheia) | Rio (gráfico) | Minha localização | Sem servidor |
 |---|---|---|---|
-| <img src="../../docs/evidencias/app-agora.png" width="200" alt="Tela Agora com o alerta antecipado"> | <img src="../../docs/evidencias/app-rio.png" width="200" alt="Gráfico do Guaíba com as cotas e a previsão"> | <img src="../../docs/evidencias/app-localizacao.png" width="200" alt="Abrigos calculados pela localização, no aparelho"> | <img src="../../docs/evidencias/app-erro.png" width="200" alt="Aviso amigável com a API fora do ar"> |
+| <img src="../../docs/evidencias/app-agora.png" width="200" alt="Tela Agora na cheia, com o Arroio Dilúvio em alerta"> | <img src="../../docs/evidencias/app-rio.png" width="200" alt="Gráfico do Guaíba com as cotas, a previsão e o selo de alerta antecipado"> | <img src="../../docs/evidencias/app-localizacao.png" width="200" alt="Abrigos calculados pela localização, no aparelho"> | <img src="../../docs/evidencias/app-erro.png" width="200" alt="Aviso amigável com a API fora do ar"> |
 
 | Evitados, com o motivo | Ajustes |
 |---|---|
