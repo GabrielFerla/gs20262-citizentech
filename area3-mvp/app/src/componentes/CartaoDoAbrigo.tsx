@@ -8,7 +8,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { AbrigoAvaliado } from '@/api/tipos';
 import { km, minutosAPeTexto } from '@/logica/formato';
 import { capitalizar } from '@/logica/texto';
-import { cores, espaco, raio, situacoes, texto } from '@/tema';
+import { cartao, cores, espaco, peso, raio, tabular, texto } from '@/tema';
+
+import { Icone } from './Icones';
 
 interface Props {
   abrigo: AbrigoAvaliado;
@@ -21,6 +23,16 @@ interface Props {
   origem: 'bairro' | 'localizacao';
 }
 
+/** Uma caixinha de número: "Vagas agora 62". A de destaque fica em verde-claro. */
+function Numero({ rotulo, valor, destaque }: { rotulo: string; valor: number; destaque?: boolean }) {
+  return (
+    <View style={[estilos.numero, destaque && estilos.numeroDestaque]}>
+      <Text style={[estilos.numeroRotulo, destaque && { color: cores.primariaEscura }]}>{rotulo}</Text>
+      <Text style={[texto.numeroMedio, destaque && { color: cores.primariaEscura }]}>{valor}</Text>
+    </View>
+  );
+}
+
 export function CartaoDoAbrigo({ abrigo, ordem, motivo, vagasNaChegada, origem }: Props) {
   const router = useRouter();
   const evitado = ordem === undefined;
@@ -30,10 +42,10 @@ export function CartaoDoAbrigo({ abrigo, ordem, motivo, vagasNaChegada, origem }
   const caminho = [minutos !== null ? minutosAPeTexto(minutos) : null, distancia !== null ? km(distancia) : null]
     .filter(Boolean)
     .join(' · ');
-  const vagas =
-    vagasNaChegada !== undefined && vagasNaChegada !== null
-      ? `${abrigo.vagas} vagas agora · ${vagasNaChegada} quando você chegar`
-      : `${abrigo.vagas} vagas agora`;
+  const temChegada = vagasNaChegada !== undefined && vagasNaChegada !== null;
+  const vagas = temChegada
+    ? `${abrigo.vagas} vagas agora · ${vagasNaChegada} quando você chegar`
+    : `${abrigo.vagas} vagas agora`;
 
   // Pelo bairro, a distância vai no endereço da tela (é a do centro do bairro, não da pessoa).
   // Pela localização, nada derivado da posição entra no endereço: o detalhe refaz a conta na memória.
@@ -60,51 +72,85 @@ export function CartaoDoAbrigo({ abrigo, ordem, motivo, vagasNaChegada, origem }
           ? `Evitado: ${abrigo.abrigo}, ${caminho}. Motivo: ${motivo ?? ''}. Toque para ver detalhes.`
           : `${ordem}º recomendado: ${abrigo.abrigo}, ${caminho}, ${vagas}. Toque para ver detalhes e como chegar.`
       }
-      style={({ pressed }) => [
-        estilos.cartao,
-        { borderLeftColor: evitado ? situacoes.alerta.forte : situacoes.normal.forte },
-        pressed && { opacity: 0.9 },
-      ]}
+      style={({ pressed }) => [estilos.cartao, evitado && estilos.evitado, pressed && { backgroundColor: cores.fundo }]}
     >
-      <View style={estilos.cabeca}>
-        {ordem !== undefined ? (
-          <View style={estilos.ordem}>
-            <Text style={estilos.ordemTexto}>{ordem}</Text>
-          </View>
-        ) : null}
-        <Text style={[texto.subtitulo, estilos.nome]}>{abrigo.abrigo}</Text>
-      </View>
-      {caminho ? <Text style={texto.corpo}>{caminho}</Text> : null}
       {evitado ? (
-        <Text style={[texto.corpo, { color: situacoes.alerta.texto, fontWeight: '700' }]}>
-          {capitalizar(motivo ?? 'não recomendado agora')}
-        </Text>
+        <>
+          <View style={estilos.nomeECaminho}>
+            <Text style={texto.tituloCartao}>{abrigo.abrigo}</Text>
+            {caminho ? <Text style={texto.apoio}>{caminho}</Text> : null}
+          </View>
+          <View style={estilos.motivo}>
+            <Icone nome="proibido" cor={cores.risco} tamanho={20} />
+            <Text style={estilos.motivoTexto}>{capitalizar(motivo ?? 'não recomendado agora')}</Text>
+          </View>
+        </>
       ) : (
-        <Text style={texto.suave}>{vagas}</Text>
+        <>
+          <View style={estilos.cabeca}>
+            <View style={estilos.ordem}>
+              <Text style={estilos.ordemTexto}>{ordem}</Text>
+            </View>
+            <View style={estilos.nomeECaminho}>
+              <Text style={texto.tituloCartao}>{abrigo.abrigo}</Text>
+              {caminho ? (
+                <View style={estilos.caminho}>
+                  <Icone nome="relogio" cor={cores.textoSuave} tamanho={18} />
+                  <Text style={estilos.caminhoTexto}>{caminho}</Text>
+                </View>
+              ) : null}
+            </View>
+            <View style={estilos.chevron}>
+              <Icone nome="chevronDireita" cor={cores.primaria} tamanho={24} />
+            </View>
+          </View>
+          <View style={estilos.numeros}>
+            <Numero rotulo="Vagas agora" valor={abrigo.vagas} />
+            {temChegada ? <Numero rotulo="Quando você chegar" valor={vagasNaChegada} destaque /> : null}
+          </View>
+        </>
       )}
     </Pressable>
   );
 }
 
 const estilos = StyleSheet.create({
-  cartao: {
-    backgroundColor: cores.superficie,
-    borderRadius: raio.lg,
-    padding: espaco.lg,
-    gap: espaco.xs,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    borderLeftWidth: 6,
-  },
-  cabeca: { flexDirection: 'row', alignItems: 'center', gap: espaco.sm },
-  nome: { flexShrink: 1 },
+  cartao: { ...cartao, gap: espaco.md },
+  evitado: { gap: 10 },
+  cabeca: { flexDirection: 'row', alignItems: 'flex-start', gap: espaco.md },
   ordem: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: situacoes.normal.forte,
+    width: 36,
+    height: 36,
+    borderRadius: raio.selo,
+    backgroundColor: cores.primaria,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ordemTexto: { color: '#FFFFFF', fontWeight: '800', fontSize: 16 },
+  ordemTexto: { ...peso('800'), fontSize: 17, lineHeight: 22, color: '#FFFFFF', ...tabular },
+  nomeECaminho: { flex: 1, minWidth: 0, gap: espaco.xs },
+  caminho: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  caminhoTexto: { ...texto.corpoCartao, ...peso('500'), color: cores.textoSuave, flexShrink: 1 },
+  chevron: { marginTop: 6 },
+  numeros: { flexDirection: 'row', gap: espaco.sm },
+  numero: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
+    paddingVertical: 10,
+    paddingHorizontal: espaco.md,
+    borderRadius: raio.controle,
+    backgroundColor: cores.fundo,
+  },
+  numeroDestaque: { backgroundColor: cores.primariaClara },
+  numeroRotulo: { ...peso('600'), fontSize: 14, lineHeight: 18, color: cores.textoSuave },
+  motivo: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: espaco.sm,
+    paddingVertical: 9,
+    paddingHorizontal: espaco.md,
+    borderRadius: raio.md,
+    backgroundColor: cores.erroFundo,
+  },
+  motivoTexto: { ...texto.corpoCartao, ...peso('700'), color: cores.erro, flex: 1 },
 });

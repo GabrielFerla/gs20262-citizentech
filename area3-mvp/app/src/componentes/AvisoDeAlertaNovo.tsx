@@ -1,15 +1,18 @@
 /**
  * Faixa que desce no topo do app quando o vigia abre (ou escala) um alerta com o app aberto.
  * Vale no celular e no navegador; a notificação do sistema, quando permitida, vem junto.
+ * Cartão escuro e flutuante; a gravidade vem no selo da situação (cor, palavra e ícone).
  */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SITUACOES } from '@/api/tipos';
 import type { Aviso } from '@/logica/alertas';
-import { ALVO_DE_TOQUE, espaco, raio, situacoes } from '@/tema';
+import { ALVO_DE_TOQUE, cores, espaco, peso, raio, sombra, texto } from '@/tema';
 
 import { Botao } from './Botao';
+import { Icone } from './Icones';
+import { SeloDaSituacao } from './Selo';
 
 interface Props {
   aviso: Aviso;
@@ -19,37 +22,43 @@ interface Props {
 
 export function AvisoDeAlertaNovo({ aviso, aoAbrir, aoFechar }: Props) {
   const { top } = useSafeAreaInsets();
-  const c = situacoes[SITUACOES[Math.min(Math.max(aviso.severidade, 1), 3)]];
-  const amarelo = aviso.severidade === 1;
+  const situacao = SITUACOES[Math.min(Math.max(aviso.severidade, 1), 3)];
 
   return (
     <View
-      style={[estilos.faixa, { top: top + espaco.sm, backgroundColor: c.forte }]}
+      style={[estilos.faixa, { top: top + espaco.sm }]}
       accessibilityRole="alert"
       accessibilityLiveRegion="assertive"
       testID="aviso-de-alerta-novo"
     >
       <View style={estilos.cabeca}>
-        <Text style={[estilos.rotulo, { color: c.sobreForte }]}>Alerta novo · Abriga</Text>
+        <Text style={estilos.rotulo}>Alerta novo · Abriga</Text>
         <Pressable
           onPress={aoFechar}
           accessibilityRole="button"
           accessibilityLabel="Fechar o aviso"
-          hitSlop={8}
-          style={estilos.fechar}
+          style={({ pressed }) => [estilos.fechar, pressed && { backgroundColor: '#FFFFFF26' }]}
         >
-          <Text style={[estilos.x, { color: c.sobreForte }]}>×</Text>
+          <Icone nome="fechar" cor="#FFFFFF" tamanho={22} />
         </Pressable>
       </View>
-      <Text style={[estilos.titulo, { color: c.sobreForte }]}>{aviso.titulo}</Text>
-      <Text style={[estilos.corpo, { color: c.sobreForte }]}>{aviso.corpo}</Text>
-      {aviso.tambem ? <Text style={[estilos.tambem, { color: c.sobreForte }]}>{aviso.tambem}</Text> : null}
-      <Botao
-        titulo={aviso.rota === '/abrigos' ? 'Onde ficar seguro' : 'Ver os rios'}
-        variante="claro"
-        corDoTexto={amarelo ? c.sobreForte : c.forte}
-        aoTocar={aoAbrir}
-      />
+      <View style={estilos.corpo}>
+        <View style={estilos.situacao}>
+          <SeloDaSituacao situacao={situacao} tamanho="p" />
+          <Text style={estilos.rio}>{aviso.rio}</Text>
+        </View>
+        <Text style={estilos.titulo}>{aviso.titulo}</Text>
+        <Text style={estilos.texto}>{aviso.corpo}</Text>
+        {aviso.tambem ? <Text style={estilos.tambem}>{aviso.tambem}</Text> : null}
+        <Botao
+          titulo={aviso.rota === '/abrigos' ? 'Onde ficar seguro' : 'Ver os rios'}
+          variante="claro"
+          icone="setaDireita"
+          iconeNoFim
+          aoTocar={aoAbrir}
+          estilo={estilos.botao}
+        />
+      </View>
     </View>
   );
 }
@@ -60,27 +69,31 @@ const estilos = StyleSheet.create({
     left: espaco.md,
     right: espaco.md,
     zIndex: 1000,
-    elevation: 12,
     alignSelf: 'center',
     maxWidth: 560,
-    borderRadius: raio.lg,
-    padding: espaco.lg,
+    borderRadius: raio.cartao,
+    backgroundColor: cores.texto,
+    paddingTop: 6,
+    paddingRight: 6,
+    paddingBottom: espaco.lg,
+    paddingLeft: espaco.lg,
     gap: espaco.sm,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
+    ...sombra.flutuante,
   },
-  cabeca: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  rotulo: { fontSize: 13, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
+  cabeca: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: espaco.sm },
+  rotulo: { ...texto.rotulo, letterSpacing: 1.3, color: cores.primariaSobreEscuro, flexShrink: 1 },
   fechar: {
-    minWidth: ALVO_DE_TOQUE / 1.5,
-    minHeight: ALVO_DE_TOQUE / 1.5,
+    width: ALVO_DE_TOQUE,
+    height: ALVO_DE_TOQUE,
+    borderRadius: raio.controle,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  x: { fontSize: 28, fontWeight: '700', lineHeight: 30 },
-  titulo: { fontSize: 20, fontWeight: '800' },
-  corpo: { fontSize: 16, lineHeight: 22 },
-  tambem: { fontSize: 15, lineHeight: 21, fontWeight: '700' },
+  corpo: { gap: espaco.sm, paddingRight: 10 },
+  situacao: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: espaco.sm },
+  rio: { ...peso('600'), fontSize: 15, lineHeight: 20, color: cores.textoSobreEscuro },
+  titulo: { ...peso('700'), fontSize: 21, lineHeight: 27, color: '#FFFFFF' },
+  texto: { ...texto.corpoCartao, color: cores.textoSobreEscuro },
+  tambem: { ...peso('700'), fontSize: 15, lineHeight: 20, color: '#FFFFFF' },
+  botao: { marginTop: 6 },
 });

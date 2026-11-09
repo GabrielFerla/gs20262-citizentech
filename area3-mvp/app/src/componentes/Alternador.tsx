@@ -1,11 +1,14 @@
 /** Escolha entre duas opções ("Meu bairro" | "Minha localização"), com alvo de toque grande. */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ALVO_DE_TOQUE, cores, espaco, raio } from '@/tema';
+import { ALVO_DE_TOQUE, cores, espaco, peso, raio } from '@/tema';
+
+import { Icone, type NomeDoIcone } from './Icones';
 
 interface Opcao<T extends string> {
   valor: T;
   rotulo: string;
+  icone?: NomeDoIcone;
 }
 
 interface Props<T extends string> {
@@ -17,7 +20,7 @@ interface Props<T extends string> {
 
 export function Alternador<T extends string>({ opcoes, valor, aoMudar, rotulo }: Props<T>) {
   return (
-    <View style={estilos.caixa} accessibilityRole="radiogroup" accessibilityLabel={rotulo}>
+    <View style={estilos.trilho} accessibilityRole="radiogroup" accessibilityLabel={rotulo}>
       {opcoes.map((o) => {
         const ativa = o.valor === valor;
         return (
@@ -28,9 +31,15 @@ export function Alternador<T extends string>({ opcoes, valor, aoMudar, rotulo }:
             accessibilityLabel={o.rotulo}
             aria-checked={ativa}
             aria-selected={ativa}
-            style={[estilos.opcao, ativa && estilos.ativa]}
+            style={({ pressed }) => [
+              estilos.opcao,
+              ativa ? estilos.ativa : pressed && { backgroundColor: cores.borda },
+            ]}
           >
-            <Text style={[estilos.texto, ativa && estilos.textoAtivo]}>{o.rotulo}</Text>
+            {o.icone ? <Icone nome={o.icone} cor={ativa ? '#FFFFFF' : cores.textoSuave} tamanho={18} /> : null}
+            <Text style={[estilos.texto, ativa && estilos.textoAtivo]} numberOfLines={1}>
+              {o.rotulo}
+            </Text>
           </Pressable>
         );
       })}
@@ -39,24 +48,25 @@ export function Alternador<T extends string>({ opcoes, valor, aoMudar, rotulo }:
 }
 
 const estilos = StyleSheet.create({
-  caixa: {
+  trilho: {
     flexDirection: 'row',
-    backgroundColor: cores.superficie,
-    borderRadius: raio.lg,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    padding: 4,
-    gap: 4,
+    backgroundColor: cores.neutroFundo,
+    borderRadius: raio.botao,
+    padding: espaco.xs,
+    gap: espaco.xs,
   },
   opcao: {
     flex: 1,
+    minWidth: 0,
     minHeight: ALVO_DE_TOQUE,
+    flexDirection: 'row',
     borderRadius: raio.md,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
     paddingHorizontal: espaco.sm,
   },
   ativa: { backgroundColor: cores.primaria },
-  texto: { fontSize: 16, fontWeight: '700', color: cores.primaria, textAlign: 'center' },
+  texto: { ...peso('700'), fontSize: 16, lineHeight: 20, color: cores.texto, flexShrink: 1 },
   textoAtivo: { color: '#FFFFFF' },
 });

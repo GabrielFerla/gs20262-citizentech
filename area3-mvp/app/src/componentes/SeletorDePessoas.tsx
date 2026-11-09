@@ -2,7 +2,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PESSOAS_MAX, PESSOAS_MIN } from '@/estado/preferencias';
-import { ALVO_DE_TOQUE, cores, espaco, raio, texto } from '@/tema';
+import { ALVO_DE_TOQUE, cores, espaco, peso, raio, tabular } from '@/tema';
+
+import { Icone } from './Icones';
 
 interface Props {
   pessoas: number;
@@ -11,12 +13,12 @@ interface Props {
 
 function BotaoPasso({
   rotulo,
-  sinal,
+  icone,
   desligado,
   aoTocar,
 }: {
   rotulo: string;
-  sinal: string;
+  icone: 'menos' | 'mais';
   desligado: boolean;
   aoTocar: () => void;
 }) {
@@ -27,9 +29,19 @@ function BotaoPasso({
       accessibilityRole="button"
       accessibilityLabel={rotulo}
       aria-disabled={desligado}
-      style={({ pressed }) => [estilos.passo, desligado && estilos.desligado, pressed && { opacity: 0.8 }]}
+      style={({ pressed }) => [
+        estilos.passo,
+        desligado && estilos.desligado,
+        pressed && !desligado && { backgroundColor: cores.primaria },
+      ]}
     >
-      <Text style={estilos.sinal}>{sinal}</Text>
+      {({ pressed }) => (
+        <Icone
+          nome={icone}
+          cor={desligado ? cores.bordaControle : pressed ? '#FFFFFF' : cores.primariaEscura}
+          tamanho={22}
+        />
+      )}
     </Pressable>
   );
 }
@@ -38,21 +50,22 @@ export function SeletorDePessoas({ pessoas, aoMudar }: Props) {
   return (
     <View style={estilos.caixa}>
       <View style={estilos.rotulo}>
-        <Text style={texto.suave}>Quantas pessoas vão juntas</Text>
-        <Text style={estilos.valor} accessibilityLiveRegion="polite" accessibilityLabel={`${pessoas} pessoas`}>
-          {pessoas} {pessoas === 1 ? 'pessoa' : 'pessoas'}
-        </Text>
+        <Icone nome="pessoas" cor={cores.primaria} tamanho={22} />
+        <Text style={estilos.rotuloTexto}>Quantas pessoas vão juntas</Text>
       </View>
-      <View style={estilos.botoes}>
+      <View style={estilos.controle}>
         <BotaoPasso
           rotulo="Uma pessoa a menos"
-          sinal="−"
+          icone="menos"
           desligado={pessoas <= PESSOAS_MIN}
           aoTocar={() => aoMudar(pessoas - 1)}
         />
+        <Text style={estilos.valor} accessibilityLiveRegion="polite" accessibilityLabel={`${pessoas} pessoas`}>
+          {pessoas} {pessoas === 1 ? 'pessoa' : 'pessoas'}
+        </Text>
         <BotaoPasso
           rotulo="Uma pessoa a mais"
-          sinal="+"
+          icone="mais"
           desligado={pessoas >= PESSOAS_MAX}
           aoTocar={() => aoMudar(pessoas + 1)}
         />
@@ -62,28 +75,26 @@ export function SeletorDePessoas({ pessoas, aoMudar }: Props) {
 }
 
 const estilos = StyleSheet.create({
-  caixa: {
-    backgroundColor: cores.superficie,
-    borderRadius: raio.lg,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    padding: espaco.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: espaco.md,
+  caixa: { gap: espaco.sm },
+  rotulo: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  rotuloTexto: { ...peso('600'), fontSize: 17, lineHeight: 22, color: cores.texto, flexShrink: 1 },
+  controle: { flexDirection: 'row', alignItems: 'center', gap: espaco.xs },
+  valor: {
+    ...peso('700'),
+    ...tabular,
+    flex: 1,
+    fontSize: 18,
+    lineHeight: 24,
+    color: cores.texto,
+    textAlign: 'center',
   },
-  rotulo: { flexShrink: 1, gap: 2 },
-  valor: { fontSize: 20, fontWeight: '700', color: cores.texto },
-  botoes: { flexDirection: 'row', gap: espaco.sm },
   passo: {
     width: ALVO_DE_TOQUE,
     height: ALVO_DE_TOQUE,
-    borderRadius: raio.md,
-    backgroundColor: cores.primaria,
+    borderRadius: raio.selo,
+    backgroundColor: cores.primariaClara,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  desligado: { backgroundColor: cores.borda },
-  sinal: { color: '#FFFFFF', fontSize: 26, fontWeight: '700', lineHeight: 30 },
+  desligado: { backgroundColor: cores.neutroFundo },
 });

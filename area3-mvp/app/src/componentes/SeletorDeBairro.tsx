@@ -9,9 +9,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBairros } from '@/api/consultas';
 import type { Bairro } from '@/api/tipos';
 import { filtrarBairros } from '@/logica/texto';
-import { ALVO_DE_TOQUE, cores, espaco, raio, texto } from '@/tema';
+import { ALVO_DE_TOQUE, cores, espaco, peso, raio, texto } from '@/tema';
 
 import { EstadoDaConsulta } from './EstadoDaConsulta';
+import { Icone } from './Icones';
 import { Selo } from './Selo';
 
 interface Props {
@@ -28,15 +29,27 @@ export function SeletorDeBairro({ bairroNome, aoEscolher }: Props) {
         onPress={() => setAberto(true)}
         accessibilityRole="button"
         accessibilityLabel={bairroNome ? `Bairro: ${bairroNome}. Toque para trocar` : 'Escolher bairro'}
-        style={({ pressed }) => [estilos.campo, pressed && { opacity: 0.85 }]}
+        style={estilos.campo}
       >
-        <Text style={texto.suave}>De qual bairro você sai</Text>
-        <View style={estilos.linhaDoCampo}>
-          <Text style={[estilos.valor, !bairroNome && { color: cores.primaria }]}>
-            {bairroNome ?? 'Escolher bairro'}
-          </Text>
-          <Text style={estilos.trocar}>{bairroNome ? 'Trocar' : '›'}</Text>
-        </View>
+        {({ pressed }) => (
+          <>
+            <Icone nome="alfinete" cor={cores.primaria} tamanho={22} />
+            <View style={estilos.textos}>
+              <Text style={estilos.rotulo}>De qual bairro você sai</Text>
+              <Text style={[estilos.valor, !bairroNome && { color: cores.primaria }]}>
+                {bairroNome ?? 'Escolher bairro'}
+              </Text>
+            </View>
+            {/* "Trocar" tem cara de botão, mas o toque vale para a linha inteira. */}
+            {bairroNome ? (
+              <View style={[estilos.trocar, pressed && { backgroundColor: cores.primariaClara }]}>
+                <Text style={estilos.trocarTexto}>Trocar</Text>
+              </View>
+            ) : (
+              <Icone nome="chevronDireita" cor={cores.primaria} tamanho={24} />
+            )}
+          </>
+        )}
       </Pressable>
       {aberto ? (
         <ListaDeBairros
@@ -62,8 +75,12 @@ function ListaDeBairros({ aoFechar, aoEscolher }: { aoFechar: () => void; aoEsco
           <Text style={texto.titulo} accessibilityRole="header">
             Escolha seu bairro
           </Text>
-          <Pressable onPress={aoFechar} accessibilityRole="button" style={estilos.fechar}>
-            <Text style={estilos.trocar}>Fechar</Text>
+          <Pressable
+            onPress={aoFechar}
+            accessibilityRole="button"
+            style={({ pressed }) => [estilos.fechar, pressed && { backgroundColor: cores.primariaClara }]}
+          >
+            <Text style={estilos.trocarTexto}>Fechar</Text>
           </Pressable>
         </View>
         <TextInput
@@ -94,9 +111,7 @@ function ListaDeBairros({ aoFechar, aoEscolher }: { aoFechar: () => void; aoEsco
                       style={({ pressed }) => [estilos.item, pressed && { backgroundColor: cores.primariaClara }]}
                     >
                       <Text style={texto.corpo}>{item.bairro}</Text>
-                      {item.zona_risco === 'alta' ? (
-                        <Selo texto="Área de risco" fundo={cores.avisoFundo} cor={cores.aviso} />
-                      ) : null}
+                      {item.zona_risco === 'alta' ? <Selo tipo="risco" tamanho="p" texto="Área de risco" /> : null}
                     </Pressable>
                   )}
                 />
@@ -111,29 +126,42 @@ function ListaDeBairros({ aoFechar, aoEscolher }: { aoFechar: () => void; aoEsco
 
 const estilos = StyleSheet.create({
   campo: {
-    backgroundColor: cores.superficie,
-    borderRadius: raio.lg,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    padding: espaco.lg,
-    gap: 2,
     minHeight: ALVO_DE_TOQUE,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
-  linhaDoCampo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: espaco.sm },
-  valor: { fontSize: 20, fontWeight: '700', color: cores.texto, flexShrink: 1 },
-  trocar: { fontSize: 16, fontWeight: '700', color: cores.primaria },
-  modal: { flex: 1, backgroundColor: cores.fundo, padding: espaco.lg, gap: espaco.md },
+  textos: { flex: 1, minWidth: 0 },
+  rotulo: { ...peso('600'), fontSize: 14, lineHeight: 18, color: cores.textoSuave },
+  valor: { ...texto.tituloCartao, flexShrink: 1 },
+  trocar: {
+    minHeight: ALVO_DE_TOQUE,
+    paddingHorizontal: 18,
+    justifyContent: 'center',
+    borderRadius: raio.controle,
+    borderWidth: 2,
+    borderColor: cores.primaria,
+    backgroundColor: cores.superficie,
+  },
+  trocarTexto: { ...peso('700'), fontSize: 16, lineHeight: 20, color: cores.primaria },
+  modal: { flex: 1, backgroundColor: cores.fundo, padding: espaco.margem, gap: espaco.md },
   topo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  fechar: { minHeight: ALVO_DE_TOQUE, minWidth: ALVO_DE_TOQUE, justifyContent: 'center', alignItems: 'flex-end' },
+  fechar: {
+    minHeight: ALVO_DE_TOQUE,
+    minWidth: ALVO_DE_TOQUE,
+    paddingHorizontal: espaco.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: raio.controle,
+  },
   busca: {
+    ...texto.corpo,
     minHeight: ALVO_DE_TOQUE,
     backgroundColor: cores.superficie,
-    borderRadius: raio.md,
+    borderRadius: raio.controle,
     borderWidth: 1,
-    borderColor: cores.borda,
+    borderColor: cores.bordaControle,
     paddingHorizontal: espaco.md,
-    fontSize: 17,
-    color: cores.texto,
   },
   lista: { flex: 1 },
   item: {
