@@ -1,5 +1,11 @@
-/** Raiz do app: cliente das consultas, a pilha de telas (abas + detalhes) e o aviso de alerta novo. */
+/** Raiz do app: fonte Inter, cliente das consultas, a pilha de telas (abas + detalhes) e o aviso de alerta novo. */
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import { Inter_800ExtraBold } from '@expo-google-fonts/inter/800ExtraBold';
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -8,7 +14,7 @@ import { AppState, Platform } from 'react-native';
 import { criarClienteDeConsultas } from '@/api/consultas';
 import { AvisoDeAlertaNovo } from '@/componentes/AvisoDeAlertaNovo';
 import { dispensarAviso, useAvisoAtual, useAvisosDeAlerta } from '@/estado/avisos';
-import { cores } from '@/tema';
+import { cores, familias } from '@/tema';
 
 /** Acompanha o vigia em qualquer tela e mostra a faixa quando abre um alerta novo. */
 function AvisosDeAlerta() {
@@ -38,6 +44,14 @@ function AvisosDeAlerta() {
 
 export default function Raiz() {
   const [cliente] = useState(criarClienteDeConsultas);
+  // Só os cinco pesos usados (importados um a um, para o build não levar os outros arquivos).
+  const [fontesProntas, erroDasFontes] = useFonts({
+    [familias['400']]: Inter_400Regular,
+    [familias['500']]: Inter_500Medium,
+    [familias['600']]: Inter_600SemiBold,
+    [familias['700']]: Inter_700Bold,
+    [familias['800']]: Inter_800ExtraBold,
+  });
 
   // No celular, pausa a atualização automática com o app em segundo plano.
   // (No navegador, o TanStack Query já acompanha a aba visível.)
@@ -48,6 +62,9 @@ export default function Raiz() {
     });
     return () => assinatura.remove();
   }, []);
+
+  // As fontes vêm junto com o app e carregam num instante. Se falharem, segue com a fonte do sistema.
+  if (!fontesProntas && !erroDasFontes) return null;
 
   return (
     <QueryClientProvider client={cliente}>
