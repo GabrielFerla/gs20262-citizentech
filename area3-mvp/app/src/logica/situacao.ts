@@ -52,7 +52,10 @@ const TITULOS: Record<Situacao, string> = {
  * pronta (título e texto de push, em linguagem simples e já verificados pela IA).
  */
 export function resumoDosRios(rios: EstacaoPrevisao[], alertas?: RespostaAlertas): Resumo {
-  const [maisGrave] = ordenarPorGravidade(rios);
+  // GET /previsao e GET /alertas chegam em momentos diferentes. Com a resposta de /alertas, o rio, o
+  // título e o texto vêm da MESMA leitura; assim a faixa não pisca entre a mensagem e um texto genérico.
+  const daMesmaLeitura = alertas?.rios_fora_do_normal.map((r) => r.previsao) ?? [];
+  const [maisGrave] = ordenarPorGravidade(daMesmaLeitura.length > 0 ? daMesmaLeitura : rios);
   if (!maisGrave || piorDoRio(maisGrave) === 'normal') {
     return {
       situacao: 'normal',

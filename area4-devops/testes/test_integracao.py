@@ -378,3 +378,44 @@ def test_it22_abrigo_desativado_nao_e_recomendado_pela_ia(db):
         assert desativado["apto"] is False and desativado["motivo"] == "abrigo inativo"
     finally:
         db.execute("UPDATE silver.abrigo SET ativo = true WHERE id = %s", (abrigo_id,))
+
+
+# ----------------------------------------------------------------------------- app do cidadão (área 3)
+APP_URL = os.environ.get("APP_URL", "http://localhost:5173")
+
+
+def app_get(caminho: str) -> tuple[int, dict[str, str], bytes]:
+    """GET no app web (nginx). Devolve (status, cabeçalhos em minúscula, corpo)."""
+    try:
+        with urllib.request.urlopen(APP_URL + caminho, timeout=15) as resposta:
+            return resposta.status, {k.lower(): v for k, v in resposta.headers.items()}, resposta.read()
+    except urllib.error.HTTPError as erro:
+        return erro.code, {k.lower(): v for k, v in erro.headers.items()}, erro.read()
+
+
+def test_it23_app_web_no_ar_e_api_pelo_proxy():
+    """O app sobe no Compose (nginx sem root) e fala com a API pelo mesmo endereço (/api), sem CORS."""
+    status, cabecalhos, corpo = app_get("/")
+    html = corpo.decode()
+    assert status == 200 and cabecalhos["content-type"].startswith("text/html")
+    assert "<title>Abriga</title>" in html and 'id="root"' in html and 'lang="pt-BR"' in html
+
+    # Aplicativo de página única: uma rota do app abre o mesmo index.html.
+    status, _, corpo = app_get("/abrigo/abr-10")
+    assert status == 200 and b'id="root"' in corpo
+
+    # A API pelo proxy do nginx.
+    status, cabecalhos, corpo = app_get("/api/saude")
+    assert status == 200 and json.loads(corpo)["banco"] is True
+    assert cabecalhos["cache-control"] == "no-store"
+    status, _, corpo = app_get("/api/abrigos/recomendacao?bairro=navegantes&pessoas=4")
+    recomendacao = json.loads(corpo)
+    assert status == 200 and recomendacao["bairro_id"] == "navegantes"
+    assert all(a["apto"] for a in recomendacao["recomendados"])
+
+    # Cabeçalhos de segurança (area3-mvp/app/nginx/seguranca.conf).
+    _, cabecalhos, _ = app_get("/")
+    assert "default-src 'self'" in cabecalhos["content-security-policy"]
+    assert "frame-ancestors 'none'" in cabecalhos["content-security-policy"]
+    assert cabecalhos["x-content-type-options"] == "nosniff"
+    assert cabecalhos["referrer-policy"] == "no-referrer"

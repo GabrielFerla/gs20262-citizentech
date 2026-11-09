@@ -1,4 +1,4 @@
-# Arquitetura — fases 1 e 2
+# Arquitetura — fases 1 a 3
 
 ```mermaid
 flowchart LR
@@ -25,11 +25,12 @@ flowchart LR
         end
         EXP["Exportador<br/>usuário bi_ro (só lê gold)"]
         API["API de IA (FastAPI)<br/>usuário ia_ro (só lê gold)<br/>previsão 6 h · abrigos · mensagens<br/>vigia: alerta antecipado"]
+        WEB["App web (nginx sem root)<br/>arquivos do expo export<br/>repassa /api para a API"]
     end
 
     TREINO["Treino no build da imagem<br/>24 meses simulados<br/>(outras sementes)"]
     PBI["Power BI<br/>dashboard"]
-    APP["App React<br/>(fase 3)"]
+    APP["App Abriga (React Native/Expo)<br/>no navegador ou no celular<br/>aviso de alerta · onde ficar seguro<br/>GPS e distância só no aparelho"]
 
     SIM -- "MQTT QoS 1<br/>citizentech/v1/sim/#" --> MQ
     ESP -- "MQTT" --> PUB --> PONTE -- "citizentech/v1/wokwi/#" --> MQ
@@ -39,7 +40,7 @@ flowchart LR
     G --> EXP -- "CSV" --> PBI
     G -- "v_ml_features_atual · v_abrigo_status<br/>v_abrigo_tendencia · v_ml_features (teste)" --> API
     TREINO -- "modelo.joblib" --> API
-    API -. "HTTP/JSON (CORS)" .-> APP
+    APP -- "HTTP localhost:5173<br/>a cada 3–5 s" --> WEB -- "/api (proxy)" --> API
 ```
 
 ## Fluxo de uma leitura
@@ -82,11 +83,22 @@ Por isso um dado nunca entra no banco por um caminho mais frouxo.
    prevê o nível em 6 h e, com isso, avalia os abrigos (vaga na chegada e risco previsto) e
    escreve as mensagens. O vigia repete a previsão a cada 2 s e abre o alerta antecipado.
 
+## Caminho do app (fase 3)
+
+1. O app pede a situação à API de tempos em tempos: rios e alertas a cada 3 s, abrigos a cada 5 s, com a tela aberta.
+   No Docker, o pedido vai para `localhost:5173/api`, e o nginx do app repassa para a API.
+2. Quando o vigia abre ou escala um alerta, o app avisa uma vez: com uma faixa no topo e uma notificação do
+   navegador ou do celular. O toque leva para "Onde ficar seguro".
+3. "Onde ficar seguro" tem dois caminhos:
+   - **pelo bairro:** a API recomenda os abrigos a partir do centro do bairro;
+   - **pela localização:** a API manda a avaliação de todos os abrigos, sem receber a posição, e o app escolhe os mais perto no aparelho.
+4. "Como chegar" abre o mapa a pé só com o destino. Se a API cair, o app mostra os últimos dados com um aviso e volta sozinho.
+
 ## Decisões e por quê
 
 | Decisão | Motivo |
 |---|---|
-| Um contrato JSON Schema compartilhado | Simulador, ESP32, ingestor e o futuro app falam o mesmo formato. É validado em um lugar só |
+| Um contrato JSON Schema compartilhado | Simulador, ESP32 e ingestor falam o mesmo formato. É validado em um lugar só |
 | Camadas bronze/silver/gold no PostgreSQL | Guarda o dado bruto para auditoria e mantém o dado tratado separado das visões de decisão |
 | Ocupação do abrigo enviada como número absoluto | Se a mesma mensagem chegar duas vezes, o resultado não muda |
 | Broker público + ponte para o Wokwi | O Wokwi gratuito não alcança o computador local; a ponte filtra o que chega da internet |
@@ -97,4 +109,7 @@ Por isso um dado nunca entra no banco por um caminho mais frouxo.
 | Regra simples como candidata no treino | A IA só substitui a persistência onde provou ser melhor (por isso o Dilúvio fica com a regra simples) |
 | Modelo treinado no build da imagem | Treino determinístico e sem banco: o modelo nunca fica velho num volume e a API sobe na hora |
 | Mensagens por modelos de texto, sem API de LLM | O avaliador não teria a chave. O prompt está documentado, e a verificação automática vale para qualquer gerador |
-| Recomendação pelo bairro, não pelo GPS | A posição exata do cidadão não sai do celular (LGPD) |
+| Servidor só recebe o bairro; o GPS fica no aparelho | A posição exata do cidadão não sai do celular (LGPD). Com o GPS, o app calcula a distância com a mesma regra da IA, e um teste de paridade compara os dois |
+| App em Expo exportado para a web e servido pelo nginx | O mesmo código roda no celular e no navegador; a demo e o avaliador usam o navegador, sem instalar nada além do Docker |
+| Proxy `/api` no nginx em vez de CORS | O app e a API ficam no mesmo endereço: sem CORS, funciona com `localhost` ou `127.0.0.1`, e a CSP pode ser `'self'` |
+| Aviso pelo app aberto (consulta a cada 3 s), sem push do servidor | Push com o app fechado exige conta e servidor de push, fora do escopo do PRD. O vigia na API já decide quando abrir o alerta; o app só avisa uma vez por alerta novo |

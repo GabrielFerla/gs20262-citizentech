@@ -1,27 +1,30 @@
-# Plano de testes — fases 1 e 2
+# Plano de testes — fases 1 a 3
 
 **Objetivo:** garantir que as leituras dos sensores chegam ao banco validadas, sem duplicar,
 que dados inválidos ou de origem não autorizada são barrados, e que os alertas e as vagas
 dos abrigos são calculados corretamente. Na fase 2, garantir também que a IA prevê melhor
 que a regra simples, que nunca recomenda um abrigo inapto e que as mensagens seguem as
-regras de linguagem simples.
+regras de linguagem simples. Na fase 3, garantir que o app avisa do alerta, leva a pessoa a um abrigo
+seguro sem enviar a posição dela e continua útil quando a API cai.
 
 | Tipo | Ferramenta | Como rodar | Quantidade |
 |---|---|---|---|
 | Unidade | pytest | `.venv/bin/python -m pytest` | 275 testes (97 da fase 1 + 178 da IA) |
-| Integração | pytest no docker compose (broker, banco, API e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 22 testes |
+| Integração | pytest no docker compose (broker, banco, API, app e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 23 testes |
+| App (unidade e telas) | Jest + Testing Library | `cd area3-mvp/app && npm test` | 103 testes |
 | Métrica da IA | relatório contra os dados do pipeline | `docker compose --profile ferramentas run --rm ia-relatorio` | sai em `relatorios/ia/`; referência em [`RELATORIO.md`](../area1-ia/relatorio/RELATORIO.md) |
-| Lint | ruff | `.venv/bin/ruff check .` | — |
-| CI | GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) | automático a cada push e pull request | os três acima |
+| Lint e tipos | ruff (Python); ESLint e TypeScript (app) | `.venv/bin/ruff check .`; `npm run lint && npm run typecheck` | — |
+| CI | GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) | automático a cada push e pull request | todos os acima, menos a métrica |
 
 **Evidências:**
 - relatórios JUnit em `relatorios/` (gerados localmente e anexados pelo CI);
 - print do GitHub Actions verde;
-- prints dos comandos abaixo.
+- prints dos comandos abaixo;
+- prints do app em `docs/evidencias/app-*.png`.
 
 ## Casos de teste
 
-Execução em 07/11/2026 (macOS, Docker 29), depois da segunda revisão de código: **unidade 275/275 ok · integração 22/22 ok**.
+Execução em 09/11/2026 (macOS, Docker 29), com o app da fase 3: **unidade 275/275 ok · integração 23/23 ok · app 103/103 ok**.
 
 | ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
 |---|---|---|---|---|---|---|
@@ -91,6 +94,26 @@ Execução manual em 07/11/2026 no [Wokwi](https://wokwi.com), com a ponte local
 | CT-48 | Chuva pelo potenciômetro | Manual | Girar o potenciômetro | Valor em mm aparece em `wok-chuva` | ✅ 7,63 mm | — |
 | CT-49 | Contagem de pessoas no abrigo | Manual | 2 entradas no PIR e 1 toque rápido no botão de saída | `abr-demo` com 1 pessoa em `gold.v_abrigo_status` | ✅ depois da correção (antes, o toque rápido se perdia) | — |
 
+### Fase 3 — App do cidadão (área 3)
+
+Execução em 09/11/2026 com o simulador (`docker compose restart simulador`), o app aberto no Chrome em 390 × 844 e o bairro Navegantes. Prints em [`docs/evidencias/`](../docs/evidencias).
+
+| ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
+|---|---|---|---|---|---|---|
+| CT-54 | App sobe no Compose e fala com a API pelo proxy | Integração | `docker compose up -d --build --wait`; pedir `/`, `/abrigo/abr-10`, `/api/saude` e `/api/abrigos/recomendacao` no app | HTML do Abriga (`lang="pt-BR"`); rota do app cai no index; API responde pelo proxy com `no-store`; cabeçalhos CSP, `nosniff`, `no-referrer` e `frame-ancestors 'none'` | ✅ | `test_it23_app_web_no_ar_e_api_pelo_proxy` |
+| CT-55 | Distância e tempo a pé iguais aos da IA | Unidade | Rodar `recomendar()` do Python em 3 pontos (Navegantes 4 pessoas, Centro Histórico 1, Cristal 6) e 2 abrigos de teste; comparar com o cálculo do app | Mesmos recomendados, evitados, minutos a pé, vagas na chegada e motivos | ✅ | `paridade-geo.test.ts` |
+| CT-56 | Abrigo que lota antes de a pessoa chegar sai da lista | Unidade | Abrigo apto com `minutos_ate_lotar` menor que o tempo a pé | Vai para os evitados com "deve lotar antes de você chegar"; `minutos_ate_lotar` nulo não lota | ✅ | `logica-abrigos.test.ts`, `telas-abrigos.test.tsx` |
+| CT-57 | Posição não sai do aparelho | Unidade + manual | Modo "Minha localização": registrar todas as URLs pedidas; abrir o detalhe; tocar em "Como chegar" | Só `GET /abrigos?pessoas=`; nenhuma URL nem rota da tela com latitude ou longitude; mapa só com o destino | ✅ Ao vivo, com o GPS simulado, o app pediu só `/api/abrigos?pessoas=1` | `telas-abrigos.test.tsx`, `telas-localizacao-ajustes.test.tsx`, `cliente.test.ts` |
+| CT-58 | Sem permissão, GPS falhando ou fora de Porto Alegre → usa o bairro | Unidade | Permissão negada; erro do GPS; posição a mais de 30 km do centro | Mensagem simples e volta para "Meu bairro", sem travar | ✅ | `telas-localizacao-ajustes.test.tsx` |
+| CT-59 | API ou banco fora do ar → aviso amigável, sem tela branca | Unidade + manual | 503, 502, sem rede e tempo esgotado; `docker compose stop api` com o app aberto, depois `start` | Mensagem simples; últimos dados com a hora; "Tentar de novo" quando não há dado; o app volta sozinho | ✅ | `cliente.test.ts`, `EstadoDaConsulta.test.tsx`, `telas-agora-rio.test.tsx`; print `app-erro.png` |
+| CT-60 | Leitura atrasada e dados incompletos sinalizados | Unidade | Previsão com `leitura_velha` e `dados_incompletos` | Selos "Leitura atrasada" e "Dados incompletos" no cartão do rio | ✅ | `telas-agora-rio.test.tsx` |
+| CT-61 | Alerta novo avisa uma vez só | Unidade | Mesmo alerta em várias leituras; escalar; fechar e abrir de novo; alerta já aberto ao abrir o app; avisos desligados; pessoa já na tela de abrigos | 1 aviso por alerta; escalar avisa de novo; o que já estava aberto e os avisos desligados não avisam; na tela de abrigos, só a notificação (a faixa não cobre a lista) | ✅ | `alertas.test.ts`, `aviso-de-alerta.test.tsx` |
+| CT-62 | Alerta antecipado aparece no app antes da cota | Manual | `docker compose restart simulador` com o app aberto; comparar com o nível do Guaíba em `/previsao` | Selo "Alerta antecipado" e aviso antes de o rio passar da cota | ✅ Atenção 50 s antes (≈ 8 h simuladas), alerta 31 s antes (≈ 5 h) | — (prints `app-aviso.png`, `app-agora.png`) |
+| CT-63 | Fluxo completo: rio sobe → aviso → abrigo → Como chegar | Manual + unidade | Com a faixa de alerta na tela, tocar em "Onde ficar seguro", no 1º recomendado e em "Como chegar" | Recomendados do bairro salvo, detalhe do abrigo e mapa a pé só com o destino | ✅ | `aviso-de-alerta.test.tsx`, `telas-abrigos.test.tsx`; prints `app-aviso.png`, `app-abrigos.png`, `app-abrigo.png` |
+| CT-64 | Funciona em largura de celular | Manual | Abrir as 5 telas em 390 × 844 | Nada cortado e sem rolagem lateral; botões com 48 px ou mais de altura | ✅ | — (prints `app-*.png`) |
+| CT-65 | Lint, tipos e testes do app no CI | CI | Push na `main` | Job `app` verde, com o relatório `relatorio-app` | ✅ | job `app` em [`ci.yml`](../.github/workflows/ci.yml) |
+| CT-66 | Identidade própria, sem se passar por órgão oficial | Unidade | Textos da faixa e do aviso de alerta; rodapé e Ajustes | Nunca "DEFESA CIVIL" como remetente; "Dados simulados" e os telefones 199 e 193 sempre visíveis | ✅ | `situacao.test.ts`, `telas-agora-rio.test.tsx`, `telas-localizacao-ajustes.test.tsx` |
+
 ## Como gerar as evidências para o PDF
 
 Rodar os testes de integração e guardar o relatório em `relatorios/integracao.xml`:
@@ -105,4 +128,10 @@ Rodar os testes de unidade e guardar o relatório em `relatorios/unitarios.xml`:
 .venv/bin/python -m pytest --junitxml=relatorios/unitarios.xml
 ```
 
-Para o PDF: print do terminal com os testes passando, print da aba **Actions** do GitHub com o pipeline verde e o print do circuito rodando no Wokwi (`docs/evidencias/wokwi-simulacao.jpg`).
+Rodar o lint, os tipos e os testes do app e guardar o relatório em `relatorios/app.xml`:
+
+```bash
+cd area3-mvp/app && npm run lint && npm run typecheck && npm run test:ci
+```
+
+Para o PDF: print do terminal com os testes passando, print da aba **Actions** do GitHub com o pipeline verde, o print do circuito rodando no Wokwi (`docs/evidencias/wokwi-simulacao.jpg`) e os prints do app (`docs/evidencias/app-*.png`).

@@ -35,15 +35,20 @@ export function CartaoDoAbrigo({ abrigo, ordem, motivo, vagasNaChegada, origem }
       ? `${abrigo.vagas} vagas agora · ${vagasNaChegada} quando você chegar`
       : `${abrigo.vagas} vagas agora`;
 
+  // Pelo bairro, a distância vai no endereço da tela (é a do centro do bairro, não da pessoa).
+  // Pela localização, nada derivado da posição entra no endereço: o detalhe refaz a conta na memória.
   const abrir = () =>
     router.push({
       pathname: '/abrigo/[id]',
-      params: {
-        id: abrigo.abrigo_id,
-        ...(minutos !== null ? { minutos: String(minutos) } : {}),
-        ...(distancia !== null ? { km: String(distancia) } : {}),
-        origem,
-      },
+      params:
+        origem === 'bairro'
+          ? {
+              id: abrigo.abrigo_id,
+              ...(minutos !== null ? { minutos: String(minutos) } : {}),
+              ...(distancia !== null ? { km: String(distancia) } : {}),
+              origem,
+            }
+          : { id: abrigo.abrigo_id, origem },
     });
 
   return (

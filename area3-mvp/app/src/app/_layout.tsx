@@ -1,12 +1,40 @@
-/** Raiz do app: cliente das consultas e a pilha de telas (abas + detalhes). */
+/** Raiz do app: cliente das consultas, a pilha de telas (abas + detalhes) e o aviso de alerta novo. */
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 
 import { criarClienteDeConsultas } from '@/api/consultas';
+import { AvisoDeAlertaNovo } from '@/componentes/AvisoDeAlertaNovo';
+import { dispensarAviso, useAvisoAtual, useAvisosDeAlerta } from '@/estado/avisos';
 import { cores } from '@/tema';
+
+/** Acompanha o vigia em qualquer tela e mostra a faixa quando abre um alerta novo. */
+function AvisosDeAlerta() {
+  useAvisosDeAlerta();
+  const aviso = useAvisoAtual();
+  const router = useRouter();
+
+  // A faixa some sozinha depois de 1 minuto (a situação continua na tela Agora).
+  useEffect(() => {
+    if (!aviso) return;
+    const relogio = setTimeout(dispensarAviso, 60_000);
+    return () => clearTimeout(relogio);
+  }, [aviso]);
+
+  if (!aviso) return null;
+  return (
+    <AvisoDeAlertaNovo
+      aviso={aviso}
+      aoFechar={dispensarAviso}
+      aoAbrir={() => {
+        dispensarAviso();
+        router.navigate(aviso.rota);
+      }}
+    />
+  );
+}
 
 export default function Raiz() {
   const [cliente] = useState(criarClienteDeConsultas);
@@ -37,6 +65,7 @@ export default function Raiz() {
         <Stack.Screen name="abrigo/[id]" options={{ title: 'Abrigo' }} />
         <Stack.Screen name="rio/[id]" options={{ title: 'Rio' }} />
       </Stack>
+      <AvisosDeAlerta />
     </QueryClientProvider>
   );
 }

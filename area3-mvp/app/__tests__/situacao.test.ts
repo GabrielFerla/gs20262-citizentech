@@ -53,6 +53,15 @@ describe('faixa do topo (resumo)', () => {
     expect(resumo.texto).toContain('199');
   });
 
+  it('/previsao mais nova que /alertas: rio, título e texto continuam da mesma leitura (a faixa não pisca)', () => {
+    // A leitura de /previsao já mostra o Dilúvio em inundação; a de /alertas ainda não tem mensagem para ele.
+    const maisNova = copia(fixtures.previsao);
+    Object.assign(maisNova[0], { situacao_atual: 'inundacao', situacao_prevista: 'inundacao' });
+    const resumo = resumoDosRios(maisNova, fixtures.alertasNavegantes);
+    expect(resumo.rio?.estacao_id).toBe('gua-cais');
+    expect(resumo.titulo).toBe('Saia agora: risco de alagamento');
+  });
+
   it('nunca usa a Defesa Civil como remetente (só os textos de push)', () => {
     const resumo = resumoDosRios(fixtures.previsao, fixtures.alertasNavegantes);
     expect(`${resumo.titulo} ${resumo.texto}`).not.toMatch(/DEFESA CIVIL:|\*Defesa Civil/);

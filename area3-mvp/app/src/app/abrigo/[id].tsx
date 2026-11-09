@@ -10,9 +10,10 @@ import type { AbrigoAvaliado, EstacaoPrevisao } from '@/api/tipos';
 import { Botao } from '@/componentes/Botao';
 import { AvisoDeErro, EstadoDaConsulta } from '@/componentes/EstadoDaConsulta';
 import { Tela } from '@/componentes/Tela';
+import { usePosicao } from '@/estado/posicao';
 import { usePreferencias } from '@/estado/preferencias';
 import { horaCurta, km, minutosAPeTexto } from '@/logica/formato';
-import { lotaAntesDeChegar, vagasNaChegada } from '@/logica/geo';
+import { distanciaKm, lotaAntesDeChegar, minutosAPe, vagasNaChegada } from '@/logica/geo';
 import { urlComoChegar } from '@/logica/rota';
 import { capitalizar } from '@/logica/texto';
 import { cores, espaco, raio, situacoes, texto } from '@/tema';
@@ -148,6 +149,7 @@ export default function DetalheDoAbrigo() {
   const params = useLocalSearchParams<Parametros>();
   const ativa = useIsFocused();
   const { valores } = usePreferencias();
+  const posicao = usePosicao();
   const abrigos = useAbrigos(valores.pessoas, ativa);
   const previsao = usePrevisao();
 
@@ -162,12 +164,17 @@ export default function DetalheDoAbrigo() {
         {(lista) => {
           const abrigo = lista.find((a) => a.abrigo_id === params.id);
           if (!abrigo) return <AvisoDeErro mensagem="Não encontramos este abrigo." />;
+          // Pela localização, a distância é refeita aqui, com a posição que está só na memória.
+          const daPosicao =
+            params.origem === 'localizacao' && posicao
+              ? distanciaKm(posicao.lat, posicao.lon, abrigo.lat, abrigo.lon)
+              : null;
           return (
             <Detalhe
               abrigo={abrigo}
               pessoas={valores.pessoas}
-              minutos={numeroOuNulo(params.minutos)}
-              distancia={numeroOuNulo(params.km)}
+              minutos={daPosicao !== null ? minutosAPe(daPosicao) : numeroOuNulo(params.minutos)}
+              distancia={daPosicao !== null ? Math.round(daPosicao * 100) / 100 : numeroOuNulo(params.km)}
               origem={params.origem}
               rios={previsao.data}
             />

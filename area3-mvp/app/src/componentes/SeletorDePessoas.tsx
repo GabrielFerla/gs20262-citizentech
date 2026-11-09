@@ -26,7 +26,7 @@ function BotaoPasso({
       disabled={desligado}
       accessibilityRole="button"
       accessibilityLabel={rotulo}
-      accessibilityState={{ disabled: desligado }}
+      aria-disabled={desligado}
       style={({ pressed }) => [estilos.passo, desligado && estilos.desligado, pressed && { opacity: 0.8 }]}
     >
       <Text style={estilos.sinal}>{sinal}</Text>

@@ -82,10 +82,11 @@ describe('tela Agora', () => {
     expect(screen.getByText('O servidor de dados está fora do ar. Tentando de novo…')).toBeOnTheScreen();
   });
 
-  it('o rodapé sempre avisa que os dados são simulados', async () => {
+  it('o rodapé sempre avisa que os dados são simulados e dá os telefones de emergência', async () => {
     simularApi(rotasPadrao());
     await renderRouter('./src/app', { initialUrl: '/' });
     expect(await screen.findByText(/^Dados simulados para demonstração/)).toBeOnTheScreen();
+    expect(screen.getByText('Em emergência real, ligue 199 (Defesa Civil) ou 193 (Bombeiros).')).toBeOnTheScreen();
   });
 });
 

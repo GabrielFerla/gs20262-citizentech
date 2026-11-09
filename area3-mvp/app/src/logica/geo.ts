@@ -49,3 +49,75 @@ export function vagasNaChegada(
 export function lotaAntesDeChegar(abrigo: Pick<AbrigoAvaliado, 'minutos_ate_lotar'>, minutos: number): boolean {
   return abrigo.minutos_ate_lotar !== null && minutos > abrigo.minutos_ate_lotar;
 }
+
+export interface Posicao {
+  lat: number;
+  lon: number;
+}
+
+/** Centro de Porto Alegre (Paço Municipal) e o raio em que o modo localização faz sentido. */
+export const CENTRO_POA: Posicao = { lat: -30.0277, lon: -51.2287 };
+export const RAIO_POA_KM = 30;
+
+export function distanciaDoCentroKm(posicao: Posicao): number {
+  return distanciaKm(posicao.lat, posicao.lon, CENTRO_POA.lat, CENTRO_POA.lon);
+}
+
+/** Fora de Porto Alegre, os abrigos ficariam a horas de caminhada: o app usa o bairro. */
+export function dentroDePortoAlegre(posicao: Posicao): boolean {
+  return distanciaDoCentroKm(posicao) <= RAIO_POA_KM;
+}
+
+/**
+ * Motivos de abrigo fora de uso (os mesmos de area1-ia/ia/servicos.py). Como em recomendar(),
+ * esses abrigos nem entram na conta: não são "evitados", simplesmente não existem para a pessoa.
+ */
+export const MOTIVOS_INDISPONIVEL = ['abrigo inativo', 'abrigo de demonstração', 'sem leitura recente de ocupação'];
+
+/** Abrigo com a conta feita no aparelho. */
+export interface AbrigoPerto extends AbrigoAvaliado {
+  distancia_km: number;
+  minutos_a_pe: number;
+  /** Vagas quando a pessoa chegar (conta do aparelho). */
+  vagas_na_chegada: number;
+  /** Apto agora (API) E não lota antes de a pessoa chegar (aparelho). */
+  seguro: boolean;
+  /** Por que não é seguro (o da API ou "deve lotar antes de você chegar"). */
+  motivo_final: string | null;
+}
+
+export interface Resultado {
+  recomendados: AbrigoPerto[];
+  /** Os não seguros que ficam mais perto que o 1º recomendado. */
+  evitados: AbrigoPerto[];
+}
+
+/**
+ * "Abrigos perto de mim", no aparelho, com a mesma regra de recomendar() (area1-ia/ia/abrigos.py):
+ * descarta os indisponíveis, calcula a caminhada, descarta quem lota antes de a pessoa chegar,
+ * ordena pela distância e devolve os 3 primeiros seguros e os não seguros mais perto que eles.
+ * A posição entra aqui e não sai daqui: nada disso vai para a API.
+ */
+export function abrigosPerto(abrigos: AbrigoAvaliado[], posicao: Posicao, limite = 3): Resultado {
+  const avaliados: AbrigoPerto[] = abrigos
+    .filter((a) => !(a.motivo && MOTIVOS_INDISPONIVEL.includes(a.motivo)))
+    .map((a) => {
+      const distancia = distanciaKm(posicao.lat, posicao.lon, a.lat, a.lon);
+      const minutos = minutosAPe(distancia);
+      const lota = lotaAntesDeChegar(a, minutos);
+      return {
+        ...a,
+        distancia_km: Math.round(distancia * 100) / 100,
+        minutos_a_pe: minutos,
+        vagas_na_chegada: vagasNaChegada(a, minutos),
+        seguro: a.apto && !lota,
+        motivo_final: a.motivo ?? (lota ? 'deve lotar antes de você chegar' : null),
+      };
+    })
+    .sort((a, b) => a.distancia_km - b.distancia_km || (a.abrigo_id < b.abrigo_id ? -1 : 1));
+
+  const recomendados = avaliados.filter((a) => a.seguro).slice(0, limite);
+  const limiteDeDistancia = recomendados[0]?.distancia_km ?? Infinity;
+  const evitados = avaliados.filter((a) => !a.seguro && a.distancia_km < limiteDeDistancia);
+  return { recomendados, evitados };
+}

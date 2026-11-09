@@ -13,3 +13,14 @@ const { notifyManager } = require('@tanstack/react-query') as typeof import('@ta
 notifyManager.setNotifyFunction((avisar) => {
   act(avisar);
 });
+
+// Notificações de mentira (o teste confere o que seria mostrado).
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(async () => null),
+  getPermissionsAsync: jest.fn(async () => ({ status: 'granted', canAskAgain: true })),
+  requestPermissionsAsync: jest.fn(async () => ({ status: 'granted', canAskAgain: true })),
+  scheduleNotificationAsync: jest.fn(async () => 'id-da-notificacao'),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  AndroidImportance: { MAX: 5 },
+}));

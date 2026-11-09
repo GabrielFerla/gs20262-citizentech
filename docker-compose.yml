@@ -273,12 +273,15 @@ services:
       MQTT_SIMULADOR_PASSWORD: ${MQTT_SIMULADOR_PASSWORD}
       MQTT_PONTE_PASSWORD: ${MQTT_PONTE_PASSWORD}
       API_URL: http://api:8000
+      APP_URL: http://app:8080
     volumes:
       - ./relatorios:/relatorios
     depends_on:
       simulador:
         condition: service_healthy
       api:
+        condition: service_healthy
+      app:
         condition: service_healthy
 
 volumes:
