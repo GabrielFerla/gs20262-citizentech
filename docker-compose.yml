@@ -1,7 +1,9 @@
-# Abriga — sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold) → API de IA
+# Abriga — sensores → MQTT → ingestor → PostgreSQL (bronze/silver/gold) → API de IA → app
 #
 #   cp .env.example .env
 #   docker compose up -d --build
+#
+# App do cidadão: http://localhost:5173 · Swagger da API: http://localhost:8000/docs
 #
 # Ferramentas (sob demanda):
 #   docker compose --profile ferramentas run --rm exportar       # CSVs para o Power BI
@@ -182,7 +184,8 @@ services:
     environment:
       <<: *banco
       IA_DB_PASSWORD: ${IA_DB_PASSWORD}
-      API_CORS_ORIGENS: ${API_CORS_ORIGENS:-http://localhost:5173}
+      # Só para o app em desenvolvimento (Metro em 8081); o app do Compose usa o proxy /api, sem CORS.
+      API_CORS_ORIGENS: ${API_CORS_ORIGENS:-http://localhost:5173,http://localhost:8081}
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -190,6 +193,19 @@ services:
         condition: service_completed_successfully
       historico-carregar:
         condition: service_completed_successfully
+
+  # App do cidadão (área 3): Expo/React Native exportado para a web e servido pelo nginx (sem root).
+  # http://localhost:5173 · o nginx repassa /api para a API, no mesmo endereço (não precisa de CORS).
+  app:
+    image: citizentech/app:local
+    build:
+      context: area3-mvp/app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5173:8080"
+    depends_on:
+      api:
+        condition: service_started
 
   # ---------------- ferramentas (sob demanda) ----------------
   # As ferramentas rodam como root para escrever na pasta do projeto montada como volume e, no fim,

@@ -1,0 +1,9 @@
+node_modules
+dist
+.expo
+coverage
+__tests__
+__fixtures__
+*.md
+Dockerfile
+.dockerignore

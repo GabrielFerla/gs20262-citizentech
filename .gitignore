@@ -19,3 +19,9 @@ relatorios/*
 
 # Sistema
 .DS_Store
+
+# App (area3-mvp/app tem o próprio .gitignore; estes garantem o mesmo na raiz)
+node_modules/
+area3-mvp/app/dist/
+area3-mvp/app/.expo/
+area3-mvp/app/coverage/

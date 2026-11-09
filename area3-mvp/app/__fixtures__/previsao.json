@@ -1,0 +1,89 @@
+[
+    {
+        "estacao_id": "dil-ipiranga",
+        "estacao": "Arroio Dilúvio - Av. Ipiranga",
+        "corpo_hidrico": "Arroio Dilúvio",
+        "medido_em_utc": "2026-11-08T23:50:24.401000Z",
+        "leitura_velha": false,
+        "dados_incompletos": false,
+        "nivel_atual_m": 1.44,
+        "nivel_previsto_6h_m": 1.44,
+        "persistencia_6h_m": 1.44,
+        "variacao_prevista_m": 0.0,
+        "tendencia": "estavel",
+        "situacao_atual": "normal",
+        "situacao_prevista": "normal",
+        "alerta_antecipado": false,
+        "cotas": {
+            "atencao_m": 1.8,
+            "alerta_m": 2.5,
+            "inundacao_m": 3.2
+        },
+        "modelo": "regra_simples",
+        "entrada": {
+            "nivel_atual_m": 1.44,
+            "variacao_1h_m": -0.07,
+            "chuva_1h_mm": 0.7,
+            "chuva_6h_mm": 22.6,
+            "chuva_24h_mm": 69.7
+        }
+    },
+    {
+        "estacao_id": "gra-sarandi",
+        "estacao": "Rio Gravataí - Sarandi",
+        "corpo_hidrico": "Rio Gravataí",
+        "medido_em_utc": "2026-11-08T23:50:24.401000Z",
+        "leitura_velha": false,
+        "dados_incompletos": false,
+        "nivel_atual_m": 3.12,
+        "nivel_previsto_6h_m": 3.14,
+        "persistencia_6h_m": 3.12,
+        "variacao_prevista_m": 0.02,
+        "tendencia": "estavel",
+        "situacao_atual": "atencao",
+        "situacao_prevista": "atencao",
+        "alerta_antecipado": false,
+        "cotas": {
+            "atencao_m": 3.0,
+            "alerta_m": 3.5,
+            "inundacao_m": 4.0
+        },
+        "modelo": "random_forest",
+        "entrada": {
+            "nivel_atual_m": 3.12,
+            "variacao_1h_m": 0.01,
+            "chuva_1h_mm": 0.5,
+            "chuva_6h_mm": 19.1,
+            "chuva_24h_mm": 56.6
+        }
+    },
+    {
+        "estacao_id": "gua-cais",
+        "estacao": "Guaíba - Cais Mauá",
+        "corpo_hidrico": "Lago Guaíba",
+        "medido_em_utc": "2026-11-08T23:50:24.401000Z",
+        "leitura_velha": false,
+        "dados_incompletos": false,
+        "nivel_atual_m": 3.68,
+        "nivel_previsto_6h_m": 3.76,
+        "persistencia_6h_m": 3.68,
+        "variacao_prevista_m": 0.08,
+        "tendencia": "subindo",
+        "situacao_atual": "inundacao",
+        "situacao_prevista": "inundacao",
+        "alerta_antecipado": false,
+        "cotas": {
+            "atencao_m": 2.0,
+            "alerta_m": 2.5,
+            "inundacao_m": 3.0
+        },
+        "modelo": "random_forest",
+        "entrada": {
+            "nivel_atual_m": 3.68,
+            "variacao_1h_m": 0.0,
+            "chuva_1h_mm": 0.6,
+            "chuva_6h_mm": 21.3,
+            "chuva_24h_mm": 61.8
+        }
+    }
+]

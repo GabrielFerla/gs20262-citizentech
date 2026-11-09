@@ -1,0 +1,472 @@
+[
+    {
+        "bairro_id": "aberta-dos-morros",
+        "bairro": "Aberta dos Morros",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "agronomia",
+        "bairro": "Agronomia",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "anchieta",
+        "bairro": "Anchieta",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "arquipelago",
+        "bairro": "Arquipélago",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "auxiliadora",
+        "bairro": "Auxiliadora",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "azenha",
+        "bairro": "Azenha",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "bela-vista",
+        "bairro": "Bela Vista",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "belem-novo",
+        "bairro": "Belém Novo",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "belem-velho",
+        "bairro": "Belém Velho",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "boa-vista",
+        "bairro": "Boa Vista",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "boa-vista-do-sul",
+        "bairro": "Boa Vista do Sul",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "bom-fim",
+        "bairro": "Bom Fim",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "bom-jesus",
+        "bairro": "Bom Jesus",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "camaqua",
+        "bairro": "Camaquã",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "campo-novo",
+        "bairro": "Campo Novo",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "cascata",
+        "bairro": "Cascata",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "cavalhada",
+        "bairro": "Cavalhada",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "centro-historico",
+        "bairro": "Centro Histórico",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "chacara-das-pedras",
+        "bairro": "Chácara das Pedras",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "chapeu-do-sol",
+        "bairro": "Chapéu do Sol",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "cidade-baixa",
+        "bairro": "Cidade Baixa",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "coronel-aparicio-borges",
+        "bairro": "Coronel Aparício Borges",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "costa-e-silva",
+        "bairro": "Costa e Silva",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "cristal",
+        "bairro": "Cristal",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "cristo-redentor",
+        "bairro": "Cristo Redentor",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "espirito-santo",
+        "bairro": "Espírito Santo",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "extrema",
+        "bairro": "Extrema",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "farrapos",
+        "bairro": "Farrapos",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "farroupilha",
+        "bairro": "Farroupilha",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "floresta",
+        "bairro": "Floresta",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "gloria",
+        "bairro": "Glória",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "guaruja",
+        "bairro": "Guarujá",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "higienopolis",
+        "bairro": "Higienópolis",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "hipica",
+        "bairro": "Hípica",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "humaita",
+        "bairro": "Humaitá",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "independencia",
+        "bairro": "Independência",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "ipanema",
+        "bairro": "Ipanema",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-botanico",
+        "bairro": "Jardim Botânico",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-carvalho",
+        "bairro": "Jardim Carvalho",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-do-salso",
+        "bairro": "Jardim do Salso",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-europa",
+        "bairro": "Jardim Europa",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-floresta",
+        "bairro": "Jardim Floresta",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-isabel",
+        "bairro": "Jardim Isabel",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-itu",
+        "bairro": "Jardim Itu",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-leopoldina",
+        "bairro": "Jardim Leopoldina",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-lindoia",
+        "bairro": "Jardim Lindóia",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-sabara",
+        "bairro": "Jardim Sabará",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "jardim-sao-pedro",
+        "bairro": "Jardim São Pedro",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "lageado",
+        "bairro": "Lageado",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "lami",
+        "bairro": "Lami",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "lomba-do-pinheiro",
+        "bairro": "Lomba do Pinheiro",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "mario-quintana",
+        "bairro": "Mário Quintana",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "medianeira",
+        "bairro": "Medianeira",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "menino-deus",
+        "bairro": "Menino Deus",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "moinhos-de-vento",
+        "bairro": "Moinhos de Vento",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "montserrat",
+        "bairro": "Montserrat",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "morro-santana",
+        "bairro": "Morro Santana",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "navegantes",
+        "bairro": "Navegantes",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "nonoai",
+        "bairro": "Nonoai",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "parque-santa-fe",
+        "bairro": "Parque Santa Fé",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "partenon",
+        "bairro": "Partenon",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "passo-da-areia",
+        "bairro": "Passo da Areia",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "passo-das-pedras",
+        "bairro": "Passo das Pedras",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "pedra-redonda",
+        "bairro": "Pedra Redonda",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "petropolis",
+        "bairro": "Petrópolis",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "pitinga",
+        "bairro": "Pitinga",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "ponta-grossa",
+        "bairro": "Ponta Grossa",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "praia-de-belas",
+        "bairro": "Praia de Belas",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "restinga",
+        "bairro": "Restinga",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "rio-branco",
+        "bairro": "Rio Branco",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "rubem-berta",
+        "bairro": "Rubem Berta",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "santa-cecilia",
+        "bairro": "Santa Cecília",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "santa-maria-goretti",
+        "bairro": "Santa Maria Goretti",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "santa-rosa-de-lima",
+        "bairro": "Santa Rosa de Lima",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "santa-tereza",
+        "bairro": "Santa Tereza",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "santana",
+        "bairro": "Santana",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "santo-antonio",
+        "bairro": "Santo Antônio",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "sao-caetano",
+        "bairro": "São Caetano",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "sao-geraldo",
+        "bairro": "São Geraldo",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "sao-joao",
+        "bairro": "São João",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "sao-sebastiao",
+        "bairro": "São Sebastião",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "sarandi",
+        "bairro": "Sarandi",
+        "zona_risco": "alta"
+    },
+    {
+        "bairro_id": "serraria",
+        "bairro": "Serraria",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "setimo-ceu",
+        "bairro": "Sétimo Céu",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "teresopolis",
+        "bairro": "Teresópolis",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "tres-figueiras",
+        "bairro": "Três Figueiras",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "tristeza",
+        "bairro": "Tristeza",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-assuncao",
+        "bairro": "Vila Assunção",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-conceicao",
+        "bairro": "Vila Conceição",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-ipiranga",
+        "bairro": "Vila Ipiranga",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-jardim",
+        "bairro": "Vila Jardim",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-joao-pessoa",
+        "bairro": "Vila João Pessoa",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-nova",
+        "bairro": "Vila Nova",
+        "zona_risco": "baixa"
+    },
+    {
+        "bairro_id": "vila-sao-jose",
+        "bairro": "Vila São José",
+        "zona_risco": "baixa"
+    }
+]

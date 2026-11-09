@@ -1,0 +1,188 @@
+{
+    "vigia": {
+        "ultima_rodada_utc": "2026-11-08T23:50:24.208957Z",
+        "ultimo_erro": null,
+        "abertos": [
+            {
+                "estacao_id": "gua-cais",
+                "severidade": 3,
+                "aberto_em": "2026-11-08T20:38:41.011643Z",
+                "atualizado_em": "2026-11-08T23:50:24.208957Z",
+                "nivel_previsto_m": 3.77,
+                "pico_previsto_m": 5.41,
+                "antecipado": false,
+                "mensagem_sms": "DEFESA CIVIL: Saia agora para um lugar alto. O Lago Guaiba esta alagando ruas. Procure o abrigo mais perto no app. Emergencia: 199 ou 193."
+            },
+            {
+                "estacao_id": "gra-sarandi",
+                "severidade": 1,
+                "aberto_em": "2026-11-08T23:49:08.034905Z",
+                "atualizado_em": "2026-11-08T23:50:24.208957Z",
+                "nivel_previsto_m": 3.19,
+                "pico_previsto_m": 3.25,
+                "antecipado": false,
+                "mensagem_sms": "DEFESA CIVIL: Fique atento. O Rio Gravatai esta acima do normal. Evite as margens e acompanhe os avisos."
+            }
+        ],
+        "eventos": [
+            {
+                "quando": "2026-11-08T23:49:08.034905Z",
+                "estacao_id": "gra-sarandi",
+                "acao": "abrir",
+                "severidade": 1,
+                "nivel_atual_m": 3.08,
+                "nivel_previsto_m": 3.0
+            },
+            {
+                "quando": "2026-11-08T23:49:03.747395Z",
+                "estacao_id": "gra-sarandi",
+                "acao": "fechar",
+                "severidade": 0,
+                "nivel_atual_m": 3.09,
+                "nivel_previsto_m": 2.89
+            },
+            {
+                "quando": "2026-11-08T23:46:51.368352Z",
+                "estacao_id": "dil-ipiranga",
+                "acao": "fechar",
+                "severidade": 0,
+                "nivel_atual_m": 1.63,
+                "nivel_previsto_m": 1.63
+            },
+            {
+                "quando": "2026-11-08T23:46:28.220837Z",
+                "estacao_id": "gra-sarandi",
+                "acao": "escalar",
+                "severidade": 2,
+                "nivel_atual_m": 2.78,
+                "nivel_previsto_m": 3.58
+            },
+            {
+                "quando": "2026-11-08T23:46:13.499160Z",
+                "estacao_id": "gra-sarandi",
+                "acao": "abrir",
+                "severidade": 1,
+                "nivel_atual_m": 2.19,
+                "nivel_previsto_m": 3.02
+            },
+            {
+                "quando": "2026-11-08T23:46:13.499160Z",
+                "estacao_id": "dil-ipiranga",
+                "acao": "escalar",
+                "severidade": 3,
+                "nivel_atual_m": 3.21,
+                "nivel_previsto_m": 3.21
+            },
+            {
+                "quando": "2026-11-08T23:45:58.833654Z",
+                "estacao_id": "dil-ipiranga",
+                "acao": "escalar",
+                "severidade": 2,
+                "nivel_atual_m": 2.56,
+                "nivel_previsto_m": 2.56
+            },
+            {
+                "quando": "2026-11-08T23:45:54.617142Z",
+                "estacao_id": "dil-ipiranga",
+                "acao": "abrir",
+                "severidade": 1,
+                "nivel_atual_m": 2.18,
+                "nivel_previsto_m": 2.18
+            }
+        ]
+    },
+    "rios_fora_do_normal": [
+        {
+            "previsao": {
+                "estacao_id": "gra-sarandi",
+                "estacao": "Rio Gravataí - Sarandi",
+                "corpo_hidrico": "Rio Gravataí",
+                "medido_em_utc": "2026-11-08T23:50:24.401000Z",
+                "leitura_velha": false,
+                "dados_incompletos": false,
+                "nivel_atual_m": 3.12,
+                "nivel_previsto_6h_m": 3.14,
+                "persistencia_6h_m": 3.12,
+                "variacao_prevista_m": 0.02,
+                "tendencia": "estavel",
+                "situacao_atual": "atencao",
+                "situacao_prevista": "atencao",
+                "alerta_antecipado": false,
+                "cotas": {
+                    "atencao_m": 3.0,
+                    "alerta_m": 3.5,
+                    "inundacao_m": 4.0
+                },
+                "modelo": "random_forest",
+                "entrada": {
+                    "nivel_atual_m": 3.12,
+                    "variacao_1h_m": 0.01,
+                    "chuva_1h_mm": 0.5,
+                    "chuva_6h_mm": 19.1,
+                    "chuva_24h_mm": 56.6
+                }
+            },
+            "mensagens": {
+                "intencao": "fique_atento",
+                "sms": "DEFESA CIVIL: Fique atento. O Rio Gravatai esta acima do normal. Evite as margens e acompanhe os avisos.",
+                "push_titulo": "Atenção: rio acima do normal",
+                "push_corpo": "Fique atento. O Rio Gravataí está acima do normal. Evite as margens e acompanhe os avisos.",
+                "whatsapp": "*Defesa Civil de Porto Alegre*\n\n*Fique atento.*\nO Rio Gravataí está acima do normal.\n\nEvite as margens e acompanhe os avisos.",
+                "defesa_civil": "[ALERTA EM CURSO] Rio Gravataí - Sarandi: 3,12 m agora (atenção). Previsão para 6 h: 3,14 m (atenção; cota 3,00 m), variação +0,02 m. Erro médio da IA no teste: 0,037 m (regra simples: 0,094 m).",
+                "verificacao": {
+                    "sms": [],
+                    "push_titulo": [],
+                    "push_corpo": [],
+                    "whatsapp": [],
+                    "defesa_civil": []
+                }
+            }
+        },
+        {
+            "previsao": {
+                "estacao_id": "gua-cais",
+                "estacao": "Guaíba - Cais Mauá",
+                "corpo_hidrico": "Lago Guaíba",
+                "medido_em_utc": "2026-11-08T23:50:24.401000Z",
+                "leitura_velha": false,
+                "dados_incompletos": false,
+                "nivel_atual_m": 3.68,
+                "nivel_previsto_6h_m": 3.76,
+                "persistencia_6h_m": 3.68,
+                "variacao_prevista_m": 0.08,
+                "tendencia": "subindo",
+                "situacao_atual": "inundacao",
+                "situacao_prevista": "inundacao",
+                "alerta_antecipado": false,
+                "cotas": {
+                    "atencao_m": 2.0,
+                    "alerta_m": 2.5,
+                    "inundacao_m": 3.0
+                },
+                "modelo": "random_forest",
+                "entrada": {
+                    "nivel_atual_m": 3.68,
+                    "variacao_1h_m": 0.0,
+                    "chuva_1h_mm": 0.6,
+                    "chuva_6h_mm": 21.3,
+                    "chuva_24h_mm": 61.8
+                }
+            },
+            "mensagens": {
+                "intencao": "saia_agora",
+                "sms": "DEFESA CIVIL: Saia agora para um lugar alto. O Lago Guaiba esta alagando ruas. Va para Escola Professora Maria Thereza... (81 min a pe). Emergencia: 199 ou 193.",
+                "push_titulo": "Saia agora: risco de alagamento",
+                "push_corpo": "Saia agora para um lugar alto. O Lago Guaíba está alagando ruas. Vá para Escola Professora Maria Thereza da Silveira (81 min a pé). Emergência: 199 ou 193.",
+                "whatsapp": "*Defesa Civil de Porto Alegre*\n\n*Saia agora para um lugar alto.*\nO Lago Guaíba está alagando ruas no bairro Navegantes.\n\nVá para Escola Professora Maria Thereza da Silveira. Fica a 81 min a pé e tem 150 vagas.\nNão atravesse ruas alagadas.\nEmergência: 199 (Defesa Civil) ou 193 (Bombeiros).",
+                "defesa_civil": "[ALERTA EM CURSO] Guaíba - Cais Mauá: 3,68 m agora (inundação). Previsão para 6 h: 3,76 m (inundação; cota 3,00 m), variação +0,08 m. Erro médio da IA no teste: 0,022 m (regra simples: 0,075 m). Evitar abrigos em área de risco ligados a esta estação. Abrigo sugerido para Navegantes: Escola Professora Maria Thereza da Silveira.",
+                "verificacao": {
+                    "sms": [],
+                    "push_titulo": [],
+                    "push_corpo": [],
+                    "whatsapp": [],
+                    "defesa_civil": []
+                }
+            }
+        }
+    ]
+}

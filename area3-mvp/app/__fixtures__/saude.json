@@ -1,0 +1,16 @@
+{
+    "status": "ok",
+    "banco": true,
+    "modelo": {
+        "estacoes": [
+            "dil-ipiranga",
+            "gra-sarandi",
+            "gua-cais"
+        ],
+        "horizonte_h": 6
+    },
+    "vigia": {
+        "ultima_rodada_utc": "2026-11-08T23:50:24.208957Z",
+        "ultimo_erro": null
+    }
+}

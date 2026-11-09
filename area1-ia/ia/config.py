@@ -35,5 +35,10 @@ def pasta_modelo() -> Path:
     return Path(__file__).resolve().parents[1] / "modelo"
 
 
+# O app do Compose chama a API pelo proxy do nginx (mesmo endereço, sem CORS). Estas origens são as do
+# app em desenvolvimento: 5173 (padrão da fase 3) e 8081 (Metro: npx expo start --web).
+CORS_PADRAO = "http://localhost:5173,http://localhost:8081"
+
+
 def origens_cors() -> list[str]:
-    return [o.strip() for o in os.environ.get("API_CORS_ORIGENS", "http://localhost:5173").split(",") if o.strip()]
+    return [o.strip() for o in os.environ.get("API_CORS_ORIGENS", CORS_PADRAO).split(",") if o.strip()]

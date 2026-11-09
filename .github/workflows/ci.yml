@@ -1,4 +1,4 @@
-# Pipeline de CI/CD: cada commit roda lint + testes de unidade, sobe o ambiente completo
+# Pipeline de CI/CD: cada commit roda lint + testes de unidade (Python e app), sobe o ambiente completo
 # com docker compose e roda os testes de integração. Na branch main, publica as imagens
 # no GitHub Container Registry (sem nenhum passo manual).
 name: CI
@@ -45,9 +45,43 @@ jobs:
           name: relatorio-unitarios
           path: relatorios/
 
+  app:
+    name: App (lint, tipos e testes)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: area3-mvp/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: area3-mvp/app/package-lock.json
+
+      - name: Instala dependências
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Tipos (TypeScript)
+        run: npm run typecheck
+
+      - name: Testes (Jest)
+        run: npm run test:ci
+
+      - name: Guarda o relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-app
+          path: relatorios/
+
   integracao:
     name: Integração (docker compose)
-    needs: qualidade
+    needs: [qualidade, app]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -103,10 +137,10 @@ jobs:
       - name: Build e push das imagens
         run: |
           cp .env.example .env
-          docker compose build ingestor simulador api
+          docker compose build ingestor simulador api app
           REPO="ghcr.io/${GITHUB_REPOSITORY,,}"
           VERSAO="${GITHUB_SHA::7}"
-          for nome in ingestor simulador ia; do
+          for nome in ingestor simulador ia app; do
             for tag in "$VERSAO" latest; do
               docker tag "citizentech/$nome:local" "$REPO/$nome:$tag"
               docker push "$REPO/$nome:$tag"

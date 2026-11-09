@@ -115,6 +115,8 @@ def test_avaliacao_ao_vivo_compara_com_a_regra_simples(cliente):
 def test_cors_libera_o_app_da_fase_3(cliente):
     r = cliente.get("/saude", headers={"Origin": "http://localhost:5173"})
     assert r.headers["access-control-allow-origin"] == "http://localhost:5173"
+    r = cliente.get("/saude", headers={"Origin": "http://localhost:8081"})  # app em desenvolvimento (Metro)
+    assert r.headers["access-control-allow-origin"] == "http://localhost:8081"
     r = cliente.get("/saude", headers={"Origin": "http://site-qualquer.com"})
     assert "access-control-allow-origin" not in r.headers
 
