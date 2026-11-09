@@ -60,6 +60,5 @@ export function rotasPadrao(): Record<string, Resposta> {
     '/bairros': fixtures.bairros,
     '/abrigos': fixtures.abrigos4,
     '/abrigos/recomendacao': fixtures.recomendacaoNavegantes4,
-    ...Object.fromEntries(fixtures.previsao.map((rio) => [`/previsao/${rio.estacao_id}`, rio])),
   };
 }

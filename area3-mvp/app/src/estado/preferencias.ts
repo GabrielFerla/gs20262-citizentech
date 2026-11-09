@@ -59,6 +59,9 @@ export function carregarPreferencias(): Promise<void> {
 }
 
 export async function salvarPreferencias(mudancas: Partial<Preferencias>): Promise<void> {
+  // Antes de o armazenamento ser lido, juntar com o padrão apagaria o que estava guardado (o bairro, por
+  // exemplo), e a leitura, ao terminar, desfaria a mudança. Então espera a leitura e junta com ela.
+  if (!estado.carregado) await carregarPreferencias();
   const valores = validar({ ...estado.valores, ...mudancas });
   mudar({ carregado: true, valores });
   try {

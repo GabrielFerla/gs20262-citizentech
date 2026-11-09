@@ -12,6 +12,11 @@ const NOMES: Record<Situacao, string> = {
   inundacao: 'inundação',
 };
 
+/** "atenção", "alerta"... a partir da severidade do vigia (0 a 3). */
+export function nomeDaSituacao(severidadeDoAlerta: number): string {
+  return NOMES[SITUACOES[Math.min(Math.max(Math.round(severidadeDoAlerta), 0), 3)]];
+}
+
 /** 0 normal, 1 atenção, 2 alerta, 3 inundação (a mesma escala da API). */
 export function severidade(situacao: Situacao): number {
   return SITUACOES.indexOf(situacao);

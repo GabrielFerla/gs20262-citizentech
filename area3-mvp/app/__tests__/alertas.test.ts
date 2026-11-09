@@ -1,5 +1,5 @@
 import type { AlertaDoVigia } from '@/api/tipos';
-import { avisoDoAlerta, chaveDoAlerta, DetectorDeAlertas, mostraFaixa } from '@/logica/alertas';
+import { avisoDoAlerta, chaveDoAlerta, DetectorDeAlertas, faixaDosAvisos, mostraFaixa } from '@/logica/alertas';
 
 import { copia, fixtures } from '../test-utils/apiFalsa';
 
@@ -89,5 +89,21 @@ describe('onde a faixa aparece', () => {
 
   it('o aviso de atenção (que leva para Agora) aparece até na tela de abrigos', () => {
     expect(mostraFaixa(atencao, '/abrigos')).toBe(true);
+  });
+});
+
+describe('vários alertas na mesma leitura', () => {
+  it('a faixa mostra o mais grave e cita os outros rios', () => {
+    const avisos = [alerta('gua-cais', 3), alerta('gra-sarandi', 1)].map((a) =>
+      avisoDoAlerta(a, fixtures.alertasNavegantes),
+    );
+    const faixa = faixaDosAvisos(avisos);
+    expect(faixa).toMatchObject({ titulo: 'Saia agora: risco de alagamento', rota: '/abrigos' });
+    expect(faixa.tambem).toBe('Também: Rio Gravataí (atenção).');
+  });
+
+  it('com um alerta só, a faixa é o próprio aviso', () => {
+    const aviso = avisoDoAlerta(alerta('gua-cais', 3), fixtures.alertasNavegantes);
+    expect(faixaDosAvisos([aviso])).toBe(aviso);
   });
 });

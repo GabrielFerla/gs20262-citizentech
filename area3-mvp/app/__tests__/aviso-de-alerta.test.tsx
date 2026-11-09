@@ -8,6 +8,7 @@ import { act, fireEvent, renderRouter, screen, within } from 'expo-router/testin
 
 import type { RespostaAlertas } from '@/api/tipos';
 import { dispensarAviso } from '@/estado/avisos';
+import * as notificacoes from '@/estado/notificacoes';
 import { limparHistorico } from '@/estado/historico';
 import { CHAVE, reiniciarPreferencias } from '@/estado/preferencias';
 
@@ -24,6 +25,13 @@ function gravataiEmAlerta(): RespostaAlertas {
   rio.mensagens.push_titulo = 'Prepare-se: o rio vai subir';
   rio.mensagens.push_corpo =
     'Prepare-se para sair de casa. O Rio Gravataí deve subir muito em até 6 h. Emergência: 199 ou 193.';
+  return r;
+}
+
+/** Na mesma leitura: o Gravataí escala para alerta e o Guaíba reabre em inundação. */
+function doisAlertasJuntos(): RespostaAlertas {
+  const r = gravataiEmAlerta();
+  r.vigia.abertos.find((a) => a.estacao_id === 'gua-cais')!.aberto_em = '2026-11-09T00:10:00Z';
   return r;
 }
 
@@ -46,6 +54,9 @@ async function abrirComOVigia(avisos: boolean, initialUrl = '/') {
   return {
     vigiaEscala: () => {
       alertas = gravataiEmAlerta();
+    },
+    doisJuntos: () => {
+      alertas = doisAlertasJuntos();
     },
   };
 }
@@ -131,4 +142,37 @@ it('quem já está em "Onde ficar seguro" recebe a notificação, sem a faixa po
   expect(agendar).toHaveBeenCalledTimes(1);
   expect(screen.queryByTestId('aviso-de-alerta-novo')).toBeNull();
   expect(screen.getByText('Vá para um destes')).toBeOnTheScreen();
+});
+
+it('dois alertas na mesma leitura: uma notificação para cada e a faixa cita o outro rio', async () => {
+  const { doisJuntos } = await abrirComOVigia(true);
+  doisJuntos();
+  await passar(3_500);
+
+  const faixa = await screen.findByTestId('aviso-de-alerta-novo');
+  expect(within(faixa).getByText('Saia agora: risco de alagamento')).toBeOnTheScreen();
+  expect(within(faixa).getByText('Também: Rio Gravataí (alerta).')).toBeOnTheScreen();
+  expect(agendar).toHaveBeenCalledTimes(2);
+  expect(agendar.mock.calls.map(([pedido]) => pedido.content.title)).toEqual([
+    'Saia agora: risco de alagamento',
+    'Prepare-se: o rio vai subir',
+  ]);
+});
+
+it('tocar na notificação do sistema leva para a tela do aviso e fecha a faixa', async () => {
+  const espiao = jest.spyOn(notificacoes, 'notificar');
+  try {
+    const { vigiaEscala } = await abrirComOVigia(true);
+    vigiaEscala();
+    await passar(3_500);
+    await screen.findByTestId('aviso-de-alerta-novo');
+
+    const aoTocar = espiao.mock.calls.at(-1)![1];
+    await act(async () => aoTocar('/abrigos'));
+
+    expect(screen).toHavePathname('/abrigos');
+    expect(screen.queryByTestId('aviso-de-alerta-novo')).toBeNull();
+  } finally {
+    espiao.mockRestore();
+  }
 });

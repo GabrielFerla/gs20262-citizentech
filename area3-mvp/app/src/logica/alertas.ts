@@ -4,7 +4,7 @@
  */
 import { SITUACOES, type AlertaDoVigia, type RespostaAlertas } from '@/api/tipos';
 
-import { mensagensDoRio, pedeParaSair } from './situacao';
+import { mensagensDoRio, nomeDaSituacao, pedeParaSair } from './situacao';
 
 /** Muda quando o alerta abre (aberto_em) ou escala (severidade). */
 export function chaveDoAlerta(alerta: AlertaDoVigia): string {
@@ -15,10 +15,14 @@ export interface Aviso {
   chave: string;
   estacaoId: string;
   severidade: number;
+  /** Nome do rio ("Lago Guaíba"). */
+  rio: string;
   titulo: string;
   corpo: string;
   /** Para onde o toque no aviso leva. */
   rota: '/abrigos' | '/';
+  /** Os outros rios que abriram ou escalaram na mesma leitura ("Também: Rio Gravataí (atenção)."). */
+  tambem?: string;
 }
 
 /**
@@ -41,7 +45,7 @@ export class DetectorDeAlertas {
   }
 }
 
-/** O aviso do alerta mais grave entre os novos, com o texto de push da API (linguagem simples). */
+/** O aviso de um alerta novo, com o texto de push da API (linguagem simples). */
 export function avisoDoAlerta(alerta: AlertaDoVigia, resposta: RespostaAlertas): Aviso {
   const mensagens = mensagensDoRio(resposta, alerta.estacao_id);
   const situacao = SITUACOES[Math.min(Math.max(alerta.severidade, 0), 3)];
@@ -50,6 +54,7 @@ export function avisoDoAlerta(alerta: AlertaDoVigia, resposta: RespostaAlertas):
     chave: chaveDoAlerta(alerta),
     estacaoId: alerta.estacao_id,
     severidade: alerta.severidade,
+    rio: rio?.corpo_hidrico ?? 'um rio',
     titulo: mensagens?.push_titulo ?? `Alerta: ${rio?.corpo_hidrico ?? 'um rio'} deve subir`,
     corpo: mensagens?.push_corpo ?? 'Abra o Abriga para ver a situação dos rios e onde ficar seguro.',
     rota: pedeParaSair(situacao) ? '/abrigos' : '/',
@@ -63,4 +68,15 @@ export function avisoDoAlerta(alerta: AlertaDoVigia, resposta: RespostaAlertas):
 export function mostraFaixa(aviso: Aviso, rotaAtual: string): boolean {
   const jaProcuraAbrigo = rotaAtual === '/abrigos' || rotaAtual.startsWith('/abrigo/');
   return !(aviso.rota === '/abrigos' && jaProcuraAbrigo);
+}
+
+/**
+ * Vários alertas podem abrir ou escalar na mesma leitura (na cheia simulada, o Guaíba e o Gravataí juntos).
+ * Cada um ganha a sua notificação do sistema; a faixa mostra o mais grave (o primeiro) e cita os outros.
+ */
+export function faixaDosAvisos(avisos: Aviso[]): Aviso {
+  const [principal, ...outros] = avisos;
+  if (outros.length === 0) return principal;
+  const lista = outros.map((o) => `${o.rio} (${nomeDaSituacao(o.severidade)})`).join(', ');
+  return { ...principal, tambem: `Também: ${lista}.` };
 }

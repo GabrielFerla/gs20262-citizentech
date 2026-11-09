@@ -43,6 +43,7 @@ export function AvisoDeAlertaNovo({ aviso, aoAbrir, aoFechar }: Props) {
       </View>
       <Text style={[estilos.titulo, { color: c.sobreForte }]}>{aviso.titulo}</Text>
       <Text style={[estilos.corpo, { color: c.sobreForte }]}>{aviso.corpo}</Text>
+      {aviso.tambem ? <Text style={[estilos.tambem, { color: c.sobreForte }]}>{aviso.tambem}</Text> : null}
       <Botao
         titulo={aviso.rota === '/abrigos' ? 'Onde ficar seguro' : 'Ver os rios'}
         variante="claro"
@@ -81,4 +82,5 @@ const estilos = StyleSheet.create({
   x: { fontSize: 28, fontWeight: '700', lineHeight: 30 },
   titulo: { fontSize: 20, fontWeight: '800' },
   corpo: { fontSize: 16, lineHeight: 22 },
+  tambem: { fontSize: 15, lineHeight: 21, fontWeight: '700' },
 });

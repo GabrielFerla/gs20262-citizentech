@@ -13,7 +13,8 @@ import { faixaDoGrafico, marcasDoEixo, paraY, posicoesX } from '@/logica/grafico
 import { cores, espaco, situacoes, texto } from '@/tema';
 
 const ALTURA = 240;
-const MARGEM = { esquerda: 40, direita: 84, topo: 12, base: 26 };
+// À direita cabem os rótulos das cotas: "Inundação 3,00" tem uns 90 px em 11 px negrito.
+const MARGEM = { esquerda: 40, direita: 102, topo: 12, base: 26 };
 /** No navegador, o texto do SVG usaria fonte serifada; usamos a mesma fonte do resto do app. */
 const FONTE = Platform.select({ web: 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif' });
 /** As leituras ocupam 78% da largura; a previsão fica sozinha na ponta. */

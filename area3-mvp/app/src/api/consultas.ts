@@ -10,6 +10,7 @@ import { registrarLeituras } from '@/estado/historico';
 
 import { api } from './abriga';
 import { ErroApi } from './cliente';
+import type { EstacaoPrevisao } from './tipos';
 
 export const INTERVALO_MS = {
   rios: 3_000,
@@ -20,7 +21,6 @@ export const INTERVALO_MS = {
 export const chaves = {
   saude: ['saude'] as const,
   previsao: ['previsao'] as const,
-  previsaoDoRio: (id: string) => ['previsao', id] as const,
   alertas: (bairroId: string | null) => ['alertas', bairroId] as const,
   bairros: ['bairros'] as const,
   abrigos: (pessoas: number) => ['abrigos', pessoas] as const,
@@ -48,27 +48,30 @@ export function useSaude() {
   });
 }
 
+async function buscarPrevisao({ signal }: { signal: AbortSignal }): Promise<EstacaoPrevisao[]> {
+  const rios = await api.previsao(signal);
+  registrarLeituras(rios); // linha do gráfico na tela Rio
+  return rios;
+}
+
 export function usePrevisao() {
   return useQuery({
     queryKey: chaves.previsao,
-    queryFn: async ({ signal }) => {
-      const rios = await api.previsao(signal);
-      registrarLeituras(rios); // linha do gráfico na tela Rio
-      return rios;
-    },
+    queryFn: buscarPrevisao,
     refetchInterval: INTERVALO_MS.rios,
   });
 }
 
+/**
+ * Um rio só, tirado da MESMA consulta de /previsao (que a tela Agora já mantém): nenhum pedido a mais
+ * e uma fonte só para o histórico do gráfico. `null` quando o rio não existe.
+ */
 export function usePrevisaoDoRio(estacaoId: string) {
   return useQuery({
-    queryKey: chaves.previsaoDoRio(estacaoId),
-    queryFn: async ({ signal }) => {
-      const rio = await api.previsaoDoRio(estacaoId, signal);
-      registrarLeituras([rio]);
-      return rio;
-    },
+    queryKey: chaves.previsao,
+    queryFn: buscarPrevisao,
     refetchInterval: INTERVALO_MS.rios,
+    select: (rios: EstacaoPrevisao[]) => rios.find((r) => r.estacao_id === estacaoId) ?? null,
   });
 }
 

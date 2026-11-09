@@ -28,6 +28,13 @@ describe('histórico da sessão (linha do gráfico)', () => {
     expect(leiturasDe('gua-cais').map((l) => l.nivel)).toEqual([3.1, 3.2]);
   });
 
+  it('resposta atrasada (leitura mais velha) não faz a linha voltar no tempo', () => {
+    registrarLeituras([leitura('2026-11-08T23:50:00Z', 3.1)]);
+    registrarLeituras([leitura('2026-11-08T23:50:03Z', 3.2)]);
+    registrarLeituras([leitura('2026-11-08T23:50:00Z', 3.1)]); // chegou depois, mas é de antes
+    expect(leiturasDe('gua-cais').map((l) => l.nivel)).toEqual([3.1, 3.2]);
+  });
+
   it(`fica só com as últimas ${MAXIMO_DE_LEITURAS} leituras`, () => {
     for (let i = 0; i < MAXIMO_DE_LEITURAS + 10; i++) {
       registrarLeituras([leitura(new Date(Date.UTC(2026, 10, 8, 0, 0, i)).toISOString(), i)]);
@@ -55,6 +62,17 @@ describe('preferências (só no aparelho)', () => {
     await carregarPreferencias();
     const salvo = JSON.parse((await AsyncStorage.getItem(CHAVE)) as string);
     expect(salvo).toEqual({ bairroId: 'navegantes', bairroNome: 'Navegantes', pessoas: 4, avisos: true });
+  });
+
+  it('mudar antes de o armazenamento ser lido não apaga o que estava guardado', async () => {
+    await AsyncStorage.setItem(
+      CHAVE,
+      JSON.stringify({ bairroId: 'navegantes', bairroNome: 'Navegantes', pessoas: 4, avisos: false }),
+    );
+    reiniciarPreferencias(); // app abrindo: ainda não leu o armazenamento
+    await salvarPreferencias({ pessoas: 5 });
+    const salvo = JSON.parse((await AsyncStorage.getItem(CHAVE)) as string);
+    expect(salvo).toEqual({ bairroId: 'navegantes', bairroNome: 'Navegantes', pessoas: 5, avisos: false });
   });
 
   it('um valor estragado no armazenamento não derruba o app: volta ao padrão', async () => {

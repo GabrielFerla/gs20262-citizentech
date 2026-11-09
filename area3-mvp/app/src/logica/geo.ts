@@ -29,11 +29,16 @@ export function minutosAPe(distanciaRetaKm: number): number {
   return Math.max(1, arredondarComoPython((distanciaRetaKm * FATOR_ROTA * 60) / VELOCIDADE_KMH));
 }
 
+/**
+ * round() do Python: só o ",5" EXATO vai para o par; o resto, para o mais perto. (x − piso é exato em
+ * ponto flutuante, então a comparação com 0,5 não precisa de tolerância; com tolerância, 13,4999999999
+ * viraria 14 aqui e 13 no Python.)
+ */
 export function arredondarComoPython(x: number): number {
   const piso = Math.floor(x);
   const resto = x - piso;
-  if (Math.abs(resto - 0.5) < 1e-9) return piso % 2 === 0 ? piso : piso + 1;
-  return Math.round(x);
+  if (resto === 0.5) return piso % 2 === 0 ? piso : piso + 1;
+  return resto < 0.5 ? piso : piso + 1;
 }
 
 /** Vagas quando a pessoa chegar: capacidade − ocupação − (chegando por hora × horas de caminhada). */

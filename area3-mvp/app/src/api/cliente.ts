@@ -81,7 +81,10 @@ async function lerDetalhe(resposta: Response): Promise<string | undefined> {
   }
 }
 
-/** GET que devolve JSON. O sinal vem do TanStack Query (cancela quando a tela sai). */
+/**
+ * GET que devolve JSON. O sinal vem do TanStack Query (cancela quando a tela sai).
+ * O tempo limite vale para o pedido inteiro, até o fim do corpo da resposta.
+ */
 export async function buscarJson<T>(caminho: string, sinal?: AbortSignal): Promise<T> {
   const controle = new AbortController();
   let estourou = false;
@@ -92,26 +95,33 @@ export async function buscarJson<T>(caminho: string, sinal?: AbortSignal): Promi
   const repassarCancelamento = () => controle.abort();
   sinal?.addEventListener('abort', repassarCancelamento);
 
-  let resposta: Response;
+  // Falha de rede ou de leitura: a tela cancelou (repassa), estourou o tempo ou não há conexão.
+  const traduzir = (erro: unknown, seNaoForTempo: ErroApi): never => {
+    if (sinal?.aborted) throw erro;
+    throw estourou ? new ErroApi('tempo_esgotado') : seNaoForTempo;
+  };
+
   try {
-    resposta = await fetch(`${urlBaseDaApi()}${caminho}`, {
-      signal: controle.signal,
-      headers: { Accept: 'application/json' },
-    });
-  } catch (erro) {
-    if (sinal?.aborted) throw erro; // a tela cancelou: não é falha
-    throw new ErroApi(estourou ? 'tempo_esgotado' : 'sem_conexao');
+    let resposta: Response;
+    try {
+      resposta = await fetch(`${urlBaseDaApi()}${caminho}`, {
+        signal: controle.signal,
+        headers: { Accept: 'application/json' },
+      });
+    } catch (erro) {
+      return traduzir(erro, new ErroApi('sem_conexao'));
+    }
+
+    if (!resposta.ok) {
+      throw new ErroApi(tipoPorStatus(resposta.status), resposta.status, await lerDetalhe(resposta));
+    }
+    try {
+      return (await resposta.json()) as T;
+    } catch (erro) {
+      return traduzir(erro, new ErroApi('outro', resposta.status, 'resposta não é JSON'));
+    }
   } finally {
     clearTimeout(relogio);
     sinal?.removeEventListener('abort', repassarCancelamento);
-  }
-
-  if (!resposta.ok) {
-    throw new ErroApi(tipoPorStatus(resposta.status), resposta.status, await lerDetalhe(resposta));
-  }
-  try {
-    return (await resposta.json()) as T;
-  } catch {
-    throw new ErroApi('outro', resposta.status, 'resposta não é JSON');
   }
 }

@@ -8,7 +8,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Platform } from 'react-native';
 
 import { useAlertas } from '@/api/consultas';
-import { avisoDoAlerta, DetectorDeAlertas, mostraFaixa, type Aviso } from '@/logica/alertas';
+import { avisoDoAlerta, DetectorDeAlertas, faixaDosAvisos, mostraFaixa, type Aviso } from '@/logica/alertas';
 
 import { notificar, prepararNotificacoes } from './notificacoes';
 import { usePreferencias } from './preferencias';
@@ -56,9 +56,15 @@ export function useAvisosDeAlerta(): void {
     if (!resposta || !carregado) return;
     const novos = detector.novos(resposta.vigia.abertos);
     if (novos.length === 0 || !valores.avisos) return;
-    const aviso = avisoDoAlerta(novos[0], resposta);
-    if (mostraFaixa(aviso, rotaAtual)) mostrarAviso(aviso);
-    void notificar(aviso, (rota) => router.push(rota));
+    // Do mais grave para o menos grave: cada alerta tem a sua notificação; a faixa mostra o primeiro e cita os outros.
+    const avisos = novos.map((alerta) => avisoDoAlerta(alerta, resposta));
+    const faixa = faixaDosAvisos(avisos);
+    if (mostraFaixa(faixa, rotaAtual)) mostrarAviso(faixa);
+    const aoTocar = (rota: Aviso['rota']) => {
+      dispensarAviso();
+      router.push(rota);
+    };
+    avisos.forEach((aviso) => void notificar(aviso, aoTocar));
     // rotaAtual muda ao navegar; aí o detector não acha nada novo, e nada acontece.
   }, [resposta, carregado, valores.avisos, detector, router, rotaAtual]);
 

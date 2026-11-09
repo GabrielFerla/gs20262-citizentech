@@ -12,9 +12,6 @@ export const api = {
 
   previsao: (sinal?: AbortSignal) => buscarJson<EstacaoPrevisao[]>('/previsao', sinal),
 
-  previsaoDoRio: (estacaoId: string, sinal?: AbortSignal) =>
-    buscarJson<EstacaoPrevisao>(`/previsao/${q(estacaoId)}`, sinal),
-
   alertas: (bairroId: string | null, sinal?: AbortSignal) =>
     buscarJson<RespostaAlertas>(bairroId ? `/alertas?bairro=${q(bairroId)}` : '/alertas', sinal),
 

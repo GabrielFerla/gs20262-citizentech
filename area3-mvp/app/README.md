@@ -121,9 +121,10 @@ A cena forte do vídeo fica entre 4 e 6 minutos depois do `restart`.
 - **Quando avisa:** o app confere os alertas do vigia a cada 3 s e avisa **uma vez** por alerta que abre ou escala com o app aberto ([`alertas.ts`](src/logica/alertas.ts)).
   - A chave do aviso é `estação + severidade + hora de abertura`.
   - O que já estava aberto quando o app abriu aparece na tela Agora, sem aviso.
+  - Se vários alertas abrem ou escalam na mesma leitura, cada um ganha a sua notificação do sistema. A faixa mostra o mais grave e cita os outros ("Também: Rio Gravataí (atenção).").
 - **Como avisa:**
   - a faixa no topo, em qualquer tela, com o texto de push da IA e o botão **Onde ficar seguro** (ou **Ver os rios**, quando é só atenção);
-  - a notificação do sistema: no celular, uma notificação local; no navegador, a do próprio navegador, se a permissão foi dada em Ajustes.
+  - a notificação do sistema: no celular, uma notificação local; no navegador, a do próprio navegador, se a permissão foi dada em Ajustes. Tocar nela leva para a mesma tela da faixa e fecha a faixa.
 - **Quem já procura abrigo:** se a pessoa já está em Onde ficar seguro ou no detalhe de um abrigo, um aviso que levaria para lá
   chega só como notificação. A faixa não cobre a lista, que já é a atual. Isso acontece na cheia simulada, quando o Guaíba e o Dilúvio
   escalam com poucos segundos de diferença.
@@ -158,7 +159,7 @@ e rótulos de acessibilidade em português.
 npm run lint && npm run typecheck && npm test
 ```
 
-São 103 testes em Jest com a Testing Library, sem chamar a rede. As respostas da API são capturadas
+São 112 testes em Jest com a Testing Library, sem chamar a rede. As respostas da API são capturadas
 da API real e ficam em [`__fixtures__/`](__fixtures__).
 O CI (job `app`) roda os três comandos e grava o relatório JUnit em `relatorios/app.xml`.
 
@@ -169,7 +170,7 @@ O CI (job `app`) roda os três comandos e grava o relatório JUnit em `relatorio
 | `situacao`, `grafico` | Resumo dos rios igual ao da API, sem piscar; escala do gráfico com as cotas e a previsão |
 | `estado` | Preferências guardadas e validadas; histórico em memória com limite |
 | `logica-abrigos`, `paridade-geo` | Distância e tempo a pé iguais aos da IA; abrigo que lota antes de a pessoa chegar sai da lista; indisponíveis ignorados; limite de 3 |
-| `alertas`, `aviso-de-alerta` | Avisa uma vez, escalar avisa de novo, o que já estava aberto não avisa; faixa e notificação com a API mudando |
+| `alertas`, `aviso-de-alerta` | Avisa uma vez, escalar avisa de novo, o que já estava aberto não avisa; vários alertas na mesma leitura; faixa e notificação com a API mudando |
 | `telas-agora-rio`, `telas-abrigos`, `telas-localizacao-ajustes` | As telas com a API falsa: fluxo Agora → abrigos → detalhe; nenhuma URL com a posição; "Como chegar" só com o destino; permissão negada e fora de Porto Alegre |
 
 O teste de integração `test_it23_app_web_no_ar_e_api_pelo_proxy` (na suíte da raiz) confere o app no Compose:
@@ -198,6 +199,7 @@ Dockerfile  nginx/  (build web + nginx sem root, proxy /api e cabeçalhos de seg
 - **A mensagem do aviso é uma foto do momento.** No teste ao vivo, a faixa sugeriu o Humaitá. Segundos depois, a previsão do Gravataí piorou, e a lista já o mostrava como evitado. A lista de abrigos é sempre a atual, por isso o botão leva para ela.
 - **O gráfico mostra só as leituras desde que o app abriu**, sem histórico guardado.
 - **GPS no navegador só em contexto seguro** (`localhost` ou HTTPS). Pelo IP da rede, use o bairro.
+- **A posição some ao recarregar a página**, porque fica só na memória. O detalhe de um abrigo aberto assim não promete vaga num abrigo que está enchendo e pede para refazer a conta em Minha localização.
 
 ## Uso de IA generativa no desenvolvimento
 
@@ -207,5 +209,5 @@ O app foi escrito com o Claude (Anthropic), via Claude Code, a partir de pedidos
 - "o app deve avisar uma vez quando o vigia abrir o alerta, e mostrar uma mensagem amigável quando a API cair";
 - "meça no simulador quanto tempo o alerta chega antes da cheia e escreva o roteiro da demo".
 
-O grupo revisou, executou e testou tudo. Os 103 testes do app, o job `app` do CI e o teste de integração
+O grupo revisou, executou e testou tudo. Os 112 testes do app, o job `app` do CI e o teste de integração
 `it23` são a evidência de que tudo roda.

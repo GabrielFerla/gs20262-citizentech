@@ -106,7 +106,7 @@ Testes de integração (23 casos contra o ambiente rodando; o relatório vai par
 docker compose --profile ferramentas run --rm --build testes
 ```
 
-Lint, tipos e testes do app (103 testes; precisa do Node 22.13 ou mais novo; o relatório vai para `relatorios/app.xml`):
+Lint, tipos e testes do app (112 testes; precisa do Node 22.13 ou mais novo; o relatório vai para `relatorios/app.xml`):
 
 ```bash
 cd area3-mvp/app && npm ci

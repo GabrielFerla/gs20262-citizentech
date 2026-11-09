@@ -92,7 +92,7 @@ describe('tela Agora', () => {
 
 describe('tela Rio', () => {
   it('abre ao tocar no cartão e mostra o gráfico, as cotas e a previsão', async () => {
-    simularApi(rotasPadrao());
+    const { urls } = simularApi(rotasPadrao());
     await renderRouter('./src/app', { initialUrl: '/' });
 
     await fireEvent.press(await screen.findByRole('button', { name: /^Lago Guaíba: agora/ }));
@@ -102,6 +102,8 @@ describe('tela Rio', () => {
     expect(screen.getByLabelText(/^Gráfico do Lago Guaíba\. Nível agora 3,68 m/)).toBeOnTheScreen();
     expect(screen.getByText('3,76 m')).toBeOnTheScreen(); // previsto para 6 h
     expect(screen.getByText(/IA \(random forest\)/)).toBeOnTheScreen();
+    // O rio sai da mesma consulta de /previsao da tela Agora: nenhum pedido só para ele.
+    expect(urls.filter((u) => u.includes('/previsao/'))).toEqual([]);
   });
 
   it('no Dilúvio, explica que a previsão repete o nível de agora', async () => {
@@ -117,6 +119,6 @@ describe('tela Rio', () => {
     simularApi(rotasPadrao());
     await renderRouter('./src/app', { initialUrl: '/rio/nao-existe' });
 
-    expect(await screen.findByText('Não encontramos o que você pediu.')).toBeOnTheScreen();
+    expect(await screen.findByText('Não encontramos este rio.')).toBeOnTheScreen();
   });
 });

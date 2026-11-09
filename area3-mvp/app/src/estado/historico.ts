@@ -18,17 +18,22 @@ const VAZIO: readonly Leitura[] = Object.freeze([]);
 let leituras = new Map<string, readonly Leitura[]>();
 const ouvintes = new Set<() => void>();
 
-/** Guarda as leituras novas (a mesma leitura repetida nas consultas entra uma vez só). */
+/**
+ * Guarda as leituras novas. Só entra a leitura MAIS NOVA que a última guardada: a mesma leitura repetida
+ * nas consultas entra uma vez só, e uma resposta atrasada (mais velha) não faz a linha voltar no tempo.
+ */
 export function registrarLeituras(rios: EstacaoPrevisao[]): void {
   let mudou = false;
   const proximo = new Map(leituras);
   for (const rio of rios) {
-    if (!rio.medido_em_utc) continue;
+    const medidoEm = rio.medido_em_utc ? Date.parse(rio.medido_em_utc) : NaN;
+    if (!Number.isFinite(medidoEm)) continue;
     const anteriores = proximo.get(rio.estacao_id) ?? VAZIO;
-    if (anteriores.at(-1)?.medidoEm === rio.medido_em_utc) continue;
+    const ultima = anteriores.at(-1);
+    if (ultima && medidoEm <= Date.parse(ultima.medidoEm)) continue;
     proximo.set(
       rio.estacao_id,
-      [...anteriores, { medidoEm: rio.medido_em_utc, nivel: rio.nivel_atual_m }].slice(-MAXIMO_DE_LEITURAS),
+      [...anteriores, { medidoEm: rio.medido_em_utc as string, nivel: rio.nivel_atual_m }].slice(-MAXIMO_DE_LEITURAS),
     );
     mudou = true;
   }

@@ -1,4 +1,4 @@
-import { buscarJson, ErroApi, mensagemDoErro, tipoPorStatus, urlBaseDaApi } from '@/api/cliente';
+import { buscarJson, ErroApi, mensagemDoErro, TEMPO_LIMITE_MS, tipoPorStatus, urlBaseDaApi } from '@/api/cliente';
 import { api } from '@/api/abriga';
 
 function respostaJson(corpo: unknown, status = 200): Response {
@@ -64,6 +64,30 @@ describe('erros viram mensagens simples', () => {
     expect(erro.passageiro).toBe(true);
     expect(mensagemDoErro(erro)).toBe('O servidor de dados está fora do ar. Tentando de novo…');
     expect(erro.detalhe).toContain('banco de dados indisponível');
+  });
+
+  it('o tempo limite vale até o fim do corpo: resposta que trava no meio vira "tempo esgotado"', async () => {
+    jest.useFakeTimers();
+    try {
+      // Os cabeçalhos chegam, mas o corpo nunca termina (só falha quando o pedido é cancelado).
+      fetchFalso.mockImplementation(
+        async (_url, init) =>
+          ({
+            ok: true,
+            status: 200,
+            json: () =>
+              new Promise((_, rejeitar) =>
+                init?.signal?.addEventListener('abort', () => rejeitar(new Error('abortado'))),
+              ),
+          }) as unknown as Response,
+      );
+      const pedido = falhaDe(buscarJson('/previsao'));
+      await jest.advanceTimersByTimeAsync(TEMPO_LIMITE_MS + 1);
+      const erro = await pedido;
+      expect(erro.tipo).toBe('tempo_esgotado');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('sem rede: "sem conexão"', async () => {

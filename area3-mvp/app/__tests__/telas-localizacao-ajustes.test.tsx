@@ -116,6 +116,22 @@ describe('Onde ficar seguro: minha localização', () => {
 
     expect(await screen.findByText(/Não deu para pegar a sua localização agora/)).toBeOnTheScreen();
   });
+  it('detalhe aberto de novo sem a posição na memória: não promete vaga em abrigo que está enchendo', async () => {
+    simularApi(rotasPadrao());
+    // abr-20 está apto, mas lota em 8.400 min; sem saber de onde a pessoa sai, não dá para garantir a vaga.
+    await renderRouter('./src/app', { initialUrl: '/abrigo/abr-20?origem=localizacao' });
+
+    expect(await screen.findByText('Tem vaga agora, mas está enchendo')).toBeOnTheScreen();
+    expect(screen.queryByText(/^Recomendado para/)).toBeNull();
+    expect(screen.getByText(/foi apagada quando o app recarregou/)).toBeOnTheScreen();
+  });
+
+  it('sem a posição, abrigo que não está enchendo continua recomendado', async () => {
+    simularApi(rotasPadrao());
+    await renderRouter('./src/app', { initialUrl: '/abrigo/abr-12?origem=localizacao' });
+
+    expect(await screen.findByText('Recomendado para 4 pessoas')).toBeOnTheScreen();
+  });
 });
 
 describe('Ajustes', () => {

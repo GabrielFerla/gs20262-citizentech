@@ -57,11 +57,15 @@ interface PropsDetalhe {
   distancia: number | null;
   origem: Parametros['origem'];
   rios: EstacaoPrevisao[] | undefined;
+  /** Veio do modo localização, mas a posição já não está na memória (a página foi recarregada). */
+  semPosicao: boolean;
 }
 
-function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios }: PropsDetalhe) {
+function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios, semPosicao }: PropsDetalhe) {
   const lotaAntes = minutos !== null && lotaAntesDeChegar(abrigo, minutos);
-  const seguro = abrigo.apto && !lotaAntes;
+  // Sem saber de onde a pessoa sai, não dá para garantir a vaga num abrigo que está enchendo.
+  const incerto = minutos === null && abrigo.apto && abrigo.minutos_ate_lotar !== null;
+  const seguro = abrigo.apto && !lotaAntes && !incerto;
   const motivo = abrigo.motivo ?? (lotaAntes ? 'deve lotar antes de você chegar' : null);
   const chegada = minutos !== null ? vagasNaChegada(abrigo, minutos) : null;
   const rio = rios?.find((r) => r.estacao_id === abrigo.estacao_proxima_id);
@@ -71,22 +75,38 @@ function Detalhe({ abrigo, pessoas, minutos, distancia, origem, rios }: PropsDet
     <>
       <Text style={texto.titulo}>{abrigo.abrigo}</Text>
 
-      <View
-        style={[estilos.situacao, seguro ? estilos.seguro : estilos.inseguro]}
-        accessibilityRole={seguro ? 'summary' : 'alert'}
-      >
-        <Text style={[texto.subtitulo, { color: seguro ? situacoes.normal.texto : situacoes.inundacao.texto }]}>
-          {seguro ? `Recomendado para ${grupo}` : 'Não recomendado agora'}
-        </Text>
-        <Text style={texto.corpo}>
-          {seguro
-            ? 'Deve ter vaga quando você chegar e não fica em área que deve alagar nas próximas 6 horas.'
-            : capitalizar(motivo ?? 'não é seguro agora') + '.'}
-        </Text>
-      </View>
+      {incerto ? (
+        <View style={[estilos.situacao, estilos.incerto]} accessibilityRole="alert">
+          <Text style={[texto.subtitulo, { color: situacoes.atencao.texto }]}>Tem vaga agora, mas está enchendo</Text>
+          <Text style={texto.corpo}>
+            Para {grupo}, lota em cerca de {abrigo.minutos_ate_lotar} min. Sem saber de onde você sai, não dá para
+            garantir a vaga quando você chegar.
+          </Text>
+          {semPosicao ? (
+            <Text style={texto.suave}>
+              Sua localização fica só na memória e foi apagada quando o app recarregou. Volte para Onde ficar seguro e
+              toque em Minha localização para refazer a conta.
+            </Text>
+          ) : null}
+        </View>
+      ) : (
+        <View
+          style={[estilos.situacao, seguro ? estilos.seguro : estilos.inseguro]}
+          accessibilityRole={seguro ? 'summary' : 'alert'}
+        >
+          <Text style={[texto.subtitulo, { color: seguro ? situacoes.normal.texto : situacoes.inundacao.texto }]}>
+            {seguro ? `Recomendado para ${grupo}` : 'Não recomendado agora'}
+          </Text>
+          <Text style={texto.corpo}>
+            {seguro
+              ? 'Deve ter vaga quando você chegar e não fica em área que deve alagar nas próximas 6 horas.'
+              : capitalizar(motivo ?? 'não é seguro agora') + '.'}
+          </Text>
+        </View>
+      )}
 
       <Botao
-        titulo={seguro ? 'Como chegar' : 'Como chegar mesmo assim'}
+        titulo={seguro || incerto ? 'Como chegar' : 'Como chegar mesmo assim'}
         variante={seguro ? 'principal' : 'secundario'}
         grande={seguro}
         dica="Abre o mapa com o caminho a pé até o abrigo"
@@ -177,6 +197,7 @@ export default function DetalheDoAbrigo() {
               distancia={daPosicao !== null ? Math.round(daPosicao * 100) / 100 : numeroOuNulo(params.km)}
               origem={params.origem}
               rios={previsao.data}
+              semPosicao={params.origem === 'localizacao' && !posicao}
             />
           );
         }}
@@ -189,6 +210,7 @@ const estilos = StyleSheet.create({
   situacao: { borderRadius: raio.lg, padding: espaco.lg, gap: espaco.xs, borderWidth: 1 },
   seguro: { backgroundColor: situacoes.normal.fundo, borderColor: situacoes.normal.forte },
   inseguro: { backgroundColor: situacoes.inundacao.fundo, borderColor: situacoes.inundacao.forte },
+  incerto: { backgroundColor: situacoes.atencao.fundo, borderColor: situacoes.atencao.forte },
   cartao: {
     backgroundColor: cores.superficie,
     borderRadius: raio.lg,

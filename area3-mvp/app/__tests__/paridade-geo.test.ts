@@ -66,6 +66,10 @@ describe('contas do aparelho', () => {
     expect(arredondarComoPython(19.5)).toBe(20);
     expect(arredondarComoPython(18.5)).toBe(18);
     expect(arredondarComoPython(18.6)).toBe(19);
+    // Só o ",5" exato vai para o par (como no Python): quase ",5" arredonda normalmente.
+    expect(arredondarComoPython(13.4999999999)).toBe(13);
+    expect(arredondarComoPython(12.5000000001)).toBe(13);
+    expect(arredondarComoPython(13.5)).toBe(14);
   });
 
   it('o abrigo de demonstração (Wokwi) nem entra na conta', () => {
