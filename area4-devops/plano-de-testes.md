@@ -9,9 +9,9 @@ seguro sem enviar a posição dela e continua útil quando a API cai.
 
 | Tipo | Ferramenta | Como rodar | Quantidade |
 |---|---|---|---|
-| Unidade | pytest | `.venv/bin/python -m pytest` | 275 testes (97 da fase 1 + 178 da IA) |
-| Integração | pytest no docker compose (broker, banco, API, app e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 23 testes |
-| App (unidade e telas) | Jest + Testing Library | `cd area3-mvp/app && npm test` | 112 testes |
+| Unidade | pytest | `.venv/bin/python -m pytest` | 278 testes (99 da fase 1 + 179 da IA) |
+| Integração | pytest no docker compose (broker, banco, API, app e serviços reais) | `docker compose --profile ferramentas run --rm --build testes` | 24 testes |
+| App (unidade e telas) | Jest + Testing Library | `cd area3-mvp/app && npm test` | 116 testes |
 | Métrica da IA | relatório contra os dados do pipeline | `docker compose --profile ferramentas run --rm ia-relatorio` | sai em `relatorios/ia/`; referência em [`RELATORIO.md`](../area1-ia/relatorio/RELATORIO.md) |
 | Lint e tipos | ruff (Python); ESLint e TypeScript (app) | `.venv/bin/ruff check .`; `npm run lint && npm run typecheck` | — |
 | CI | GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) | automático a cada push e pull request | todos os acima, menos a métrica |
@@ -24,14 +24,15 @@ seguro sem enviar a posição dela e continua útil quando a API cai.
 
 ## Casos de teste
 
-Execução em 09/11/2026 (macOS, Docker 29), com o app da fase 3: **unidade 275/275 ok · integração 23/23 ok · app 112/112 ok**.
+Execução em 11/11/2026 (macOS, Docker 29), depois da revisão de código: **unidade 278/278 ok · integração 24/24 ok · app 116/116 ok**.
+Os testes de integração publicam numa estação só de teste (`tst-integracao`, abrigo `abr-teste`, sensores `tst-*`), sem mexer na simulação nem no ESP32.
 
 | ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
 |---|---|---|---|---|---|---|
-| CT-01 | Leitura válida chega ao banco | Integração | Publicar leitura do `wok-nivel` no MQTT | 1 linha em `silver.leitura` em até 15 s | ✅ | `test_it01_mensagem_publicada_chega_na_silver` |
+| CT-01 | Leitura válida chega ao banco | Integração | Publicar leitura do `tst-nivel` no MQTT | 1 linha em `silver.leitura` em até 15 s | ✅ | `test_it01_mensagem_publicada_chega_na_silver` |
 | CT-02 | Não duplicar reentregas do QoS 1 | Integração | Publicar a mesma mensagem 2 vezes | 1 linha no bronze e 1 no silver | ✅ | `test_it02_mesma_mensagem_duas_vezes_vira_uma_linha` |
 | CT-03 | Rejeitar dado fora do contrato | Integração | Publicar leitura com unidade `cm` | Bronze com status `rejeitada` e motivo `contrato:`; nada no silver | ✅ | `test_it03_mensagem_invalida_fica_rejeitada_no_bronze` |
-| CT-04 | Sensor só aceito da sua origem | Integração | Publicar sensor do Wokwi no tópico `sim/` | Rejeitada com motivo `origem:` | ✅ | `test_it04_sensor_publicando_com_origem_errada_e_rejeitado` |
+| CT-04 | Sensor só aceito da sua origem | Integração | Publicar um sensor de origem `wokwi` (`tst-nivel`) no tópico `sim/` | Rejeitada com motivo `origem:` | ✅ | `test_it04_sensor_publicando_com_origem_errada_e_rejeitado` |
 | CT-05 | Broker exige autenticação | Integração | Conectar no MQTT sem usuário | Conexão recusada | ✅ | `test_it05_conexao_anonima_e_recusada` |
 | CT-06 | ACL por tópico | Integração | Usuário `simulador` publica em `wokwi/` | Mensagem descartada pelo broker; nada no banco | ✅ | `test_it06_acl_impede_simulador_de_publicar_como_wokwi` |
 | CT-07 | Dashboard só lê o gold | Integração | Usuário `bi_ro` consulta `silver.leitura` | Erro de permissão; consulta ao gold funciona | ✅ | `test_it07_usuario_do_dashboard_so_le_a_camada_gold` |
@@ -113,6 +114,15 @@ Execução em 09/11/2026 com o simulador (`docker compose restart simulador`), o
 | CT-64 | Funciona em largura de celular | Manual | Abrir as 5 telas em 390 × 844 | Nada cortado e sem rolagem lateral; botões com 48 px ou mais de altura | ✅ | — (prints `app-*.png`) |
 | CT-65 | Lint, tipos e testes do app no CI | CI | Push na `main` | Job `app` verde, com o relatório `relatorio-app` | ✅ | job `app` em [`ci.yml`](../.github/workflows/ci.yml) |
 | CT-66 | Identidade própria, sem se passar por órgão oficial | Unidade | Textos da faixa e do aviso de alerta; rodapé e Ajustes | Nunca "DEFESA CIVIL" como remetente; "Dados simulados" e os telefones 199 e 193 sempre visíveis | ✅ | `situacao.test.ts`, `telas-agora-rio.test.tsx`, `telas-localizacao-ajustes.test.tsx` |
+
+### Casos da revisão de código (11/11/2026)
+
+| ID | Requisito | Tipo | Passos | Resultado esperado | Obtido | Teste automatizado |
+|---|---|---|---|---|---|---|
+| CT-67 | Alerta do vigia não fecha com o rio acima da cota | Unidade | Rio em 2,6 m (acima da cota) com previsão de 1,8 m; depois os dois baixam | Abre uma vez e só fecha quando o rio e a previsão estão abaixo de atenção − 0,10 m | ✅ (antes fechava e reabria: 12 avisos em 5 min na demo) | `test_vigia_nao_fecha_com_o_rio_acima_da_cota_so_porque_a_previsao_baixou` |
+| CT-68 | Faixa de alerta não troca o aviso grave por um mais fraco | Unidade | "Saia agora" do Guaíba na tela; 2 s depois o Gravataí abre em atenção | A faixa continua no Guaíba e cita "Também: Rio Gravataí (atenção)." | ✅ | `alertas.test.ts` (leituras seguidas) |
+| CT-69 | A cheia simulada volta ao normal a cada ciclo | Unidade + manual | Rodar 2 ciclos do cenário `ciclo`; deixar o simulador ligado mais de 13 min | Cada ciclo começa no mesmo estado, com o Guaíba abaixo da cota; o alerta fecha | ✅ | `test_cada_volta_da_cheia_recomeca_do_normal_e_e_igual_a_primeira` |
+| CT-70 | Situação atual não varre a tabela de leituras | Integração | `EXPLAIN` de `gold.v_estacao_atual` e `gold.v_abrigo_status` | Última leitura pela chave `leitura_pkey`; "Onde ficar seguro" de 1,5 s para menos de 0,5 s com 3 milhões de leituras | ✅ | `test_it24_situacao_atual_acha_a_ultima_leitura_pela_chave_sem_varrer_tudo` |
 
 ## Como gerar as evidências para o PDF
 

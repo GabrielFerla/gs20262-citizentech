@@ -21,8 +21,10 @@ export interface Aviso {
   corpo: string;
   /** Para onde o toque no aviso leva. */
   rota: '/abrigos' | '/';
-  /** Os outros rios que abriram ou escalaram na mesma leitura ("Também: Rio Gravataí (atenção)."). */
+  /** Os outros rios citados na faixa ("Também: Rio Gravataí (atenção)."). */
   tambem?: string;
+  /** Os avisos por trás do "Também", para juntar com os da leitura seguinte (proximaFaixa). */
+  outros?: Aviso[];
 }
 
 /**
@@ -78,5 +80,23 @@ export function faixaDosAvisos(avisos: Aviso[]): Aviso {
   const [principal, ...outros] = avisos;
   if (outros.length === 0) return principal;
   const lista = outros.map((o) => `${o.rio} (${nomeDaSituacao(o.severidade)})`).join(', ');
-  return { ...principal, tambem: `Também: ${lista}.` };
+  return { ...principal, outros, tambem: `Também: ${lista}.` };
+}
+
+/**
+ * A faixa depois de uma leitura com avisos novos. Ela junta o que já está na tela com o que chegou:
+ * um aviso menos grave de OUTRO rio não apaga o mais grave (o "Prepare-se" do Guaíba não vira o
+ * "Atenção" do Gravataí que abriu 2 s depois); ele entra no "Também". Do MESMO rio, vale o aviso
+ * novo, que é a situação mais recente dele. No empate de gravidade, o mais novo fica na frente.
+ */
+export function proximaFaixa(naTela: Aviso | null, novos: Aviso[]): Aviso {
+  const antes = naTela ? [naTela, ...(naTela.outros ?? [])] : [];
+  const porRio = new Map<string, Aviso>();
+  for (const aviso of [...novos, ...antes]) {
+    if (!porRio.has(aviso.estacaoId)) {
+      const { outros: _outros, tambem: _tambem, ...sozinho } = aviso;
+      porRio.set(aviso.estacaoId, sozinho);
+    }
+  }
+  return faixaDosAvisos([...porRio.values()].sort((a, b) => b.severidade - a.severidade));
 }

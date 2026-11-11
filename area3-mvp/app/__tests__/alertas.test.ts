@@ -1,5 +1,12 @@
 import type { AlertaDoVigia } from '@/api/tipos';
-import { avisoDoAlerta, chaveDoAlerta, DetectorDeAlertas, faixaDosAvisos, mostraFaixa } from '@/logica/alertas';
+import {
+  avisoDoAlerta,
+  chaveDoAlerta,
+  DetectorDeAlertas,
+  faixaDosAvisos,
+  mostraFaixa,
+  proximaFaixa,
+} from '@/logica/alertas';
 
 import { copia, fixtures } from '../test-utils/apiFalsa';
 
@@ -105,5 +112,36 @@ describe('vários alertas na mesma leitura', () => {
   it('com um alerta só, a faixa é o próprio aviso', () => {
     const aviso = avisoDoAlerta(alerta('gua-cais', 3), fixtures.alertasNavegantes);
     expect(faixaDosAvisos([aviso])).toBe(aviso);
+  });
+});
+
+describe('leituras seguidas (a faixa junta o que está na tela com o que chegou)', () => {
+  const aviso = (estacao: string, severidade: number) =>
+    avisoDoAlerta(alerta(estacao, severidade), fixtures.alertasNavegantes);
+
+  it('um aviso menos grave de outro rio não apaga o mais grave: entra no "Também"', () => {
+    // Demo: o Guaíba escala e mostra "Saia agora"; 2 s depois o Gravataí abre em atenção.
+    const faixa = proximaFaixa(aviso('gua-cais', 3), [aviso('gra-sarandi', 1)]);
+    expect(faixa).toMatchObject({ estacaoId: 'gua-cais', rota: '/abrigos' });
+    expect(faixa.tambem).toBe('Também: Rio Gravataí (atenção).');
+  });
+
+  it('um aviso mais grave de outro rio passa para a frente e cita o que estava na tela', () => {
+    const faixa = proximaFaixa(aviso('gra-sarandi', 1), [aviso('gua-cais', 3)]);
+    expect(faixa.estacaoId).toBe('gua-cais');
+    expect(faixa.tambem).toBe('Também: Rio Gravataí (atenção).');
+  });
+
+  it('do mesmo rio vale o aviso novo, e cada rio aparece uma vez só', () => {
+    const naTela = proximaFaixa(aviso('gua-cais', 3), [aviso('gra-sarandi', 1)]);
+    const faixa = proximaFaixa(naTela, [aviso('gra-sarandi', 2)]);
+    expect(faixa.estacaoId).toBe('gua-cais');
+    expect(faixa.tambem).toBe('Também: Rio Gravataí (alerta).');
+  });
+
+  it('sem faixa na tela, mostra os novos como antes', () => {
+    const faixa = proximaFaixa(null, [aviso('gua-cais', 3)]);
+    expect(faixa.estacaoId).toBe('gua-cais');
+    expect(faixa.tambem).toBeUndefined();
   });
 });

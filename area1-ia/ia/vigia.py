@@ -2,8 +2,10 @@
 
 Roda numa thread da API (a cada VIGIA_INTERVALO_S segundos):
 1. lê as features atuais do gold e calcula a previsão de 6 h de cada rio;
-2. aplica ao NÍVEL PREVISTO a mesma regra de alerta da fase 1 (abre na cota de atenção,
-   escala, nunca rebaixa enquanto aberto e só fecha 0,10 m abaixo da cota de atenção);
+2. aplica ao PIOR entre o nível de agora e o previsto a mesma regra de alerta da fase 1 (abre
+   na cota de atenção, escala, nunca rebaixa enquanto aberto e só fecha 0,10 m abaixo da cota
+   de atenção). Olhar só a previsão fechava o alerta com o rio ainda acima da cota quando a
+   previsão baixava, e o alerta reabria segundos depois (aviso repetido no app e outro SMS);
 3. quando abre ou escala, gera a mensagem em linguagem simples e registra no log
    ("[vigia] ..."). O estado fica em memória e aparece em GET /alertas.
 4. estação sem leitura recente, ou com alguma feature faltando, não tem previsão confiável: o alerta dela é encerrado
@@ -30,7 +32,7 @@ FOLGA_M = 0.10  # igual à fase 1 (area2-bigdata/ingestor/ingestor/alertas.py)
 
 
 def proxima_acao(severidade_aberta: int, nivel: float, cotas: Cotas, folga: float = FOLGA_M) -> tuple[str, int]:
-    """Mesma regra de ingestor.alertas.proximo_alerta, aplicada ao nível previsto."""
+    """Mesma regra de ingestor.alertas.proximo_alerta. O vigia passa o pior entre agora e o previsto."""
     alvo = cotas.severidade(nivel)
     if severidade_aberta == 0:
         return ("abrir", alvo) if alvo > 0 else ("nenhuma", 0)
@@ -92,7 +94,8 @@ class Vigia:
                     log.warning("[vigia] alerta pela previsão em %s encerrado: sem dados recentes e completos", estacao_id)
             for p in previsoes:
                 aberto = self.abertos.get(p.estacao_id)
-                acao, severidade = proxima_acao(aberto.severidade if aberto else 0, p.nivel_previsto_m, cotas[p.estacao_id])
+                pior_m = max(p.nivel_atual_m, p.nivel_previsto_m)  # mesmo critério de Fatos.nivel nas mensagens
+                acao, severidade = proxima_acao(aberto.severidade if aberto else 0, pior_m, cotas[p.estacao_id])
                 if acao == "abrir":
                     self.abertos[p.estacao_id] = AlertaAntecipado(
                         p.estacao_id, severidade, agora, agora, p.nivel_previsto_m, p.nivel_previsto_m,

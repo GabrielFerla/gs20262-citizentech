@@ -45,6 +45,18 @@ def test_vigia_abre_escala_mantem_e_fecha_pela_previsao():
     assert [e.acao for e in vigia.eventos] == ["abrir", "escalar", "fechar"]
 
 
+def test_vigia_nao_fecha_com_o_rio_acima_da_cota_so_porque_a_previsao_baixou():
+    # Caso real da demo (Gravataí): rio em 3,10 m, acima da cota, e previsão em 2,88 m. Olhando só a
+    # previsão, o alerta fechava e reabria segundos depois, com outro aviso no app e outro SMS.
+    vigia, cotas = Vigia(), {"gua-cais": COTAS}
+    passos = [(1.6, 2.6), (2.6, 1.8), (2.2, 1.85), (1.95, 2.05), (1.85, 1.8)]
+    acoes = []
+    for i, (atual, previsto) in enumerate(passos):
+        mudancas = vigia.atualizar([previsao(atual, previsto)], cotas, agora=AGORA + timedelta(seconds=i))
+        acoes.append([(m.acao, m.severidade) for m in mudancas])
+    assert acoes == [[("abrir", 2)], [], [], [], [("fechar", 0)]]  # abre uma vez e só fecha quando os dois baixam
+
+
 def test_alerta_e_marcado_antecipado_quando_a_previsao_esta_pior_que_agora():
     vigia = Vigia()
     vigia.atualizar([previsao(1.6, 2.6)], {"gua-cais": COTAS})

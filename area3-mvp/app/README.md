@@ -122,6 +122,7 @@ A cena forte do vídeo fica entre 4 e 6 minutos depois do `restart`.
   - A chave do aviso é `estação + severidade + hora de abertura`.
   - O que já estava aberto quando o app abriu aparece na tela Agora, sem aviso.
   - Se vários alertas abrem ou escalam na mesma leitura, cada um ganha a sua notificação do sistema. A faixa mostra o mais grave e cita os outros ("Também: Rio Gravataí (atenção).").
+  - Entre leituras seguidas vale o mesmo: um aviso menos grave de outro rio não apaga a faixa que está na tela, só entra no "Também". Do mesmo rio, vale o aviso mais novo ([`proximaFaixa`](src/logica/alertas.ts)).
 - **Como avisa:**
   - a faixa no topo, em qualquer tela, com o texto de push da IA e o botão **Onde ficar seguro** (ou **Ver os rios**, quando é só atenção);
   - a notificação do sistema: no celular, uma notificação local; no navegador, a do próprio navegador, se a permissão foi dada em Ajustes. Tocar nela leva para a mesma tela da faixa e fecha a faixa.
@@ -160,7 +161,7 @@ inundação). Os botões têm 48 px ou mais e rótulos de acessibilidade em port
 npm run lint && npm run typecheck && npm test
 ```
 
-São 112 testes em Jest com a Testing Library, sem chamar a rede. As respostas da API são capturadas
+São 116 testes em Jest com a Testing Library, sem chamar a rede. As respostas da API são capturadas
 da API real e ficam em [`__fixtures__/`](__fixtures__).
 O CI (job `app`) roda os três comandos e grava o relatório JUnit em `relatorios/app.xml`.
 
@@ -210,5 +211,5 @@ O app foi escrito com o Claude (Anthropic), via Claude Code, a partir de pedidos
 - "o app deve avisar uma vez quando o vigia abrir o alerta, e mostrar uma mensagem amigável quando a API cair";
 - "meça no simulador quanto tempo o alerta chega antes da cheia e escreva o roteiro da demo".
 
-O grupo revisou, executou e testou tudo. Os 112 testes do app, o job `app` do CI e o teste de integração
+O grupo revisou, executou e testou tudo. Os 116 testes do app, o job `app` do CI e o teste de integração
 `it23` são a evidência de que tudo roda.

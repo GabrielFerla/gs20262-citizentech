@@ -5,7 +5,8 @@ equivale a 10 minutos simulados, e uma enchente completa acontece em ~13 minutos
 O horário da mensagem (medido_em) é o horário real do envio.
 
 Antes de começar, a simulação "aquece" repetindo a série histórica com a mesma semente,
-para o rio continuar do ponto em que o histórico parou (sem salto de nível).
+para o rio continuar do ponto em que o histórico parou (sem salto de nível). No cenário
+"ciclo", cada volta da cheia recomeça desse mesmo estado, como um restart do simulador.
 
     python -m simuladores.tempo_real --cenario ciclo --velocidade 600
 """
@@ -13,6 +14,7 @@ para o rio continuar do ponto em que o histórico parou (sem salto de nível).
 from __future__ import annotations
 
 import argparse
+import copy
 import itertools
 import logging
 import os
@@ -29,19 +31,40 @@ from paho.mqtt.enums import CallbackAPIVersion
 
 from .cadastro import carregar
 from .mensagens import FALHAS_PADRAO, SEM_FALHAS, GeradorDeMensagens
-from .modelo import CENARIOS, PASSO, PASSOS_POR_DIA, Simulacao, calendario_misto
+from .modelo import CENARIOS, PASSO, PASSOS_POR_DIA, Estado, Simulacao, calendario_misto
 
 log = logging.getLogger("simuladores.tempo_real")
 BATIMENTO = Path(os.environ.get("ARQUIVO_BATIMENTO", "/tmp/simulador-vivo"))
 
 # Ciclo da demonstração (em passos de 10 min): 12 h normal, 3 dias de enchente, 2 dias de recuperação.
 CICLO = [("normal", 72), ("enchente", 432), ("normal", 288)]
+PASSOS_DO_CICLO = sum(passos for _, passos in CICLO)
 
 
 def cenarios(nome: str) -> Iterator[str]:
     if nome == "ciclo":
         return itertools.cycle([c for c, passos in CICLO for _ in range(passos)])
     return itertools.repeat(nome)
+
+
+def comeca_ciclo_novo(passo: int, cenario: str) -> bool:
+    """No cenário "ciclo", o passo que abre a 2ª, a 3ª... volta da cheia (o primeiro passo é o 1)."""
+    return cenario == "ciclo" and passo > 1 and (passo - 1) % PASSOS_DO_CICLO == 0
+
+
+def passos(simulacao: Simulacao, cenario: str) -> Iterator[tuple[str, Estado]]:
+    """Os passos da simulação em tempo real: (cenário do passo, estado depois dele).
+
+    No cenário "ciclo", cada volta recomeça do estado de agora (logo depois do aquecimento).
+    Os 2 dias de recuperação não bastam para o Guaíba baixar (ele leva semanas): sem isso,
+    da 2ª volta em diante o rio ficava acima da cota de alerta e o alerta nunca fechava.
+    """
+    inicio = copy.deepcopy(simulacao)
+    for passo, nome in enumerate(cenarios(cenario), start=1):
+        if comeca_ciclo_novo(passo, cenario):
+            simulacao = copy.deepcopy(inicio)
+            log.info("Ciclo novo: rios e abrigos voltam ao estado do início (igual a um restart)")
+        yield nome, simulacao.passo(nome)
 
 
 def proximo_envio(anterior: float, agora: float, intervalo: float) -> float:
@@ -104,10 +127,9 @@ def main() -> None:
     intervalo = PASSO.total_seconds() / args.velocidade
     log.info("Publicando %s sensores a cada %.2fs (cenário %s)", len(gerador.sensores), intervalo, args.cenario)
     proximo = time.monotonic()
-    for passo, cenario in enumerate(cenarios(args.cenario), start=1):
+    for passo, (cenario, estado) in enumerate(passos(simulacao, args.cenario), start=1):
         if parar.is_set():
             break
-        estado = simulacao.passo(cenario)
         for sensor_id, conteudo in gerador.mensagens(estado, datetime.now(UTC)):
             cliente.publish(f"citizentech/v1/sim/{sensor_id}", conteudo, qos=1)
         if cliente.is_connected():

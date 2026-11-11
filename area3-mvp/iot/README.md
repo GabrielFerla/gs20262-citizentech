@@ -33,7 +33,7 @@ A física fica em [`modelo.py`](simuladores/simuladores/modelo.py) e é determin
 | Modo | Comando (já roda no `docker compose up`) | Saída |
 |---|---|---|
 | Histórico | `python -m simuladores.historico --dias 30` | Arquivo NDJSON na zona de chegada do data lake |
-| Tempo real | `python -m simuladores.tempo_real --cenario ciclo --velocidade 600` | MQTT. Cada segundo real = 10 minutos simulados; ciclo de enchente em cerca de 13 minutos |
+| Tempo real | `python -m simuladores.tempo_real --cenario ciclo --velocidade 600` | MQTT. Cada segundo real = 10 minutos simulados; ciclo de enchente em cerca de 13 minutos, que recomeça do rio normal a cada volta |
 
 ## Circuito ESP32 no Wokwi
 
@@ -49,6 +49,12 @@ A física fica em [`modelo.py`](simuladores/simuladores/modelo.py) e é determin
    - clique no HC-SR04 e mude a distância no controle deslizante (menos distância = rio mais alto). O sensor fica a 4 m do fundo: 270 cm dá 1,30 m e acende o LED (cota de alerta 1,20 m); 220 cm dá 1,80 m (inundação);
    - clique no potenciômetro e use as setas do teclado, ou arraste o botão, para simular chuva;
    - clique no PIR e em **Simulate motion** para contar uma entrada no abrigo; clique no botão azul para contar uma saída.
+
+   **Deixe a aba do Wokwi visível.** Em segundo plano o navegador reduz a simulação a cerca de 3% da velocidade
+   (o canto da simulação mostra a porcentagem). O relógio do ESP32 é o tempo simulado, então ele atrasa, e com
+   mais de 2 minutos de atraso a ponte recusa as leituras ("horário fora da janela de 2 minutos"). O ESP32
+   ressincroniza o relógio a cada minuto simulado: depois de uma pausa curta ele volta sozinho; se ficou muito
+   tempo em segundo plano, clique em reiniciar a simulação.
 5. Acompanhe a ponte:
 
    ```bash

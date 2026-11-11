@@ -58,10 +58,10 @@ docker compose up -d --build --wait
 Na primeira vez leva de 3 a 5 minutos, conforme a internet, para baixar as imagens e os pacotes, treinar o modelo e gerar o app. O Compose sobe e conecta tudo sozinho:
 
 1. **postgres** e **mosquitto** (broker MQTT com usuário, senha e permissões por tópico);
-2. **migrar**: cria as tabelas e visões e carrega os cadastros (94 bairros, 4 estações, 21 abrigos, 29 sensores);
+2. **migrar**: cria as tabelas e visões e carrega os cadastros (94 bairros, 4 estações, 21 abrigos e 29 sensores, mais 1 estação, 1 abrigo e 3 sensores só para os testes de integração);
 3. **historico-gerar** e **historico-carregar**: geram e carregam 30 dias de histórico (cerca de 112 mil leituras);
 4. **ingestor**: recebe as leituras do MQTT em tempo real;
-5. **simulador**: publica as leituras dos sensores. Cada segundo real equivale a 10 minutos simulados, então uma enchente completa leva uns 13 minutos;
+5. **simulador**: publica as leituras dos sensores. Cada segundo real equivale a 10 minutos simulados, então uma enchente completa leva uns 13 minutos. Depois ela recomeça do rio normal, como um `restart`;
 6. **api**: a IA (previsão, abrigos e mensagens). O modelo é treinado no build da imagem.
 7. **app**: o app do cidadão, exportado para a web e servido por um nginx que também repassa `/api` para a API.
 
@@ -115,13 +115,21 @@ Os CSVs saem em `area2-bigdata/powerbi/dados/`. O passo a passo do dashboard est
 
 ### Rodar os testes
 
-Testes de integração (23 casos contra o ambiente rodando; o relatório vai para `relatorios/integracao.xml`):
+Testes de integração (24 casos contra o ambiente rodando; o relatório vai para `relatorios/integracao.xml`). Eles publicam numa estação só de teste, sem mexer na simulação nem no ESP32.
 
 ```bash
 docker compose --profile ferramentas run --rm --build testes
 ```
 
-Lint, tipos e testes do app (112 testes; precisa do Node 22.13 ou mais novo; o relatório vai para `relatorios/app.xml`):
+Esse comando sobe o que faltar, mas também recria a api, o app, o ingestor e o simulador, o que recomeça a cheia
+simulada. Com o ambiente já no ar (no meio de uma demonstração, por exemplo), use `--no-deps`, que roda os mesmos
+testes sem mexer nos serviços:
+
+```bash
+docker compose --profile ferramentas run --rm --no-deps --build testes
+```
+
+Lint, tipos e testes do app (116 testes; precisa do Node 22.13 ou mais novo; o relatório vai para `relatorios/app.xml`):
 
 ```bash
 cd area3-mvp/app && npm ci

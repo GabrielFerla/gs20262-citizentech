@@ -9,7 +9,8 @@
     PIR e botão são lidos por interrupção: um toque rápido no botão, ou uma entrada enquanto
     a placa publica ou reconecta ao broker, não se perde.
   Atuador:
-    - LED vermelho acende quando o nível passa da cota de alerta (funciona mesmo sem internet)
+    - LED vermelho acende quando o nível passa da cota de alerta (a placa decide sozinha, sem
+      esperar a ponte nem o servidor; ela só começa a medir depois de conectar ao Wi-Fi e ao broker)
 
   Publica no broker MQTT público (o Wokwi gratuito não alcança o computador local).
   A ponte (docker compose --profile wokwi) confere a assinatura e repassa ao broker local.
@@ -18,6 +19,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <time.h>
+#include "esp_sntp.h"
 #include "mbedtls/md.h"
 
 // ---- iguais ao .env (WOKWI_PREFIXO e WOKWI_CHAVE). Chave de DEMONSTRAÇÃO: o projeto é público.
@@ -137,6 +139,10 @@ void conectarWifi() {
     Serial.print(".");
   }
   Serial.println(" conectado");
+  // O relógio do ESP32 no Wokwi é o tempo simulado: ele para quando a simulação pausa (aba em segundo
+  // plano, por exemplo). Com mais de 2 min de atraso a ponte recusa as leituras, então o relógio volta a
+  // sincronizar a cada minuto (o padrão é a cada hora).
+  sntp_set_sync_interval(60 * 1000);
   configTime(0, 0, "pool.ntp.org");  // horário UTC
   while (time(nullptr) < 1700000000) delay(200);
   Serial.println("Relógio sincronizado: " + horarioUtc());
@@ -180,7 +186,7 @@ void loop() {
   portEXIT_CRITICAL(&trava);
   ocupacao = max(0, ocupacao + entradas - saidas);
 
-  // Alerta local: funciona mesmo sem internet
+  // Alerta local: a placa decide sozinha, sem esperar a ponte nem o servidor
   ultimoNivel = medirNivel();
   digitalWrite(PINO_LED, ultimoNivel >= COTA_ALERTA_M ? HIGH : LOW);
 

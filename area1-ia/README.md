@@ -156,7 +156,7 @@ aceita IA "implementada ou simulada".
 
 Uma thread da API roda a cada 2 s:
 1. calcula a previsão de cada rio;
-2. aplica ao **nível previsto** a mesma regra de alerta da fase 1 (abre, escala e fecha com folga de 0,10 m);
+2. aplica ao **pior entre o nível de agora e o previsto** a mesma regra de alerta da fase 1 (abre, escala e fecha com folga de 0,10 m). Assim o alerta abre antes de o rio chegar à cota e só fecha quando o rio e a previsão já baixaram;
 3. quando abre ou escala, gera o SMS e registra no log;
 4. se a estação fica sem leitura recente, encerra o alerta dela ("sem_dados"), em vez de deixá-lo aberto para sempre.
 
@@ -197,8 +197,8 @@ React da fase 3 (`API_CORS_ORIGENS` no `.env`). Banco fora do ar responde 503 em
 
 | Tipo | Onde | O que cobre |
 |---|---|---|
-| Unidade (174) | [`tests/`](tests) | Features iguais à regra SQL, métricas e antecedência, treino reproduzível, cada motivo de exclusão de abrigo, cenários A × B × C com o alerta da fase 1, todas as combinações de mensagem (inclusive o pior caso de tamanho), vigia com a mesma regra da fase 1, API com repositório em memória (503, dado velho, abrigo inativo), relatório |
-| Integração (6) | [`test_integracao.py`](../area4-devops/testes/test_integracao.py) (it15 a it20) | API saudável, previsão dos 3 rios, recomendação só com aptos, **paridade Python × SQL das features**, `ia_ro` só lê o gold, mensagem passa nas regras |
+| Unidade (179) | [`tests/`](tests) | Features iguais à regra SQL, métricas e antecedência, treino reproduzível, cada motivo de exclusão de abrigo, cenários A × B × C com o alerta da fase 1, todas as combinações de mensagem (inclusive o pior caso de tamanho), vigia com a mesma regra da fase 1, API com repositório em memória (503, dado velho, abrigo inativo), relatório |
+| Integração (8) | [`test_integracao.py`](../area4-devops/testes/test_integracao.py) (it15 a it22) | API saudável, previsão dos 3 rios, recomendação só com aptos, **paridade Python × SQL das features** (histórico e ao vivo), `ia_ro` só lê o gold, abrigo desativado nunca é recomendado, mensagem passa nas regras |
 
 ## Arquivos
 

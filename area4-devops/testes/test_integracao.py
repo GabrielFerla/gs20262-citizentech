@@ -2,8 +2,10 @@
 
     docker compose --profile ferramentas run --rm testes
 
-Usam os sensores de demonstração do Wokwi (estação demo-wokwi, abrigo abr-demo), publicando
-com o usuário da ponte, para não interferir na simulação que está rodando.
+Usam uma estação, um abrigo e sensores só de teste (tst-integracao, abr-teste, tst-nivel e
+tst-ocup, no cadastro como demonstração), publicando com o usuário da ponte. Assim não
+interferem na simulação que está rodando nem no ESP32 do Wokwi (wok-*), e o ESP32 também
+não atrapalha os testes.
 """
 
 from __future__ import annotations
@@ -103,22 +105,22 @@ def na_silver(db, conteudo: str) -> int:
 
 # ----------------------------------------------------------------------------- ingestão
 def test_it01_mensagem_publicada_chega_na_silver(db):
-    conteudo = leitura("wok-nivel", 0.31)
-    publicar("ponte", TOPICO_WOKWI.format("wok-nivel"), conteudo)
+    conteudo = leitura("tst-nivel", 0.31)
+    publicar("ponte", TOPICO_WOKWI.format("tst-nivel"), conteudo)
     assert na_silver(db, conteudo) == 1
 
 
 def test_it02_mesma_mensagem_duas_vezes_vira_uma_linha(db):
-    repetida, sentinela = leitura("wok-nivel", 0.32), leitura("wok-nivel", 0.33)
-    publicar("ponte", TOPICO_WOKWI.format("wok-nivel"), repetida, repetida, sentinela)
+    repetida, sentinela = leitura("tst-nivel", 0.32), leitura("tst-nivel", 0.33)
+    publicar("ponte", TOPICO_WOKWI.format("tst-nivel"), repetida, repetida, sentinela)
     na_silver(db, sentinela)  # a sentinela chegou, então a repetida também já foi processada
     assert consultar(db, "SELECT count(*) FROM bronze.mensagem WHERE conteudo = %s", repetida)[0][0] == 1
     assert na_silver(db, repetida) == 1
 
 
 def test_it03_mensagem_invalida_fica_rejeitada_no_bronze(db):
-    invalida = leitura("wok-nivel", 31, unidade="cm")
-    publicar("ponte", TOPICO_WOKWI.format("wok-nivel"), invalida)
+    invalida = leitura("tst-nivel", 31, unidade="cm")
+    publicar("ponte", TOPICO_WOKWI.format("tst-nivel"), invalida)
     linhas = esperar(db, "SELECT status, motivo FROM bronze.mensagem WHERE conteudo = %s", invalida)
     assert linhas and linhas[0][0] == "rejeitada"
     assert linhas[0][1].startswith("contrato:")
@@ -127,9 +129,9 @@ def test_it03_mensagem_invalida_fica_rejeitada_no_bronze(db):
 
 
 def test_it04_sensor_publicando_com_origem_errada_e_rejeitado(db):
-    # o simulador pode publicar em sim/, mas o sensor wok-nivel só é aceito vindo do Wokwi
-    conteudo = leitura("wok-nivel", 0.34)
-    publicar("simulador", "citizentech/v1/sim/wok-nivel", conteudo)
+    # o simulador pode publicar em sim/, mas o sensor tst-nivel (origem wokwi, como os do ESP32) só é aceito vindo do Wokwi
+    conteudo = leitura("tst-nivel", 0.34)
+    publicar("simulador", "citizentech/v1/sim/tst-nivel", conteudo)
     linhas = esperar(db, "SELECT status, motivo FROM bronze.mensagem WHERE conteudo = %s", conteudo)
     assert linhas and linhas[0][0] == "rejeitada" and linhas[0][1].startswith("origem:")
 
@@ -153,8 +155,8 @@ def test_it05_conexao_anonima_e_recusada():
 
 
 def test_it06_acl_impede_simulador_de_publicar_como_wokwi(db):
-    conteudo = leitura("wok-nivel", 0.35)
-    publicar("simulador", TOPICO_WOKWI.format("wok-nivel"), conteudo)
+    conteudo = leitura("tst-nivel", 0.35)
+    publicar("simulador", TOPICO_WOKWI.format("tst-nivel"), conteudo)
     time.sleep(3)
     assert consultar(db, "SELECT count(*) FROM bronze.mensagem WHERE conteudo = %s", conteudo)[0][0] == 0
 
@@ -169,20 +171,20 @@ def test_it07_usuario_do_dashboard_so_le_a_camada_gold():
 def test_it08_ingestor_nao_consegue_apagar_dados():
     with psycopg.connect(dsn("ingestor_rw", os.environ["INGESTOR_DB_PASSWORD"]), autocommit=True) as conn:
         with pytest.raises(errors.InsufficientPrivilege):
-            conn.execute("DELETE FROM silver.leitura WHERE sensor_id = 'wok-nivel'")
+            conn.execute("DELETE FROM silver.leitura WHERE sensor_id = 'tst-nivel'")
 
 
 # ----------------------------------------------------------------------------- regras de negócio
 def test_it09_alerta_abre_escala_e_fecha_uma_vez(db):
-    # cotas da estação demo: atenção 0,80 | alerta 1,20 | inundação 1,60
+    # cotas da estação de teste: atenção 0,80 | alerta 1,20 | inundação 1,60
     inicio = agora_iso()
-    sequencia = [leitura("wok-nivel", v) for v in (0.30, 1.00, 1.30, 0.75, 0.50)]
-    publicar("ponte", TOPICO_WOKWI.format("wok-nivel"), *sequencia)
+    sequencia = [leitura("tst-nivel", v) for v in (0.30, 1.00, 1.30, 0.75, 0.50)]
+    publicar("ponte", TOPICO_WOKWI.format("tst-nivel"), *sequencia)
     na_silver(db, sequencia[-1])
     alertas = esperar(
         db,
         "SELECT severidade, pico_m::float, fechado_em IS NOT NULL FROM silver.alerta "
-        "WHERE estacao_id = 'demo-wokwi' AND aberto_em >= %s ORDER BY aberto_em",
+        "WHERE estacao_id = 'tst-integracao' AND aberto_em >= %s ORDER BY aberto_em",
         inicio,
         condicao=lambda r: bool(r) and r[-1][2],
     )
@@ -190,11 +192,11 @@ def test_it09_alerta_abre_escala_e_fecha_uma_vez(db):
 
 
 def test_it10_vagas_do_abrigo_sao_calculadas(db):
-    conteudo = leitura("wok-ocup", 45, unidade="pessoas")
-    publicar("ponte", TOPICO_WOKWI.format("wok-ocup"), conteudo)
+    conteudo = leitura("tst-ocup", 45, unidade="pessoas")
+    publicar("ponte", TOPICO_WOKWI.format("tst-ocup"), conteudo)
     na_silver(db, conteudo)
     linha = consultar(db, "SELECT ocupacao, vagas, status_lotacao, recomendavel FROM gold.v_abrigo_status "
-                          "WHERE abrigo_id = 'abr-demo'")[0]
+                          "WHERE abrigo_id = 'abr-teste'")[0]
     assert linha == (45, 5, "quase_cheio", False)  # abrigo de demonstração nunca é recomendado
 
 
@@ -419,3 +421,20 @@ def test_it23_app_web_no_ar_e_api_pelo_proxy():
     assert "frame-ancestors 'none'" in cabecalhos["content-security-policy"]
     assert cabecalhos["x-content-type-options"] == "nosniff"
     assert cabecalhos["referrer-policy"] == "no-referrer"
+
+
+# ----------------------------------------------------------------------------- desempenho
+def _nos(plano: dict):
+    yield plano
+    for filho in plano.get("Plans", []):
+        yield from _nos(filho)
+
+
+def test_it24_situacao_atual_acha_a_ultima_leitura_pela_chave_sem_varrer_tudo(db):
+    """A tela Agora e o "Onde ficar seguro" consultam estas visões a cada 3 e 5 s. Elas não podem ler
+    silver.leitura inteira (migração 010): com o simulador ligado a tabela ganha ~1,7 milhão de linhas por dia."""
+    for visao in ("gold.v_estacao_atual", "gold.v_abrigo_status"):
+        plano = consultar(db, f"EXPLAIN (FORMAT JSON) SELECT * FROM {visao}")[0][0][0]["Plan"]
+        leituras = [n for n in _nos(plano) if n.get("Relation Name") == "leitura"]
+        assert leituras, visao
+        assert all(n["Node Type"] == "Index Scan" and n["Index Name"] == "leitura_pkey" for n in leituras), visao

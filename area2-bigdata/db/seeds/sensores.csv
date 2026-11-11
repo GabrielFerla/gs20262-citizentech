@@ -7,6 +7,8 @@ gra-sarandi-nivel,nivel_rio,m,gra-sarandi,,sim,0,15
 gra-sarandi-chuva,chuva,mm,gra-sarandi,,sim,0,60
 wok-nivel,nivel_rio,m,demo-wokwi,,wokwi,0,15
 wok-chuva,chuva,mm,demo-wokwi,,wokwi,0,60
+tst-nivel,nivel_rio,m,tst-integracao,,wokwi,0,15
+tst-chuva,chuva,mm,tst-integracao,,wokwi,0,60
 abr-01-ocup,ocupacao_abrigo,pessoas,,abr-01,sim,0,300
 abr-02-ocup,ocupacao_abrigo,pessoas,,abr-02,sim,0,300
 abr-03-ocup,ocupacao_abrigo,pessoas,,abr-03,sim,0,300
@@ -28,3 +30,4 @@ abr-18-ocup,ocupacao_abrigo,pessoas,,abr-18,sim,0,300
 abr-19-ocup,ocupacao_abrigo,pessoas,,abr-19,sim,0,300
 abr-20-ocup,ocupacao_abrigo,pessoas,,abr-20,sim,0,300
 wok-ocup,ocupacao_abrigo,pessoas,,abr-demo,wokwi,0,100
+tst-ocup,ocupacao_abrigo,pessoas,,abr-teste,wokwi,0,100

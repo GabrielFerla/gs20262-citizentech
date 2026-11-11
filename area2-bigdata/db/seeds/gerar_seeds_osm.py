@@ -223,25 +223,31 @@ def main() -> None:
             "estacao_proxima_id": proxima["id"],
             "demo": "false",
         })
-    demo = next(e for e in estacoes if e["demo"] == "true")
-    abrigos.append({
-        "id": "abr-demo", "osm_ref": "", "nome": "Abrigo de demonstração (Wokwi)", "tipo": "ginasio",
-        "bairro_id": demo["bairro_id"], "lat": demo["lat"], "lon": demo["lon"], "capacidade": 50,
-        "capacidade_estimada": "true", "em_area_de_risco": "false", "estacao_proxima_id": demo["id"], "demo": "true",
-    })
+    # Duas estações fictícias (demo = true), cada uma com o seu abrigo: a do circuito ESP32 no Wokwi e a
+    # dos testes de integração, que publicam nela para não mexer na simulação nem no ESP32.
+    for estacao_id, abrigo_id, nome in (("demo-wokwi", "abr-demo", "Abrigo de demonstração (Wokwi)"),
+                                        ("tst-integracao", "abr-teste", "Abrigo de teste (integração)")):
+        demo = next(e for e in estacoes if e["id"] == estacao_id)
+        abrigos.append({
+            "id": abrigo_id, "osm_ref": "", "nome": nome, "tipo": "ginasio",
+            "bairro_id": demo["bairro_id"], "lat": demo["lat"], "lon": demo["lon"], "capacidade": 50,
+            "capacidade_estimada": "true", "em_area_de_risco": "false", "estacao_proxima_id": demo["id"], "demo": "true",
+        })
     with (PASTA / "abrigos.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(abrigos[0]))
         w.writeheader()
         w.writerows(abrigos)
 
+    # Os sensores das estações fictícias publicam como a ponte do Wokwi (origem "wokwi"); os demais são do simulador.
+    prefixo_demo = {"demo-wokwi": "wok", "tst-integracao": "tst", "abr-demo": "wok", "abr-teste": "tst"}
     sensores = []
     for e in estacoes:
         origem = "wokwi" if e["demo"] == "true" else "sim"
-        prefixo = "wok" if e["demo"] == "true" else e["id"]
+        prefixo = prefixo_demo.get(e["id"], e["id"])
         sensores.append([f"{prefixo}-nivel", "nivel_rio", "m", e["id"], "", origem, 0, 15])
         sensores.append([f"{prefixo}-chuva", "chuva", "mm", e["id"], "", origem, 0, 60])
     for a in abrigos:
-        sid = "wok-ocup" if a["demo"] == "true" else f"{a['id']}-ocup"
+        sid = f"{prefixo_demo[a['id']]}-ocup" if a["demo"] == "true" else f"{a['id']}-ocup"
         origem = "wokwi" if a["demo"] == "true" else "sim"
         sensores.append([sid, "ocupacao_abrigo", "pessoas", "", a["id"], origem, 0, int(a["capacidade"]) * 2])
     with (PASTA / "sensores.csv").open("w", newline="", encoding="utf-8") as f:

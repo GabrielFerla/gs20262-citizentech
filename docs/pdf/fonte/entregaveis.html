@@ -94,7 +94,7 @@ pre code { background:none; padding:0; font: inherit; }
     <div class="tile"><div class="big">−71%</div><div class="tl">erro da previsão do Guaíba para daqui a 6 h, comparado com a regra simples</div></div>
     <div class="tile"><div class="big">4–6 h</div><div class="tl">de antecedência do alerta, antes de o rio chegar à cota</div></div>
     <div class="tile"><div class="big">0,1%</div><div class="tl">das famílias mandadas a abrigo lotado ou alagado, contra 15,9% indo ao mais próximo</div></div>
-    <div class="tile"><div class="big">410</div><div class="tl">testes automatizados passando: 275 de unidade, 112 do app e 23 de integração</div></div>
+    <div class="tile"><div class="big">418</div><div class="tl">testes automatizados passando: 278 de unidade, 116 do app e 24 de integração</div></div>
   </div>
 
   <p class="rodape-capa">Os rios, a chuva e a ocupação dos abrigos são simulados. O Abriga é um protótipo acadêmico e não é um canal oficial:
@@ -244,7 +244,7 @@ pre code { background:none; padding:0; font: inherit; }
     <tr><th style="width:20%">Peça</th><th style="width:44%">O que faz</th><th>Como funciona</th></tr>
     <tr><td><b>Previsão do nível em 6 h</b></td><td>Diz o nível de cada rio daqui a 6 horas e a situação prevista (normal, atenção, alerta ou inundação).</td><td>Aprendizado supervisionado com nível atual, variação da última hora e chuva de 1, 6 e 24 h. Para cada rio, a validação cruzada escolhe entre regra simples, regressão linear e random forest.</td></tr>
     <tr><td><b>Onde ficar seguro</b></td><td>Os 3 abrigos aptos mais perto e os que foram evitados, com o motivo.</td><td>Descarta o abrigo sem vaga na chegada (pelo ritmo de chegada da última hora) e o que fica em área de risco de um rio em alerta agora ou previsto para 6 h.</td></tr>
-    <tr><td><b>Vigia (agente de alerta)</b></td><td>Abre, escala e fecha o alerta antecipado de cada rio sozinho.</td><td>A cada 2 s repete a previsão e aplica a mesma regra de alerta do pipeline, só que com o nível previsto.</td></tr>
+    <tr><td><b>Vigia (agente de alerta)</b></td><td>Abre, escala e fecha o alerta antecipado de cada rio sozinho.</td><td>A cada 2 s repete a previsão e aplica a mesma regra de alerta do pipeline ao pior entre o nível de agora e o previsto.</td></tr>
     <tr><td><b>Mensagens</b></td><td>Escreve o alerta para SMS, push, WhatsApp e um resumo técnico.</td><td>Modelos de texto que seguem um prompt de sistema documentado, com verificação automática das regras.</td></tr>
   </table>
   <p class="muted">O treino usa 24 meses simulados com outras sementes e acontece no build da imagem. O teste usa os 30 dias que passaram pelo pipeline, que o modelo nunca viu.</p>
@@ -309,7 +309,7 @@ CANAIS (responda só com este JSON):
   <h4>Regras de automação</h4>
   <table>
     <tr><th style="width:26%">Automação</th><th>Regra</th></tr>
-    <tr><td><b>Vigia</b> (<code>area1-ia/ia/vigia.py</code>)</td><td>A cada 2 s prevê o nível de cada rio. Abre o alerta antecipado quando o nível previsto passa da cota, escala quando piora e fecha só quando a previsão cai 0,10 m abaixo da cota, para não ficar abrindo e fechando. Dado velho ou incompleto não decide.</td></tr>
+    <tr><td><b>Vigia</b> (<code>area1-ia/ia/vigia.py</code>)</td><td>A cada 2 s prevê o nível de cada rio. Abre o alerta antecipado quando o nível previsto passa da cota, escala quando piora e fecha só quando o rio e a previsão estão 0,10 m abaixo da cota, para não ficar abrindo e fechando. Dado velho ou incompleto não decide.</td></tr>
     <tr><td><b>Verificação das mensagens</b></td><td>Confere o tamanho de cada canal, o SMS sem acento e com o telefone, as palavras proibidas e o tamanho das frases. Um texto que quebre uma regra aparece em <code>verificacao</code> com o problema.</td></tr>
     <tr><td><b>Escolha do modelo</b></td><td>A regra simples também concorre no treino. A IA só substitui a regra onde provou ser melhor; por isso o Arroio Dilúvio, que sobe rápido demais, fica com a regra simples.</td></tr>
   </table>
@@ -418,7 +418,7 @@ CANAIS (responda só com este JSON):
     <tr><td><b>Silver</b></td><td>Leituras validadas, alertas e cadastros. Leitura com salto impossível fica marcada como suspeita.</td><td><code>silver.leitura</code>, <code>silver.alerta</code>, <code>silver.sensor</code>, <code>silver.estacao</code>, <code>silver.abrigo</code>, <code>silver.bairro</code></td></tr>
     <tr><td><b>Gold</b></td><td>Visões prontas para decidir, para o dashboard e para a IA</td><td><code>dim_bairro</code>, <code>dim_estacao</code>, <code>dim_abrigo</code>, <code>v_estacao_horaria</code>, <code>v_estacao_atual</code>, <code>v_abrigo_horaria</code>, <code>v_abrigo_status</code>, <code>v_abrigo_tendencia</code>, <code>v_alertas</code>, <code>v_kpis</code>, <code>v_qualidade</code>, <code>v_ml_features</code>, <code>v_ml_features_atual</code></td></tr>
   </table>
-  <p class="muted">Cadastros: 94 bairros e 20 escolas e ginásios reais do OpenStreetMap (mais 1 abrigo de demonstração), 4 estações e 29 sensores. As migrações (<code>area2-bigdata/db/migrations/</code>) rodam a cada subida, são idempotentes e param com erro se uma já aplicada for editada.</p>
+  <p class="muted">Cadastros: 94 bairros e 20 escolas e ginásios reais do OpenStreetMap (mais 1 abrigo de demonstração), 4 estações e 29 sensores, além de 1 estação, 1 abrigo e 3 sensores só para os testes de integração. As migrações (<code>area2-bigdata/db/migrations/</code>) rodam a cada subida, são idempotentes e param com erro se uma já aplicada for editada.</p>
 
   <h3>6.2 Ingestão e processamento</h3>
   <table>
@@ -620,12 +620,12 @@ simulador   citizentech/simulador:local   Up About an hour (healthy)</code></pre
   A localização do cidadão nunca sai do celular: a API só recebe o bairro, e com o GPS o app calcula a distância no aparelho. A posição não entra em URL nem é gravada (CT-41, CT-57).</div>
 
   <h3>8.4 Plano de testes e evidências</h3>
-  <p>O plano completo tem <b>66 casos</b> (CT-01 a CT-66), cada um com requisito, passos, resultado esperado, obtido e o teste automatizado que o cobre: <code>area4-devops/plano-de-testes.md</code>.</p>
+  <p>O plano completo tem <b>70 casos</b> (CT-01 a CT-70), cada um com requisito, passos, resultado esperado, obtido e o teste automatizado que o cobre: <code>area4-devops/plano-de-testes.md</code>.</p>
   <table>
     <tr><th>Tipo</th><th>Ferramenta</th><th class="n">Testes</th><th>Resultado em 09/11/2026</th></tr>
-    <tr><td>Unidade</td><td>pytest</td><td class="n">275</td><td class="ok">275 passaram</td></tr>
-    <tr><td>Integração (broker, banco, API e app reais no Compose)</td><td>pytest</td><td class="n">23</td><td class="ok">23 passaram</td></tr>
-    <tr><td>App (unidade e telas)</td><td>Jest e Testing Library</td><td class="n">112</td><td class="ok">112 passaram</td></tr>
+    <tr><td>Unidade</td><td>pytest</td><td class="n">278</td><td class="ok">278 passaram</td></tr>
+    <tr><td>Integração (broker, banco, API e app reais no Compose)</td><td>pytest</td><td class="n">24</td><td class="ok">24 passaram</td></tr>
+    <tr><td>App (unidade e telas)</td><td>Jest e Testing Library</td><td class="n">116</td><td class="ok">116 passaram</td></tr>
     <tr><td>Lint e tipos</td><td>ruff, ESLint e TypeScript</td><td class="n">—</td><td class="ok">sem problemas</td></tr>
   </table>
 </section>
@@ -650,20 +650,20 @@ simulador   citizentech/simulador:local   Up About an hour (healthy)</code></pre
     <tr><td>CT-62</td><td>Alerta antecipado no app antes da cota</td><td>Selo e aviso antes de o rio passar da cota</td><td class="ok">50 s e 31 s antes</td></tr>
     <tr><td>CT-63</td><td>Fluxo completo até "Como chegar"</td><td>Recomendados do bairro, detalhe e mapa só com o destino</td><td class="ok">ok</td></tr>
   </table>
-  <h4>Execução dos testes em 09/11/2026</h4>
+  <h4>Execução dos testes em 11/11/2026</h4>
   <pre><code>$ .venv/bin/python -m ruff check . &amp;&amp; .venv/bin/python -m pytest -q
 All checks passed!
-275 passed, 23 deselected in 2.55s
+278 passed, 24 deselected in 3.23s
 
 $ cd area3-mvp/app &amp;&amp; npx jest
 Test Suites: 12 passed, 12 total
-Tests:       112 passed, 112 total
+Tests:       116 passed, 116 total
 
 $ docker compose --profile ferramentas run --rm --build testes
-testes/test_integracao.py::test_it22_abrigo_desativado_nao_e_recomendado_pela_ia PASSED [ 95%]
-testes/test_integracao.py::test_it23_app_web_no_ar_e_api_pelo_proxy PASSED              [100%]
+testes/test_integracao.py::test_it23_app_web_no_ar_e_api_pelo_proxy PASSED [ 95%]
+testes/test_integracao.py::test_it24_situacao_atual_acha_a_ultima_leitura_pela_chave_sem_varrer_tudo PASSED [100%]
 ---------------- generated xml file: /relatorios/integracao.xml ----------------
-============================= 23 passed in 14.84s ==============================</code></pre>
+============================== 24 passed in 8.16s ==============================</code></pre>
   <p class="muted">Os relatórios JUnit ficam em <code>relatorios/</code> e o CI guarda os mesmos relatórios como artefatos de cada execução.</p>
 </section>
 

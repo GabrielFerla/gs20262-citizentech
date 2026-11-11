@@ -8,7 +8,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Platform } from 'react-native';
 
 import { useAlertas } from '@/api/consultas';
-import { avisoDoAlerta, DetectorDeAlertas, faixaDosAvisos, mostraFaixa, type Aviso } from '@/logica/alertas';
+import { avisoDoAlerta, DetectorDeAlertas, mostraFaixa, proximaFaixa, type Aviso } from '@/logica/alertas';
 
 import { notificar, prepararNotificacoes } from './notificacoes';
 import { usePreferencias } from './preferencias';
@@ -56,10 +56,12 @@ export function useAvisosDeAlerta(): void {
     if (!resposta || !carregado) return;
     const novos = detector.novos(resposta.vigia.abertos);
     if (novos.length === 0 || !valores.avisos) return;
-    // Do mais grave para o menos grave: cada alerta tem a sua notificação; a faixa mostra o primeiro e cita os outros.
+    // Do mais grave para o menos grave: cada alerta tem a sua notificação; a faixa junta os novos com o que já
+    // estava na tela, mostra o mais grave e cita os outros.
     const avisos = novos.map((alerta) => avisoDoAlerta(alerta, resposta));
-    const faixa = faixaDosAvisos(avisos);
+    const faixa = proximaFaixa(avisoAtual, avisos);
     if (mostraFaixa(faixa, rotaAtual)) mostrarAviso(faixa);
+    else dispensarAviso(); // a pessoa já está na lista de abrigos, que é o destino do aviso mais grave
     const aoTocar = (rota: Aviso['rota']) => {
       dispensarAviso();
       router.push(rota);
