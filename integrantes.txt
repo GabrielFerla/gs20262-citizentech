@@ -1,9 +1,8 @@
-Grupo: (nome do grupo)
+Grupo: Abriga
 
-RM00000 - Nome Completo
-RM00000 - Nome Completo
-RM00000 - Nome Completo
-RM00000 - Nome Completo
-RM00000 - Nome Completo
 
-Vídeo pitch: (link público do YouTube/Drive/Vimeo — testar numa aba anônima)
+- 551269: Luigi Guimarães La Pastina
+- 97989: Guilherme Catelli Bichaco
+- 98347: Henri de Oliveira Lopes
+- 550695: Gabriel Ferla
+- 99389: Victor Flávio Demarchi Viana
